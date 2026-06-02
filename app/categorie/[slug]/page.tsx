@@ -171,17 +171,6 @@ export default async function CategoriePage({ params }: Props) {
           Vind de perfecte {cat.singular} voor jouw moment. Bekijk portfolio&apos;s en neem direct contact op.
         </p>
 
-        {/* Stats */}
-        <div className="flex gap-4 flex-wrap mb-10">
-          <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4">
-            <p className="text-2xl font-black text-gray-900">{stats.count}</p>
-            <p className="text-sm text-gray-400 mt-1">{cat.singular}en in Nederland</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4">
-            <p className="text-2xl font-black text-gray-900">{stats.cities}</p>
-            <p className="text-sm text-gray-400 mt-1">Actief in steden</p>
-          </div>
-        </div>
       </section>
 
       {/* Grid */}

@@ -89,23 +89,6 @@ export default async function LocatiePage({ params }: Props) {
           Vind de beste fotograaf of videograaf in {locationName}. Bekijk portfolio&apos;s en neem direct contact op.
         </p>
 
-        {/* Dynamische stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-          <div className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
-            <p className="text-2xl font-black text-gray-900">{photographers.length}</p>
-            <p className="text-sm text-gray-400 mt-1">Actieve beeldmakers</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
-            <p className="text-2xl font-black text-gray-900">{allSpecialties.size}</p>
-            <p className="text-sm text-gray-400 mt-1">Specialisaties</p>
-          </div>
-          {avgRating > 0 && (
-            <div className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
-              <p className="text-2xl font-black text-gray-900">{avgRating}/5</p>
-              <p className="text-sm text-gray-400 mt-1">Gemiddelde beoordeling</p>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* Fotografen grid */}
