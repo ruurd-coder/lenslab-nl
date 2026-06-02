@@ -12,7 +12,7 @@ const TESTIMONIALS = [
     quote: "LensLab heeft mij last minute perfect geholpen met de juiste fotograaf. Snel en top geregeld!",
     name: "Thijs Visser",
     title: "CCO & Co-founder, Spektre",
-    avatar: `${BASE}/thijs-visser.jpg`,
+    avatar: `${BASE}/thijs-visser.PNG`,
   },
   {
     logo: "/logo-selecta.svg",
