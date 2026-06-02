@@ -1,10 +1,21 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import PhotographerCard from "@/components/photographer-card";
 import TypewriterInput from "@/components/typewriter-input";
 import { FAQ_ITEMS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
+
+const PROVINCES = [
+  { name: "Noord-Holland", slug: "noord-holland", image: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=600&h=400&fit=crop" },
+  { name: "Groningen", slug: "groningen", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop" },
+  { name: "Utrecht", slug: "utrecht", image: "https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=600&h=400&fit=crop" },
+  { name: "Noord-Brabant", slug: "noord-brabant", image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=600&h=400&fit=crop" },
+  { name: "Friesland", slug: "friesland", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop" },
+  { name: "Limburg", slug: "limburg", image: "https://images.unsplash.com/photo-1549144511-f099e773c147?w=600&h=400&fit=crop" },
+];
 
 interface Props {
   photographers: Photographer[];
@@ -186,6 +197,48 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
           </div>
         )}
       </main>
+
+      {/* Provincies */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-black text-gray-900 mb-1">
+              Vind een ervaren fotograaf in jouw provincie
+            </h2>
+            <p className="text-sm text-gray-400">
+              Van Groningen tot Zeeland, jouw fotograaf staat om de hoek
+            </p>
+          </div>
+          <Link
+            href="/beeldmakers"
+            className="hidden md:flex items-center gap-1.5 border border-gray-200 text-gray-700 text-sm px-4 py-2 rounded-full hover:border-gray-400 transition-colors shrink-0"
+          >
+            Bekijk alle (12)
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {PROVINCES.map((province) => (
+            <Link
+              key={province.slug}
+              href={`/locatie/${province.slug}`}
+              className="group"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#E9E7F0] mb-2">
+                <Image
+                  src={province.image}
+                  alt={province.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-gray-600 transition-colors">
+                {province.name}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* FAQ */}
       <section className="bg-white border-t border-gray-100 mt-4">
