@@ -157,7 +157,7 @@ export default function MembershipsPage() {
         </div>
 
         {/* FAQ */}
-        <div className="mt-16 max-w-2xl mx-auto">
+        <div className="mt-16">
           <h2 className="text-2xl font-black text-center mb-8" style={{ color: "#030005" }}>
             Veelgestelde vragen
           </h2>
