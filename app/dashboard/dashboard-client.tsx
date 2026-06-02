@@ -8,14 +8,14 @@ import type { Photographer } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
-const CATEGORIES = [
-  "☁️ Drone / Lucht", "🌶️ Food & restaurant", "🌹 Afscheid", "👶🏼 Baby",
-  "🎤 Evenementen", "🏘️ Makelaars", "🏢 Bedrijf", "🐶 Huisdier",
-  "👨‍👨‍👧‍👧 Familie", "👱‍♀️ Portret", "💋 Boudoir", "💍 Bruiloft",
-  "🤰 Zwangerschap", "🥳 Feest",
+const ALL_CATEGORIES = [
+  "Drone / Lucht", "Food & restaurant", "Afscheid", "Baby",
+  "Evenementen", "Makelaars", "Bedrijf", "Huisdier",
+  "Familie", "Portret", "Boudoir", "Bruiloft", "Zwangerschap", "Feest",
 ];
 
-const CAT_NAMES = CATEGORIES.map((c) => c.replace(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}️\s]*/u, "").trim());
+const TIER_LIMITS: Record<string, number> = { free: 1, plus: 4, premium: 8 };
+const TIER_LABELS: Record<string, string> = { free: "Free", plus: "Plus", premium: "Premium" };
 
 interface Props {
   photographer: Photographer;
@@ -28,6 +28,14 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
   const [photographer, setPhotographer] = useState(initial);
   const [activeTab, setActiveTab] = useState<Tab>("profiel");
   const [saving, setSaving] = useState(false);
+  const maxCategories = TIER_LIMITS[photographer.membership_tier] || 1;
+  // Actieve portfolio-categorieën: uit specialties OF uit portfolio_by_category keys
+  const [activeCategories, setActiveCategories] = useState<string[]>(() => {
+    const fromPortfolio = Object.keys(photographer.portfolio_by_category || {});
+    const fromSpecialties = photographer.specialties || [];
+    const combined = [...new Set([...fromPortfolio, ...fromSpecialties])];
+    return combined.slice(0, maxCategories);
+  });
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({
     bio: photographer.bio || "",
@@ -236,35 +244,84 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
         {/* Portfolio tab */}
         {activeTab === "portfolio" && (
           <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Portfolio</h2>
+            <div className="flex items-start justify-between mb-2">
+              <h2 className="text-lg font-bold text-gray-900">Portfolio</h2>
+              <span className="text-xs text-gray-400">
+                {activeCategories.length}/{maxCategories} categorieën ({TIER_LABELS[photographer.membership_tier]})
+              </span>
+            </div>
             <p className="text-sm text-gray-500 mb-6">
-              Upload maximaal 10 foto&apos;s per specialiteit. Gebruik heldere, professionele beelden.
+              Kies je categorieën en upload maximaal 10 foto&apos;s per categorie.
             </p>
 
-            <div className="space-y-6">
-              {photographer.specialties.map((specialty) => (
-                <SpecialtyUploader
-                  key={specialty}
-                  specialty={specialty}
-                  photographerId={photographer.id}
-                  existingImages={photographer.portfolio_by_category?.[specialty] || []}
-                  onUpdate={(images) => {
-                    setPhotographer((prev) => ({
-                      ...prev,
-                      portfolio_by_category: {
-                        ...prev.portfolio_by_category,
-                        [specialty]: images,
-                      },
-                    }));
-                  }}
-                />
-              ))}
+            {/* Categorie toevoegen */}
+            {activeCategories.length < maxCategories && (
+              <div className="mb-6 p-4 bg-[#FCFAFF] rounded-2xl border border-dashed border-[#E9E7F0]">
+                <p className="text-sm font-semibold text-gray-700 mb-3">
+                  Categorie toevoegen ({activeCategories.length}/{maxCategories})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_CATEGORIES.filter((c) => !activeCategories.includes(c)).map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategories((prev) => [...prev, cat])}
+                      className="text-xs bg-[#E9E7F0] text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-200 transition-colors"
+                    >
+                      + {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-              {photographer.specialties.length === 0 && (
+            {/* Upgrade prompt bij limiet bereikt */}
+            {activeCategories.length >= maxCategories && photographer.membership_tier !== "premium" && (
+              <div className="mb-6 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">Limiet bereikt</p>
+                  <p className="text-xs text-amber-600 mt-0.5">
+                    Upgrade naar {photographer.membership_tier === "free" ? "Plus (4)" : "Premium (8)"} voor meer categorieën
+                  </p>
+                </div>
+                <a href="mailto:hello@lenslab.nl?subject=Upgrade membership"
+                  className="text-xs bg-amber-700 text-white px-4 py-2 rounded-full hover:bg-amber-600 transition-colors">
+                  Upgrade
+                </a>
+              </div>
+            )}
+
+            {/* Actieve categorieën */}
+            <div className="space-y-6">
+              {activeCategories.length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-8">
-                  Je hebt nog geen specialiteiten ingesteld. Neem contact op met LensLab.
+                  Voeg hierboven een categorie toe om te beginnen.
                 </p>
               )}
+              {activeCategories.map((specialty) => (
+                <div key={specialty} className="relative">
+                  <button
+                    onClick={() => setActiveCategories((prev) => prev.filter((c) => c !== specialty))}
+                    className="absolute -top-2 -right-2 z-10 w-6 h-6 bg-red-100 text-red-500 rounded-full text-xs hover:bg-red-200 transition-colors flex items-center justify-center"
+                    title="Verwijder categorie"
+                  >
+                    ×
+                  </button>
+                  <SpecialtyUploader
+                    specialty={specialty}
+                    photographerId={photographer.id}
+                    existingImages={photographer.portfolio_by_category?.[specialty] || []}
+                    onUpdate={(images) => {
+                      setPhotographer((prev) => ({
+                        ...prev,
+                        portfolio_by_category: {
+                          ...prev.portfolio_by_category,
+                          [specialty]: images,
+                        },
+                      }));
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
