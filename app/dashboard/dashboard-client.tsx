@@ -39,6 +39,8 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
   });
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({
+    business_name: photographer.business_name || "",
+    contact_name: photographer.contact_name || "",
     bio: photographer.bio || "",
     website_url: photographer.website_url || "",
     instagram_url: photographer.instagram_url || "",
@@ -158,6 +160,28 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
               <h2 className="text-lg font-bold text-gray-900 mb-5">Profielinformatie</h2>
 
               <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Bedrijfsnaam</label>
+                    <input
+                      type="text"
+                      value={form.business_name}
+                      onChange={(e) => setForm({ ...form, business_name: e.target.value })}
+                      placeholder="Jouw bedrijfsnaam"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Contactnaam</label>
+                    <input
+                      type="text"
+                      value={form.contact_name}
+                      onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+                      placeholder="Jouw naam"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+                    />
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Bio</label>
                   <textarea
@@ -586,19 +610,21 @@ function SpecialtyUploader({
 
   return (
     <div className="border border-[#E9E7F0] rounded-2xl p-5">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-gray-900">{specialty}</h3>
-        <span className="text-xs text-gray-400">{images.length}/{MAX_IMAGES} · max 1MB per foto</span>
+        <span className="text-xs text-gray-400">{images.length}/{MAX_IMAGES} foto&apos;s</span>
+      </div>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+        <p className="text-xs text-gray-400">📁 JPG, PNG, WEBP</p>
+        <p className="text-xs text-gray-400">📏 Max 1MB per foto</p>
+        <p className="text-xs text-gray-400">↕️ Sleep om te hersorteren</p>
+        <p className="text-xs text-gray-400">⭐ Hover → stel in als hero</p>
       </div>
 
       {sizeError && (
         <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2 mb-3">{sizeError}</p>
       )}
-
-      <p className="text-xs text-gray-400 mb-3">
-        Sleep foto&apos;s om te hersorteren. De eerste foto is de hoofdfoto van deze categorie.
-        Klik ⭐ om als profielhero in te stellen.
-      </p>
 
       <div className="grid grid-cols-5 gap-2 mb-3">
         {images.map((url, i) => (
@@ -648,7 +674,7 @@ function SpecialtyUploader({
 
         {images.length < MAX_IMAGES && (
           <label className="aspect-square border-2 border-dashed border-gray-200 rounded-sm flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors bg-[#FCFAFF] gap-1">
-            <input type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" disabled={uploading} />
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={handleUpload} className="hidden" disabled={uploading} />
             {uploading ? (
               <span className="text-xs text-gray-400">Uploaden...</span>
             ) : (
