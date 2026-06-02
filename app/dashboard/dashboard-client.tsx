@@ -6,6 +6,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Photographer } from "@/lib/types";
 import { getMembership } from "@/lib/membership";
+import StatsDashboard from "@/components/stats-dashboard";
 import type { User } from "@supabase/supabase-js";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
@@ -23,7 +24,7 @@ interface Props {
   user: User;
 }
 
-type Tab = "profiel" | "portfolio" | "reviews" | "instellingen";
+type Tab = "profiel" | "portfolio" | "reviews" | "statistieken" | "instellingen";
 
 export default function DashboardClient({ photographer: initial, user }: Props) {
   const [photographer, setPhotographer] = useState(initial);
@@ -77,6 +78,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
     { id: "profiel", label: "Profiel" },
     { id: "portfolio", label: "Portfolio" },
     { id: "reviews", label: "Reviews" },
+    { id: "statistieken", label: "Statistieken" },
     { id: "instellingen", label: "Instellingen" },
   ];
 
@@ -317,6 +319,11 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
             setActiveCategories={setActiveCategories}
             setPhotographer={setPhotographer}
           />
+        )}
+
+        {/* Statistieken tab */}
+        {activeTab === "statistieken" && (
+          <StatsDashboard photographerId={photographer.id} />
         )}
 
         {/* Reviews tab */}
