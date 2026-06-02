@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import SiteNav from "@/components/site-nav";
+import TrustpilotBar from "@/components/trustpilot-bar";
 
 const COLUMNS = [
   { items: [{ type: "image", src: "/showcase/grid-1-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-1-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-1-3.mp4" }], animation: "scroll-up 30s linear infinite", mobile: true },
@@ -14,7 +14,15 @@ const COLUMNS = [
 export default function ChoicePage() {
   return (
     <div className="min-h-screen bg-[#FCFAFF] overflow-hidden">
-      <SiteNav />
+      {/* Alleen logo — geen navigatie */}
+      <div className="bg-[#FCFAFF] border-b border-[#E9E7F0]">
+        <div className="px-6 py-3.5 flex items-center justify-center max-w-7xl mx-auto">
+          <Link href="/">
+            <Image src="/logo.png" alt="LensLab" width={120} height={32} className="h-8 w-auto" priority />
+          </Link>
+        </div>
+      </div>
+      <TrustpilotBar />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-10 text-center">
