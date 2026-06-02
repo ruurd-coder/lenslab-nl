@@ -2,15 +2,21 @@ import Link from "next/link";
 import Image from "next/image";
 import SiteNav from "@/components/site-nav";
 
-// 6 rijen, elk met 2 beelden + 1 video (grid-x-1, grid-x-2, grid-x-3.mp4)
-const ROWS = [1, 2, 3, 4, 5, 6];
+const COLUMNS = [
+  { items: [{ type: "image", src: "/showcase/grid-1-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-1-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-1-3.mp4" }], animation: "scroll-up 30s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-2-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-2-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-2-3.mp4" }], animation: "scroll-down 34s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-3-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-3-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-3-3.mp4" }], animation: "scroll-up 38s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-4-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-4-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-4-3.mp4" }], animation: "scroll-down 42s linear infinite", mobile: false },
+  { items: [{ type: "image", src: "/showcase/grid-5-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-5-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-5-3.mp4" }], animation: "scroll-up 46s linear infinite", mobile: false },
+  { items: [{ type: "image", src: "/showcase/grid-6-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-6-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-6-3.mp4" }], animation: "scroll-down 50s linear infinite", mobile: false },
+];
 
 export default function ChoicePage() {
   return (
     <div className="min-h-screen bg-[#FCFAFF] overflow-hidden">
       <SiteNav />
 
-      {/* ── Hero keuze ────────────────────────────────────── */}
+      {/* ── Hero ─────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-10 text-center">
         <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-4">
           For people &amp; brands
@@ -22,7 +28,6 @@ export default function ChoicePage() {
           From personal photoshoots to scalable business content. Create high-quality visuals
           tailored to your story, brand, or next big idea.
         </p>
-
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <a
             href="https://lenslab.design"
@@ -39,77 +44,57 @@ export default function ChoicePage() {
         </div>
       </section>
 
-      {/* ── Scrollende rijen ──────────────────────────────── */}
-      <section className="pb-16 space-y-3">
-        {ROWS.map((row, index) => {
-          const reverse = index % 2 === 1;
-          return (
-            <MarqueeRow key={row} row={row} reverse={reverse} />
-          );
-        })}
+      {/* ── Vertikaal scrollend grid ─────────────────────── */}
+      <section
+        className="mt-10 md:mt-12 overflow-hidden h-[380px] md:h-[520px]"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+        }}
+      >
+        <div className="flex gap-3 md:gap-4 h-full px-5 md:px-12 max-w-[1400px] mx-auto">
+          {COLUMNS.map((col, colIndex) => {
+            const allItems = [...col.items, ...col.items];
+            return (
+              <div
+                key={colIndex}
+                className={`flex-1 overflow-hidden ${!col.mobile ? "hidden md:block" : ""}`}
+              >
+                <div className="flex flex-col gap-4" style={{ animation: col.animation }}>
+                  {allItems.map((item, i) => (
+                    <div
+                      key={i}
+                      className="relative w-full overflow-hidden rounded-2xl flex-shrink-0"
+                      style={{ aspectRatio: item.type === "image" ? item.ar : "9/16" }}
+                    >
+                      {item.type === "image" ? (
+                        <Image
+                          src={item.src}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="16vw"
+                        />
+                      ) : (
+                        <video
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        >
+                          <source src={item.src} type="video/mp4" />
+                        </video>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
-
-      {/* Ingebouwde CSS animatie */}
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes marquee-reverse {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        .animate-marquee-reverse {
-          animation: marquee-reverse 30s linear infinite;
-        }
-        .animate-marquee:hover,
-        .animate-marquee-reverse:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function MarqueeRow({ row, reverse }: { row: number; reverse: boolean }) {
-  // Elke rij: [img1, img2, video] — herhaal 4x voor naadloze loop
-  const items = Array.from({ length: 4 }, (_, i) => i).flatMap(() => [
-    { type: "image" as const, src: `/showcase/grid-${row}-1.webp` },
-    { type: "image" as const, src: `/showcase/grid-${row}-2.webp` },
-    { type: "video" as const, src: `/showcase/grid-${row}-3.mp4` },
-  ]);
-
-  return (
-    <div className="flex overflow-hidden">
-      <div className={`flex gap-3 ${reverse ? "animate-marquee-reverse" : "animate-marquee"}`}>
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="relative flex-none w-64 h-44 overflow-hidden rounded-xl bg-[#E9E7F0]"
-          >
-            {item.type === "image" ? (
-              <Image
-                src={item.src}
-                alt={`Showcase rij ${row}`}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <video
-                src={item.src}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
