@@ -199,6 +199,10 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail }:
                           >
                             {p.is_published ? "Verbergen" : "Publiceren"}
                           </button>
+                          <Link href={`/admin/photographer/${p.id}`}
+                            className="text-xs border border-gray-900 bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-gray-700 transition-colors">
+                            Bewerk
+                          </Link>
                           <Link href={`/beeldmakers/${p.slug}`} target="_blank"
                             className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:border-gray-400 transition-colors">
                             Bekijk →
