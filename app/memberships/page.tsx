@@ -7,24 +7,25 @@ export const metadata = {
   description: "Kies het membership dat bij jou past als fotograaf of videograaf op LensLab.",
 };
 
-type Feature = { label: string; value?: string; included: boolean };
+// prefix = vet vooraan, label = normaal, value = vet achteraan
+type Feature = { prefix?: string; label: string; value?: string; included: boolean };
 
 const FREE_FEATURES: Feature[] = [
   { label: "Zichtbaar op listing pagina's", included: true },
-  { label: "Zichtbaar op de landingspagina's van 1 provincie", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "1 provincie", included: true },
   { label: "Zichtbaar op", value: "1 categorie", included: true },
-  { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
-  { label: "Creëer meer vertrouwen met een Review-tool", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
   { label: "Link naar website", included: false },
   { label: "Link naar socials", included: false },
 ];
 
 const PLUS_FEATURES: Feature[] = [
   { label: "Zichtbaar boven Free op listing pagina's", included: true },
-  { label: "Zichtbaar op de landingspagina's van 3 provincies", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "3 provincies", included: true },
   { label: "Zichtbaar op", value: "4 categorieën", included: true },
-  { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
-  { label: "Creëer meer vertrouwen met een Review-tool", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
   { label: "Link naar website", included: true },
   { label: "Link naar socials", included: true },
   { label: "Andere beeldmakers niet zichtbaar op jouw profiel", included: true },
@@ -32,10 +33,10 @@ const PLUS_FEATURES: Feature[] = [
 
 const PREMIUM_FEATURES: Feature[] = [
   { label: "Zichtbaar boven Plus op listing pagina's", included: true },
-  { label: "Zichtbaar op de landingspagina's van onbeperkt aantal provincies", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "onbeperkt aantal provincies", included: true },
   { label: "Zichtbaar op", value: "8 categorieën", included: true },
-  { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
-  { label: "Creëer meer vertrouwen met een Review-tool", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
   { label: "Link naar website", included: true },
   { label: "Link naar socials", included: true },
   { label: "Andere beeldmakers niet zichtbaar op jouw profiel", included: true },
@@ -144,8 +145,9 @@ export default function MembershipsPage() {
                   <li key={i} className="flex items-start gap-2.5">
                     {f.included ? <CheckIcon /> : <CrossIcon />}
                     <span className="text-[14px] leading-snug" style={{ color: "#030005" }}>
+                      {f.prefix && <><strong>{f.prefix}</strong>{" "}</>}
                       {f.label}
-                      {f.value && <strong className="ml-1">{f.value}</strong>}
+                      {f.value && <><strong className="ml-1">{f.value}</strong></>}
                     </span>
                   </li>
                 ))}
