@@ -57,19 +57,14 @@ export default function ProfileClient({ photographer }: Props) {
   const membership = getMembership(photographer.membership_tier);
   const categories = photographer.specialties.slice(0, membership.maxCategories);
   const [activeCategory, setActiveCategory] = useState("Alle");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // "Alle" = mix van alle categorieën (max 10 totaal), anders gefilterd per cat
   const categoryImages = activeCategory === "Alle"
     ? Object.values(photographer.portfolio_by_category ?? {})
         .flat()
-        .filter((v, i, a) => a.indexOf(v) === i) // dedup
+        .filter((v, i, a) => a.indexOf(v) === i)
         .slice(0, MAX_IMAGES_PER_CATEGORY)
     : (photographer.portfolio_by_category?.[activeCategory] ?? []).slice(0, MAX_IMAGES_PER_CATEGORY);
-
-  useEffect(() => {
-    setSelectedImage(categoryImages[0] ?? photographer.hero_image_url ?? null);
-  }, [activeCategory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     trackEvent(photographer.id, "impression");
@@ -193,7 +188,7 @@ export default function ProfileClient({ photographer }: Props) {
             )}
           </div>
 
-          {/* Rechts: portfolio per categorie */}
+          {/* Rechts: hero groot + portfolio klein */}
           <div>
             {/* Filter — label links, dropdown waarde rechts */}
             <div className="flex items-center justify-end gap-3 mb-2">
@@ -215,31 +210,28 @@ export default function ProfileClient({ photographer }: Props) {
               </div>
             </div>
 
-            {/* Groot geselecteerd beeld — GEEN afronding */}
-            {selectedImage ? (
+            {/* Hero foto — altijd groot */}
+            {photographer.hero_image_url ? (
               <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100 mb-2">
-                <Image src={selectedImage} alt={photographer.business_name} fill className="object-cover" priority />
+                <Image src={photographer.hero_image_url} alt={photographer.business_name} fill className="object-cover" priority />
               </div>
             ) : (
               <div className="w-full aspect-[4/3] bg-[#E9E7F0] flex items-center justify-center mb-2">
-                <p className="text-sm text-gray-400">Geen beelden voor deze categorie</p>
+                <p className="text-sm text-gray-400">Geen hoofdfoto beschikbaar</p>
               </div>
             )}
 
-            {/* Thumbnails — altijd 4, 4e toont "+ X foto's" als er meer zijn */}
-            {categoryImages.length > 1 && (
+            {/* Portfolio thumbnails — altijd 4, 4e toont "+ X foto's" als er meer zijn */}
+            {categoryImages.length > 0 && (
               <div className="grid grid-cols-4 gap-1.5 mb-2">
                 {categoryImages.slice(0, 4).map((img, i) => {
                   const isLast = i === 3;
-                  const remaining = categoryImages.length - 3; // foto's achter de 4e
+                  const remaining = categoryImages.length - 3;
                   const showOverlay = isLast && categoryImages.length > 4;
                   return (
-                    <button
+                    <div
                       key={i}
-                      onClick={() => setSelectedImage(img)}
-                      className={`relative aspect-square overflow-hidden bg-gray-100 transition-opacity ${
-                        selectedImage === img ? "ring-2 ring-gray-900 ring-offset-1" : "hover:opacity-80"
-                      }`}
+                      className="relative aspect-square overflow-hidden bg-gray-100"
                     >
                       <Image src={img} alt={`Foto ${i + 1}`} fill className="object-cover" />
                       {showOverlay && (
@@ -247,16 +239,11 @@ export default function ProfileClient({ photographer }: Props) {
                           <span className="text-white text-sm font-semibold">+ {remaining} foto&apos;s</span>
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
             )}
-
-            {/* Teller */}
-            <p className="text-xs text-gray-400">
-              {categoryImages.length} {activeCategory === "Alle" ? "beelden" : `beelden voor "${activeCategory}"`} (max. {MAX_IMAGES_PER_CATEGORY})
-            </p>
           </div>
         </div>
       </main>
