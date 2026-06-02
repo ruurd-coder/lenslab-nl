@@ -8,6 +8,7 @@ import type { Photographer } from "@/lib/types";
 
 interface Props {
   photographers: Photographer[];
+  featured: Photographer[];
 }
 
 const DIENSTEN = [
@@ -93,7 +94,7 @@ function FilterDropdown({
   );
 }
 
-export default function BeeldmakersClient({ photographers }: Props) {
+export default function BeeldmakersClient({ photographers, featured }: Props) {
   const [search, setSearch] = useState("");
   const [dienstFilter, setDienstFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -171,22 +172,41 @@ export default function BeeldmakersClient({ photographers }: Props) {
 
       {/* Grid */}
       <main className="max-w-7xl mx-auto px-6 pb-16">
-        {filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {filtered.map((p) => (
-              <PhotographerCard key={p.id} photographer={p} pageContext="/beeldmakers" />
-            ))}
-          </div>
+        {!hasFilters ? (
+          /* Standaard: uitgelichte beeldmakers */
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-black text-gray-900 mb-1">Uitgelichte creators</h2>
+              <p className="text-sm text-gray-400">Bekijk onze beste fotografen en videografen op een rij</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {featured.map((p) => (
+                <PhotographerCard key={p.id} photographer={p} pageContext="/beeldmakers" />
+              ))}
+            </div>
+          </>
+        ) : filtered.length > 0 ? (
+          /* Zoekresultaten */
+          <>
+            <p className="text-sm text-gray-500 mb-6">
+              <span className="font-semibold text-gray-900">{filtered.length}</span> beeldmaker{filtered.length !== 1 ? "s" : ""} gevonden
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {filtered.map((p) => (
+                <PhotographerCard key={p.id} photographer={p} pageContext="/beeldmakers" />
+              ))}
+            </div>
+          </>
         ) : (
           <div className="bg-white rounded-2xl text-center py-24 border border-gray-100">
             <p className="text-3xl mb-3">🔍</p>
             <p className="text-gray-600 text-lg font-medium mb-2">Geen beeldmakers gevonden</p>
-            <p className="text-sm text-gray-400 mb-6">Probeer andere filters</p>
+            <p className="text-sm text-gray-400 mb-6">Probeer andere zoektermen</p>
             <button
-              onClick={() => { setDienstFilter(""); setCategoryFilter(""); }}
+              onClick={() => { setSearch(""); setDienstFilter(""); setCategoryFilter(""); }}
               className="text-sm bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors"
             >
-              Toon alle beeldmakers
+              Wis zoekopdracht
             </button>
           </div>
         )}
