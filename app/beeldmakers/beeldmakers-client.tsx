@@ -6,6 +6,7 @@ import Link from "next/link";
 import PhotographerCard from "@/components/photographer-card";
 import TypewriterInput from "@/components/typewriter-input";
 import TestimonialCarousel from "@/components/testimonial-carousel";
+import SiteFooter from "@/components/site-footer";
 import { FAQ_ITEMS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
 
@@ -254,41 +255,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
         <TestimonialCarousel fullWidth />
       </section>
 
-      {/* FAQ */}
-      <section className="bg-white border-t border-gray-100 mt-4">
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <h2 className="text-4xl font-black text-gray-900 text-center tracking-tight mb-3">
-            Veelgestelde vragen
-          </h2>
-          <p className="text-gray-400 text-center text-base mb-12">
-            Staat jouw vraag er niet bij? Neem dan contact op.
-          </p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {FAQ_ITEMS.map((item, i) => (
-              <div key={i} className="bg-[#E9E7F0] rounded-2xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left px-5 py-4 flex items-start justify-between gap-3"
-                >
-                  <span className="text-sm font-semibold text-gray-800 leading-snug">{item.question}</span>
-                  <svg className={`w-4 h-4 text-gray-400 shrink-0 mt-0.5 transition-transform ${openFaq === i ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {openFaq === i && (
-                  <div className="px-5 pb-5">
-                    <p className="text-sm text-gray-500 leading-relaxed">{item.answer}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-white border-t border-gray-200 py-8 px-6 text-center">
-        <p className="text-sm text-gray-400">© 2025 LensLab — Alle beeldmakers in Nederland</p>
-      </footer>
+      <SiteFooter />
     </>
   );
 }
