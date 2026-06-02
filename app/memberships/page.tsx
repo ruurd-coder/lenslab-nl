@@ -12,7 +12,7 @@ type Feature = { label: string; value?: string; included: boolean };
 const FREE_FEATURES: Feature[] = [
   { label: "Zichtbaar op listing pagina's", included: true },
   { label: "Zichtbaar op de landingspagina's van 1 provincie", included: true },
-  { label: "Actieve categorieën", value: "1", included: true },
+  { label: "Zichtbaar op", value: "1 categorie", included: true },
   { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
   { label: "Creëer meer vertrouwen met een Review-tool", included: true },
   { label: "Link naar website", included: false },
@@ -22,7 +22,7 @@ const FREE_FEATURES: Feature[] = [
 const PLUS_FEATURES: Feature[] = [
   { label: "Zichtbaar boven Free op listing pagina's", included: true },
   { label: "Zichtbaar op de landingspagina's van 3 provincies", included: true },
-  { label: "Actieve categorieën", value: "4", included: true },
+  { label: "Zichtbaar op", value: "4 categorieën", included: true },
   { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
   { label: "Creëer meer vertrouwen met een Review-tool", included: true },
   { label: "Link naar website", included: true },
@@ -33,7 +33,7 @@ const PLUS_FEATURES: Feature[] = [
 const PREMIUM_FEATURES: Feature[] = [
   { label: "Zichtbaar boven Plus op listing pagina's", included: true },
   { label: "Zichtbaar op de landingspagina's van onbeperkt aantal provincies", included: true },
-  { label: "Actieve categorieën", value: "8", included: true },
+  { label: "Zichtbaar op", value: "8 categorieën", included: true },
   { label: "Ontvang emails direct vanuit potentiële opdrachtgevers", included: true },
   { label: "Creëer meer vertrouwen met een Review-tool", included: true },
   { label: "Link naar website", included: true },
