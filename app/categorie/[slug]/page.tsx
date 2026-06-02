@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
+import SiteFooter from "@/components/site-footer";
 import PhotographerCard from "@/components/photographer-card";
-import { MOCK_PHOTOGRAPHERS } from "@/lib/mock-data";
+import type { Photographer } from "@/lib/types";
 
 const CATEGORIES: Record<string, { name: string; emoji: string; singular: string }> = {
   "drone-lucht":       { name: "Drone / Lucht",      emoji: "☁️",  singular: "Drone fotograaf" },
@@ -40,14 +42,23 @@ export default async function CategoriePage({ params }: Props) {
   const cat = CATEGORIES[slug];
   if (!cat) notFound();
 
-  const photographers = MOCK_PHOTOGRAPHERS.filter((p) =>
-    p.specialties.some((s) => s.toLowerCase() === cat.name.toLowerCase())
-  );
+  // Haal fotografen op met deze specialiteit uit Supabase
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("photographers")
+    .select("*")
+    .eq("is_published", true)
+    .contains("specialties", [cat.name])
+    .order("membership_tier", { ascending: false })
+    .order("rating", { ascending: false });
 
-  // Mock stats
+  const photographers = (data as Photographer[]) || [];
+
+  // Dynamische stats
+  const cities = new Set(photographers.map((p) => p.city).filter(Boolean));
   const stats = {
-    count: photographers.length || 124,
-    cities: 58,
+    count: photographers.length,
+    cities: cities.size,
   };
 
   const contentMap: Record<string, { what: string; when: string; cost: string; tips: string }> = {
@@ -171,9 +182,7 @@ export default async function CategoriePage({ params }: Props) {
         </div>
       </section>
 
-      <footer className="border-t border-gray-200 py-8 px-6 text-center bg-white">
-        <p className="text-sm text-gray-400">© 2025 LensLab — {cat.singular}en in Nederland</p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

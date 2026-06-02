@@ -27,24 +27,18 @@ async function getLocationData(slug: string) {
 async function getPhotographers(region: { name: string; city: string | null; province: string | null }) {
   const supabase = await createClient();
 
-  let query = supabase
+  // Bepaal de provincienaam voor filtering
+  // - Bij een stad: gebruik de provincie van die stad (bijv. Amsterdam → Noord-Holland)
+  // - Bij een provincie: gebruik de naam van de provincie zelf
+  const provinceName = region.city ? region.province : region.name;
+
+  if (!provinceName) return [];
+
+  const { data } = await supabase
     .from("photographers")
     .select("*")
-    .eq("is_published", true);
-
-  if (region.city) {
-    // Stadspagina: fotografen in deze stad OF beschikbaar in de provincie
-    query = query.or(
-      `city.ilike.%${region.city}%,regions.cs.{"${region.city}"},regions.cs.{"${region.province}"}`
-    );
-  } else {
-    // Provinciepagina: fotografen beschikbaar in deze provincie
-    query = query.or(
-      `regions.cs.{"${region.name}"},regions.cs.{"${region.province}"}`
-    );
-  }
-
-  const { data } = await query
+    .eq("is_published", true)
+    .contains("regions", [provinceName])
     .order("membership_tier", { ascending: false })
     .order("rating", { ascending: false });
 
