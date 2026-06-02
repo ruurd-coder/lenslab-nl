@@ -251,7 +251,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
 
       {/* Testimonial */}
       <section className="max-w-7xl mx-auto px-6 pb-16">
-        <TestimonialCarousel />
+        <TestimonialCarousel fullWidth />
       </section>
 
       {/* FAQ */}

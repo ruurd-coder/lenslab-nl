@@ -32,12 +32,12 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function TestimonialCarousel() {
+export default function TestimonialCarousel({ fullWidth = false }: { fullWidth?: boolean }) {
   const [index, setIndex] = useState(0);
   const t = TESTIMONIALS[index];
 
   return (
-    <div className="relative bg-white rounded-3xl border border-[#E9E7F0] px-16 py-12 text-center max-w-3xl mx-auto">
+    <div className={`relative bg-[#FCFAFF] rounded-3xl border border-[#E9E7F0] px-16 py-12 text-center w-full`}>
       {/* Pijl links */}
       <button
         onClick={() => setIndex((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
@@ -68,7 +68,7 @@ export default function TestimonialCarousel() {
       </div>
 
       {/* Quote */}
-      <blockquote className="text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-8">
+      <blockquote className="text-2xl md:text-[30px] font-bold text-gray-900 leading-snug mb-8">
         &ldquo;{t.quote}&rdquo;
       </blockquote>
 
