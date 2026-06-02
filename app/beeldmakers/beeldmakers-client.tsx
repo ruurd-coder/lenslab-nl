@@ -93,32 +93,69 @@ function FilterDropdown({
 }
 
 export default function BeeldmakersClient({ photographers }: Props) {
+  const [search, setSearch] = useState("");
   const [dienstFilter, setDienstFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const filtered = useMemo(() => {
     return photographers.filter((p) => {
+      // Zoek over alle relevante velden
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matches =
+          p.business_name?.toLowerCase().includes(q) ||
+          p.contact_name?.toLowerCase().includes(q) ||
+          p.city?.toLowerCase().includes(q) ||
+          p.type?.toLowerCase().includes(q) ||
+          p.regions?.some((r) => r.toLowerCase().includes(q)) ||
+          p.specialties?.some((s) => s.toLowerCase().includes(q));
+        if (!matches) return false;
+      }
       if (dienstFilter && p.type !== dienstFilter) return false;
       if (categoryFilter && !p.specialties.includes(categoryFilter)) return false;
       return true;
     });
-  }, [photographers, dienstFilter, categoryFilter]);
+  }, [photographers, search, dienstFilter, categoryFilter]);
 
-  const hasFilters = dienstFilter || categoryFilter;
+  const hasFilters = search || dienstFilter || categoryFilter;
 
   return (
     <>
-      {/* Hero */}
-      <section className="pt-14 pb-10 px-6 max-w-7xl mx-auto">
-        <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-3">
-          Vind jouw fotograaf
+      {/* Hero + zoekbalk */}
+      <section className="pt-12 pb-8 px-6 max-w-3xl mx-auto text-center">
+        <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-4">
+          Professionele beeldmakers voor elke shoot
         </p>
         <h1 className="text-5xl font-black text-gray-900 leading-tight tracking-tight mb-8">
-          Beste fotografen in Nederland
+          Vind de perfecte foto-<br className="hidden sm:block" /> of videograaf
         </h1>
 
-        {/* Filterbar */}
+        {/* Zoekbalk — lenslab.design stijl */}
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="relative max-w-xl mx-auto"
+        >
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Geef jouw categorie, of locatie door"
+            className="w-full bg-white border border-[#E9E7F0] rounded-full px-6 py-4 pr-14 text-sm text-gray-700 shadow-sm focus:outline-none focus:border-gray-300 placeholder:text-gray-400"
+          />
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      {/* Filterbar */}
+      <section className="pb-6 px-6 max-w-7xl mx-auto">
         <div className="flex flex-wrap gap-3 items-center">
           <FilterDropdown
             label="Diensten"
@@ -134,7 +171,7 @@ export default function BeeldmakersClient({ photographers }: Props) {
           />
           {hasFilters && (
             <button
-              onClick={() => { setDienstFilter(""); setCategoryFilter(""); }}
+              onClick={() => { setSearch(""); setDienstFilter(""); setCategoryFilter(""); }}
               className="text-sm text-gray-400 hover:text-gray-700 transition-colors px-2"
             >
               Wis filters
