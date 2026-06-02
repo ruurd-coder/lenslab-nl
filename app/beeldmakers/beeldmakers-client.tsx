@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import PhotographerCard from "@/components/photographer-card";
+import TypewriterInput from "@/components/typewriter-input";
 import { FAQ_ITEMS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
 
@@ -127,31 +128,19 @@ export default function BeeldmakersClient({ photographers }: Props) {
         <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-4">
           Professionele beeldmakers voor elke shoot
         </p>
-        <h1 className="text-5xl font-black text-gray-900 leading-tight tracking-tight mb-8">
+        <h1
+          className="text-5xl leading-tight tracking-tight mb-8 text-gray-900"
+          style={{ fontFamily: "var(--font-dm-sans)", fontWeight: 700 }}
+        >
           Vind de perfecte foto-<br className="hidden sm:block" /> of videograaf
         </h1>
 
-        {/* Zoekbalk — lenslab.design stijl */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="relative max-w-xl mx-auto"
-        >
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Geef jouw categorie, of locatie door"
-            className="w-full bg-white border border-[#E9E7F0] rounded-full px-6 py-4 pr-14 text-sm text-gray-700 shadow-sm focus:outline-none focus:border-gray-300 placeholder:text-gray-400"
-          />
-          <button
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </button>
-        </form>
+        {/* Zoekbalk met typewriter placeholder */}
+        <TypewriterInput
+          value={search}
+          onChange={setSearch}
+          onSubmit={() => {}}
+        />
       </section>
 
       {/* Filterbar */}
