@@ -129,10 +129,10 @@ export default function BeeldmakersClient({ photographers }: Props) {
           Professionele beeldmakers voor elke shoot
         </p>
         <h1
-          className="text-5xl leading-tight tracking-tight mb-8 text-gray-900"
-          style={{ fontFamily: "var(--font-dm-sans)", fontWeight: 700 }}
+          className="text-[8.4vw] md:text-[82px] font-bold leading-[1.1] md:leading-[1.04] tracking-tight mb-8"
+          style={{ fontFamily: "var(--font-dm-sans)", color: "#030005" }}
         >
-          Vind de perfecte foto-<br className="hidden sm:block" /> of videograaf
+          Vind de perfecte foto- of videograaf
         </h1>
 
         {/* Zoekbalk met typewriter placeholder */}
