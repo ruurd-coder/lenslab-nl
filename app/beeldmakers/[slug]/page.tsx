@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { MOCK_PHOTOGRAPHERS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
 import ProfileClient from "./profile-client";
 
@@ -8,21 +7,18 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+
 async function getPhotographer(slug: string): Promise<Photographer | null> {
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("photographers")
-      .select("*")
-      .eq("slug", slug)
-      .eq("is_published", true)
-      .single();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("photographers")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .single();
 
-    if (data) return data as Photographer;
-  } catch {}
-
-  // Fallback op mock data tijdens ontwikkeling
-  return MOCK_PHOTOGRAPHERS.find((p) => p.slug === slug) ?? null;
+  return (data as Photographer) ?? null;
 }
 
 export async function generateMetadata({ params }: Props) {
