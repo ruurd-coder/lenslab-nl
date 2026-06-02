@@ -218,7 +218,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
             </p>
           </div>
           <Link
-            href="/beeldmakers"
+            href="/locaties"
             className="hidden md:flex items-center gap-1.5 border border-gray-200 text-gray-700 text-sm px-4 py-2 rounded-full hover:border-gray-400 transition-colors shrink-0"
           >
             Bekijk alle (12)
@@ -226,7 +226,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {PROVINCES.map((province) => (
+          {PROVINCES.slice(0, 6).map((province) => (
             <Link
               key={province.slug}
               href={`/locatie/${province.slug}`}
