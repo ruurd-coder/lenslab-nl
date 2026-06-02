@@ -469,11 +469,16 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
                 specialty={specialty}
                 photographerId={photographer.id}
                 existingImages={photographer.portfolio_by_category?.[specialty] || []}
+                heroImage={photographer.hero_image_url}
                 onUpdate={(images) => {
                   setPhotographer((prev) => ({
                     ...prev,
                     portfolio_by_category: { ...prev.portfolio_by_category, [specialty]: images },
                   }));
+                }}
+                onSetHero={async (url) => {
+                  await supabase.from("photographers").update({ hero_image_url: url }).eq("id", photographer.id);
+                  setPhotographer((prev) => ({ ...prev, hero_image_url: url }));
                 }}
               />
             ))}
@@ -488,40 +493,62 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
 
 const STORAGE_BUCKET = "photographer-assets";
 const MAX_IMAGES = 10;
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 
 function SpecialtyUploader({
   specialty,
   photographerId,
   existingImages,
+  heroImage,
   onUpdate,
+  onSetHero,
 }: {
   specialty: string;
   photographerId: string;
   existingImages: string[];
+  heroImage: string | null;
   onUpdate: (images: string[]) => void;
+  onSetHero: (url: string) => void;
 }) {
   const [images, setImages] = useState<string[]>(existingImages);
   const [uploading, setUploading] = useState(false);
+  const [sizeError, setSizeError] = useState("");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const supabase = createClient();
+
+  const saveImages = async (updated: string[]) => {
+    const { data: current } = await supabase
+      .from("photographers")
+      .select("portfolio_by_category")
+      .eq("id", photographerId)
+      .single();
+    await supabase
+      .from("photographers")
+      .update({ portfolio_by_category: { ...(current?.portfolio_by_category || {}), [specialty]: updated } })
+      .eq("id", photographerId);
+    onUpdate(updated);
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+    setSizeError("");
 
-    const available = MAX_IMAGES - images.length;
-    const toUpload = files.slice(0, available);
+    const oversized = files.filter((f) => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      setSizeError(`${oversized.length} bestand(en) zijn groter dan 1MB. Comprimeer ze eerst.`);
+      e.target.value = "";
+      return;
+    }
 
+    const toUpload = files.slice(0, MAX_IMAGES - images.length);
     setUploading(true);
-
     const newUrls: string[] = [];
+
     for (const file of toUpload) {
-      const ext = file.name.split(".").pop();
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const path = `${photographerId}/${specialty.replace(/\s+/g, "-").toLowerCase()}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-      const { error } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(path, file, { upsert: false });
-
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: false });
       if (!error) {
         const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
         newUrls.push(data.publicUrl);
@@ -530,25 +557,7 @@ function SpecialtyUploader({
 
     const updated = [...images, ...newUrls];
     setImages(updated);
-
-    // Sla op in database
-    const { data: current } = await supabase
-      .from("photographers")
-      .select("portfolio_by_category")
-      .eq("id", photographerId)
-      .single();
-
-    const updatedCategory = {
-      ...(current?.portfolio_by_category || {}),
-      [specialty]: updated,
-    };
-
-    await supabase
-      .from("photographers")
-      .update({ portfolio_by_category: updatedCategory })
-      .eq("id", photographerId);
-
-    onUpdate(updated);
+    await saveImages(updated);
     setUploading(false);
     e.target.value = "";
   };
@@ -556,62 +565,99 @@ function SpecialtyUploader({
   const handleDelete = async (url: string) => {
     const updated = images.filter((i) => i !== url);
     setImages(updated);
+    await saveImages(updated);
+  };
 
-    const { data: current } = await supabase
-      .from("photographers")
-      .select("portfolio_by_category")
-      .eq("id", photographerId)
-      .single();
-
-    await supabase
-      .from("photographers")
-      .update({
-        portfolio_by_category: {
-          ...(current?.portfolio_by_category || {}),
-          [specialty]: updated,
-        },
-      })
-      .eq("id", photographerId);
-
-    onUpdate(updated);
+  // Drag-to-reorder
+  const handleDragStart = (i: number) => setDragIndex(i);
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === i) return;
+    const reordered = [...images];
+    const [moved] = reordered.splice(dragIndex, 1);
+    reordered.splice(i, 0, moved);
+    setImages(reordered);
+    setDragIndex(i);
+  };
+  const handleDragEnd = async () => {
+    setDragIndex(null);
+    await saveImages(images);
   };
 
   return (
     <div className="border border-[#E9E7F0] rounded-2xl p-5">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-gray-900">{specialty}</h3>
-        <span className="text-xs text-gray-400">{images.length}/{MAX_IMAGES} foto&apos;s</span>
+        <span className="text-xs text-gray-400">{images.length}/{MAX_IMAGES} · max 1MB per foto</span>
       </div>
+
+      {sizeError && (
+        <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2 mb-3">{sizeError}</p>
+      )}
+
+      <p className="text-xs text-gray-400 mb-3">
+        Sleep foto&apos;s om te hersorteren. De eerste foto is de hoofdfoto van deze categorie.
+        Klik ⭐ om als profielhero in te stellen.
+      </p>
 
       <div className="grid grid-cols-5 gap-2 mb-3">
         {images.map((url, i) => (
-          <div key={i} className="relative aspect-square group">
+          <div
+            key={url}
+            draggable
+            onDragStart={() => handleDragStart(i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDragEnd={handleDragEnd}
+            className={`relative aspect-square group cursor-grab active:cursor-grabbing ${
+              dragIndex === i ? "opacity-50 ring-2 ring-blue-400" : ""
+            } ${i === 0 ? "ring-2 ring-gray-300" : ""}`}
+          >
             <Image src={url} alt={`${specialty} ${i + 1}`} fill className="object-cover" />
-            <button
-              onClick={() => handleDelete(url)}
-              className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-            >
-              ×
-            </button>
+
+            {/* Hero badge */}
+            {url === heroImage && (
+              <div className="absolute bottom-1 left-1 bg-amber-400 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                HERO
+              </div>
+            )}
+            {i === 0 && url !== heroImage && (
+              <div className="absolute bottom-1 left-1 bg-gray-600 text-white text-[10px] px-1.5 py-0.5 rounded">
+                #1
+              </div>
+            )}
+
+            {/* Hover acties */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+              <button
+                onClick={() => onSetHero(url)}
+                title="Stel in als hero"
+                className="w-7 h-7 bg-amber-400 text-white rounded-full text-sm flex items-center justify-center hover:bg-amber-500"
+              >
+                ⭐
+              </button>
+              <button
+                onClick={() => handleDelete(url)}
+                title="Verwijder"
+                className="w-7 h-7 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
 
         {images.length < MAX_IMAGES && (
-          <label className="aspect-square border-2 border-dashed border-gray-200 rounded-sm flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors bg-[#FCFAFF]">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleUpload}
-              className="hidden"
-              disabled={uploading}
-            />
+          <label className="aspect-square border-2 border-dashed border-gray-200 rounded-sm flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors bg-[#FCFAFF] gap-1">
+            <input type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" disabled={uploading} />
             {uploading ? (
-              <span className="text-xs text-gray-400">...</span>
+              <span className="text-xs text-gray-400">Uploaden...</span>
             ) : (
-              <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <>
+                <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-[10px] text-gray-300">Foto toevoegen</span>
+              </>
             )}
           </label>
         )}
