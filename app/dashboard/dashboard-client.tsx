@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Photographer } from "@/lib/types";
+import { getMembership } from "@/lib/membership";
 import type { User } from "@supabase/supabase-js";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
@@ -244,87 +245,13 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
 
         {/* Portfolio tab */}
         {activeTab === "portfolio" && (
-          <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
-            <div className="flex items-start justify-between mb-2">
-              <h2 className="text-lg font-bold text-gray-900">Portfolio</h2>
-              <span className="text-xs text-gray-400">
-                {activeCategories.length}/{maxCategories} categorieën ({TIER_LABELS[photographer.membership_tier]})
-              </span>
-            </div>
-            <p className="text-sm text-gray-500 mb-6">
-              Kies je categorieën en upload maximaal 10 foto&apos;s per categorie.
-            </p>
-
-            {/* Categorie toevoegen */}
-            {activeCategories.length < maxCategories && (
-              <div className="mb-6 p-4 bg-[#FCFAFF] rounded-2xl border border-dashed border-[#E9E7F0]">
-                <p className="text-sm font-semibold text-gray-700 mb-3">
-                  Categorie toevoegen ({activeCategories.length}/{maxCategories})
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {ALL_CATEGORIES.filter((c) => !activeCategories.includes(c)).map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setActiveCategories((prev) => [...prev, cat])}
-                      className="text-xs bg-[#E9E7F0] text-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-200 transition-colors"
-                    >
-                      + {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Upgrade prompt bij limiet bereikt */}
-            {activeCategories.length >= maxCategories && photographer.membership_tier !== "premium" && (
-              <div className="mb-6 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">Limiet bereikt</p>
-                  <p className="text-xs text-amber-600 mt-0.5">
-                    Upgrade naar {photographer.membership_tier === "free" ? "Plus (4)" : "Premium (8)"} voor meer categorieën
-                  </p>
-                </div>
-                <a href="mailto:hello@lenslab.nl?subject=Upgrade membership"
-                  className="text-xs bg-amber-700 text-white px-4 py-2 rounded-full hover:bg-amber-600 transition-colors">
-                  Upgrade
-                </a>
-              </div>
-            )}
-
-            {/* Actieve categorieën */}
-            <div className="space-y-6">
-              {activeCategories.length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  Voeg hierboven een categorie toe om te beginnen.
-                </p>
-              )}
-              {activeCategories.map((specialty) => (
-                <div key={specialty} className="relative">
-                  <button
-                    onClick={() => setActiveCategories((prev) => prev.filter((c) => c !== specialty))}
-                    className="absolute -top-2 -right-2 z-10 w-6 h-6 bg-red-100 text-red-500 rounded-full text-xs hover:bg-red-200 transition-colors flex items-center justify-center"
-                    title="Verwijder categorie"
-                  >
-                    ×
-                  </button>
-                  <SpecialtyUploader
-                    specialty={specialty}
-                    photographerId={photographer.id}
-                    existingImages={photographer.portfolio_by_category?.[specialty] || []}
-                    onUpdate={(images) => {
-                      setPhotographer((prev) => ({
-                        ...prev,
-                        portfolio_by_category: {
-                          ...prev.portfolio_by_category,
-                          [specialty]: images,
-                        },
-                      }));
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+          <PortfolioTab
+            photographer={photographer}
+            maxCategories={maxCategories}
+            activeCategories={activeCategories}
+            setActiveCategories={setActiveCategories}
+            setPhotographer={setPhotographer}
+          />
         )}
 
         {/* Reviews tab */}
@@ -381,6 +308,182 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+// ── Portfolio tab ────────────────────────────────────────────────────
+
+const ALL_PROVINCES = [
+  "Noord-Holland", "Zuid-Holland", "Utrecht", "Noord-Brabant",
+  "Gelderland", "Overijssel", "Groningen", "Friesland",
+  "Limburg", "Drenthe", "Flevoland", "Zeeland",
+];
+
+function PortfolioTab({ photographer, maxCategories, activeCategories, setActiveCategories, setPhotographer }: {
+  photographer: Photographer;
+  maxCategories: number;
+  activeCategories: string[];
+  setActiveCategories: React.Dispatch<React.SetStateAction<string[]>>;
+  setPhotographer: React.Dispatch<React.SetStateAction<Photographer>>;
+}) {
+  const supabase = createClient();
+  const membership = getMembership(photographer.membership_tier as any);
+  const maxLoc = membership.maxLocations ?? 999;
+
+  const [activeRegions, setActiveRegions] = useState<string[]>(photographer.regions || []);
+  const [savingRegions, setSavingRegions] = useState(false);
+  const [savedRegions, setSavedRegions] = useState(false);
+  const [savingCats, setSavingCats] = useState(false);
+  const [savedCats, setSavedCats] = useState(false);
+
+  const toggleCategory = (cat: string) => {
+    setActiveCategories((prev) => {
+      if (prev.includes(cat)) return prev.filter((c) => c !== cat);
+      if (prev.length >= maxCategories) return prev; // stil negeren als limiet bereikt
+      return [...prev, cat];
+    });
+  };
+
+  const toggleRegion = (region: string) => {
+    setActiveRegions((prev) => {
+      if (prev.includes(region)) return prev.filter((r) => r !== region);
+      if (prev.length >= maxLoc) return prev;
+      return [...prev, region];
+    });
+  };
+
+  const saveRegions = async () => {
+    setSavingRegions(true);
+    await supabase.from("photographers").update({ regions: activeRegions }).eq("id", photographer.id);
+    setPhotographer((prev) => ({ ...prev, regions: activeRegions }));
+    setSavedRegions(true);
+    setTimeout(() => setSavedRegions(false), 2000);
+    setSavingRegions(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Categorieën */}
+      <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-bold text-gray-900">Jouw categorieën</h2>
+          <span className="text-xs text-gray-400">{activeCategories.length}/{maxCategories} geselecteerd</span>
+        </div>
+        <p className="text-sm text-gray-500 mb-5">
+          Selecteer de categorieën waarvoor je geboekt wilt worden. Je bent zichtbaar op die landingspagina&apos;s.
+          {maxCategories < 8 && <> Wil je meer? <a href="mailto:hello@lenslab.nl?subject=Upgrade" className="underline">Upgrade je account</a>.</>}
+        </p>
+        <div className="flex flex-wrap gap-2 mb-5">
+          {ALL_CATEGORIES.map((cat) => {
+            const isActive = activeCategories.includes(cat);
+            const isDisabled = !isActive && activeCategories.length >= maxCategories;
+            return (
+              <button
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                disabled={isDisabled}
+                className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                  isActive
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : isDisabled
+                    ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-3 mt-5">
+          <button
+            onClick={async () => {
+              setSavingCats(true);
+              await supabase.from("photographers").update({ specialties: activeCategories }).eq("id", photographer.id);
+              setPhotographer((prev) => ({ ...prev, specialties: activeCategories }));
+              setSavedCats(true);
+              setTimeout(() => setSavedCats(false), 2000);
+              setSavingCats(false);
+            }}
+            disabled={savingCats}
+            className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
+          >
+            {savingCats ? "Opslaan..." : "Categorieën opslaan"}
+          </button>
+          {savedCats && <span className="text-sm text-green-600 font-medium">✓ Opgeslagen</span>}
+        </div>
+      </div>
+
+      {/* Locaties */}
+      <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-bold text-gray-900">Jouw locaties</h2>
+          <span className="text-xs text-gray-400">
+            {activeRegions.length}/{membership.maxLocations ?? "∞"} geselecteerd
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mb-5">
+          Selecteer de provincies waar je actief bent. Je bent zichtbaar op alle stad- en provinciepagina&apos;s binnen je selectie.
+          {membership.maxLocations !== null && membership.maxLocations < 12 && <> Wil je meer? <a href="mailto:hello@lenslab.nl?subject=Upgrade" className="underline">Upgrade je account</a>.</>}
+        </p>
+        <div className="flex flex-wrap gap-2 mb-5">
+          {ALL_PROVINCES.map((region) => {
+            const isActive = activeRegions.includes(region);
+            const isDisabled = !isActive && membership.maxLocations !== null && activeRegions.length >= membership.maxLocations;
+            return (
+              <button
+                key={region}
+                onClick={() => toggleRegion(region)}
+                disabled={isDisabled}
+                className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                  isActive
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : isDisabled
+                    ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
+                    : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
+                }`}
+              >
+                {region}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={saveRegions}
+            disabled={savingRegions}
+            className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
+          >
+            {savingRegions ? "Opslaan..." : "Locaties opslaan"}
+          </button>
+          {savedRegions && <span className="text-sm text-green-600 font-medium">✓ Opgeslagen</span>}
+        </div>
+      </div>
+
+      {/* Portfolio per categorie */}
+      {activeCategories.length > 0 && (
+        <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Portfolio per categorie</h2>
+          <p className="text-sm text-gray-500 mb-6">Upload maximaal 10 foto&apos;s per geselecteerde categorie.</p>
+          <div className="space-y-6">
+            {activeCategories.map((specialty) => (
+              <SpecialtyUploader
+                key={specialty}
+                specialty={specialty}
+                photographerId={photographer.id}
+                existingImages={photographer.portfolio_by_category?.[specialty] || []}
+                onUpdate={(images) => {
+                  setPhotographer((prev) => ({
+                    ...prev,
+                    portfolio_by_category: { ...prev.portfolio_by_category, [specialty]: images },
+                  }));
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
