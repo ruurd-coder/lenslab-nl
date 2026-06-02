@@ -36,7 +36,7 @@ export default function FotografenClient({ photographers }: Props) {
           className="text-[8.4vw] md:text-[82px] font-bold leading-[1.1] md:leading-[1.04] tracking-tight mb-8"
           style={{ fontFamily: "var(--font-dm-sans)", color: "#030005" }}
         >
-          Alle beeldmakers
+          Alle foto- en videografen
         </h1>
         <TypewriterInput
           value={search}
