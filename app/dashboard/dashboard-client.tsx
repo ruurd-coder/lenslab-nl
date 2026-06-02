@@ -377,15 +377,16 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
                 key={cat}
                 onClick={() => toggleCategory(cat)}
                 disabled={isDisabled}
-                className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                className={`text-sm px-4 py-2 rounded-full border transition-colors flex items-center gap-1.5 ${
                   isActive
-                    ? "bg-gray-900 text-white border-gray-900"
+                    ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-700"
                     : isDisabled
                     ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
                     : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
                 }`}
               >
                 {cat}
+                {isActive && <span className="opacity-60 text-xs leading-none">×</span>}
               </button>
             );
           })}
@@ -430,15 +431,16 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
                 key={region}
                 onClick={() => toggleRegion(region)}
                 disabled={isDisabled}
-                className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                className={`text-sm px-4 py-2 rounded-full border transition-colors flex items-center gap-1.5 ${
                   isActive
-                    ? "bg-gray-900 text-white border-gray-900"
+                    ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-700"
                     : isDisabled
                     ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
                     : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
                 }`}
               >
                 {region}
+                {isActive && <span className="opacity-60 text-xs leading-none">×</span>}
               </button>
             );
           })}
