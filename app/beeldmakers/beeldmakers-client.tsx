@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PhotographerCard from "@/components/photographer-card";
 import TypewriterInput from "@/components/typewriter-input";
+import TestimonialCarousel from "@/components/testimonial-carousel";
 import { FAQ_ITEMS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
 
@@ -246,6 +247,11 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* Testimonial */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <TestimonialCarousel />
       </section>
 
       {/* FAQ */}
