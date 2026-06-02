@@ -7,12 +7,14 @@ import { trackEvent } from "@/lib/analytics";
 import { MOCK_PHOTOGRAPHERS } from "@/lib/mock-data";
 import { getMembership } from "@/lib/membership";
 import type { Photographer } from "@/lib/types";
+import type { Review } from "./page";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
 const MAX_IMAGES_PER_CATEGORY = 10;
 
 interface Props {
   photographer: Photographer;
+  reviews: Review[];
 }
 
 function Stars({ rating, size = "md" }: { rating: number; size?: "sm" | "md" }) {
@@ -28,11 +30,6 @@ function Stars({ rating, size = "md" }: { rating: number; size?: "sm" | "md" }) 
   );
 }
 
-const MOCK_REVIEWS = [
-  { id: 1, rating: 5, date: "23 april 2026", author: "Sem van Deunen", title: "Fotograaf met passie en ervaring" },
-  { id: 2, rating: 5, date: "23 april 2026", author: "Sem van Deunen", title: "Fotograaf met passie en ervaring" },
-  { id: 3, rating: 5, date: "23 april 2026", author: "Sem van Deunen", title: "Fotograaf met passie en ervaring" },
-];
 
 function Nav() {
   return (
@@ -53,7 +50,7 @@ function Nav() {
   );
 }
 
-export default function ProfileClient({ photographer }: Props) {
+export default function ProfileClient({ photographer, reviews }: Props) {
   const membership = getMembership(photographer.membership_tier);
   const categories = photographer.specialties.slice(0, membership.maxCategories);
   const [activeCategory, setActiveCategory] = useState("Alle");
@@ -250,24 +247,38 @@ export default function ProfileClient({ photographer }: Props) {
 
       {/* ── Reviews ─────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-10 border-t border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Geef jouw beoordeling</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Beoordelingen</h2>
         <p className="text-sm text-gray-500 mb-6">
-          Deel jouw ervaring met deze fotograaf.{" "}
-          <a href="#" className="underline hover:text-gray-700 transition-colors">Schrijf een recensie.</a>
+          Ervaringen van klanten met {photographer.business_name}.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {MOCK_REVIEWS.map((r) => (
-            <div key={r.id} className="bg-[#E9E7F0] rounded-2xl p-5 hover:shadow-sm transition-shadow">
-              <Stars rating={r.rating} size="sm" />
-              <p className="text-sm font-semibold text-gray-900 mt-2 mb-0.5">{r.date} door {r.author}</p>
-              <p className="text-sm text-gray-500 mb-3">{r.title}</p>
-              <a href="#" className="text-xs text-gray-400 hover:text-gray-700 underline underline-offset-2 transition-colors">Deze recensie lezen</a>
+
+        {reviews.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {reviews.slice(0, 3).map((r) => (
+                <div key={r.id} className="bg-[#E9E7F0] rounded-2xl p-5">
+                  <Stars rating={r.rating} size="sm" />
+                  <p className="text-sm font-semibold text-gray-900 mt-2 mb-0.5">
+                    {r.review_date ? new Date(r.review_date).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" }) : ""} door {r.reviewer_name}
+                  </p>
+                  {r.review_text && (
+                    <p className="text-sm text-gray-500 mt-2 line-clamp-3">{r.review_text}</p>
+                  )}
+                  {r.source && (
+                    <p className="text-xs text-gray-400 mt-2">{r.source}</p>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="text-right">
-          <a href="#" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">Bekijk alle recensies</a>
-        </div>
+            {reviews.length > 3 && (
+              <div className="text-right">
+                <span className="text-sm text-gray-400">{reviews.length} recensies totaal</span>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-gray-400 italic">Nog geen beoordelingen.</p>
+        )}
       </section>
 
       {/* ── Andere creators — alleen Free ───────── */}
