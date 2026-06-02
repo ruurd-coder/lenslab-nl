@@ -16,7 +16,7 @@ export default function ChoicePage() {
     <div className="min-h-screen bg-[#FCFAFF] overflow-hidden">
       {/* Alleen logo — geen navigatie */}
       <div className="bg-[#FCFAFF] border-b border-[#E9E7F0]">
-        <div className="px-6 py-3.5 flex items-center justify-center max-w-7xl mx-auto">
+        <div className="px-6 py-3.5 flex items-center max-w-7xl mx-auto">
           <Link href="/">
             <Image src="/logo.png" alt="LensLab" width={120} height={32} className="h-8 w-auto" priority />
           </Link>
