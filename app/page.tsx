@@ -25,7 +25,7 @@ export default function ChoicePage() {
 
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <a
-            href="https://lenslab.tech"
+            href="https://lenslab.design"
             className="bg-gray-900 text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-gray-700 transition-colors"
           >
             Create business content
