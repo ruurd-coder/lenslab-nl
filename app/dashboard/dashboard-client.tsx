@@ -22,7 +22,7 @@ interface Props {
   user: User;
 }
 
-type Tab = "profiel" | "portfolio" | "instellingen";
+type Tab = "profiel" | "portfolio" | "reviews" | "instellingen";
 
 export default function DashboardClient({ photographer: initial, user }: Props) {
   const [photographer, setPhotographer] = useState(initial);
@@ -73,6 +73,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
   const tabs: { id: Tab; label: string }[] = [
     { id: "profiel", label: "Profiel" },
     { id: "portfolio", label: "Portfolio" },
+    { id: "reviews", label: "Reviews" },
     { id: "instellingen", label: "Instellingen" },
   ];
 
@@ -326,6 +327,11 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
           </div>
         )}
 
+        {/* Reviews tab */}
+        {activeTab === "reviews" && (
+          <ReviewInviteTab photographerId={photographer.id} photographerSlug={photographer.slug} />
+        )}
+
         {/* Instellingen tab */}
         {activeTab === "instellingen" && (
           <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
@@ -510,6 +516,127 @@ function SpecialtyUploader({
             )}
           </label>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Review uitnodigings tab ──────────────────────────────────────────
+
+function ReviewInviteTab({ photographerId, photographerSlug }: { photographerId: string; photographerSlug: string }) {
+  const [email, setEmail] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const reviewUrl = `https://lenslab.nl/review/${photographerSlug}`;
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(reviewUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const sendInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) { setError("Vul een e-mailadres in"); return; }
+    setSending(true);
+    setError("");
+
+    const res = await fetch("/api/review-invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photographerId, clientEmail: email.trim(), clientName: clientName.trim(), personalMessage: message.trim() }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || "Versturen mislukt"); }
+    else { setSent(true); setEmail(""); setClientName(""); setMessage(""); }
+    setSending(false);
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8 space-y-8">
+      <div>
+        <h2 className="text-lg font-bold text-gray-900 mb-1">Review uitnodigingen</h2>
+        <p className="text-sm text-gray-500">Vraag klanten om een review te schrijven via een uitnodiging of een directe link.</p>
+      </div>
+
+      {/* Link kopiëren */}
+      <div className="bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0] p-5">
+        <p className="text-sm font-semibold text-gray-800 mb-1">Kopieer je review link</p>
+        <p className="text-xs text-gray-400 mb-3">Plak deze link in je eigen e-mail of app om klanten uit te nodigen.</p>
+        <div className="flex gap-2">
+          <div className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-500 truncate">
+            {reviewUrl}
+          </div>
+          <button
+            onClick={copyLink}
+            className={`shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              copied ? "bg-green-600 text-white" : "bg-gray-900 text-white hover:bg-gray-700"
+            }`}
+          >
+            {copied ? "✓ Gekopieerd!" : "Kopieer link"}
+          </button>
+        </div>
+      </div>
+
+      {/* Email uitnodiging */}
+      <div>
+        <p className="text-sm font-semibold text-gray-800 mb-1">Stuur een uitnodiging per mail</p>
+        <p className="text-xs text-gray-400 mb-4">We sturen namens jou een professionele uitnodiging met een link naar het reviewformulier.</p>
+
+        {sent && (
+          <div className="bg-green-50 text-green-700 text-sm rounded-xl px-4 py-3 mb-4">
+            ✓ Uitnodiging verstuurd!
+          </div>
+        )}
+
+        <form onSubmit={sendInvite} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Naam klant</label>
+              <input
+                type="text"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder="Jan de Vries"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">E-mailadres klant *</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="klant@email.nl"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Persoonlijk bericht <span className="font-normal text-gray-400">(optioneel)</span></label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Fijn om samen met je gewerkt te hebben! Ik zou het heel fijn vinden als je een review wilt achterlaten..."
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none"
+            />
+          </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <button
+            type="submit"
+            disabled={sending}
+            className="bg-gray-900 text-white text-sm px-6 py-2.5 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
+          >
+            {sending ? "Versturen..." : "Stuur uitnodiging →"}
+          </button>
+        </form>
       </div>
     </div>
   );
