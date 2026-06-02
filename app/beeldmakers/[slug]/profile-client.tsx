@@ -39,14 +39,8 @@ function Nav() {
     <div className="sticky top-0 z-50">
       <div className="bg-[#FCFAFF] border-b border-[#E9E7F0]">
         <nav className="px-6 py-3.5 flex items-center justify-between max-w-5xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7">
-              <svg viewBox="0 0 32 32" fill="none" className="w-full h-full">
-                <path d="M16 2 L30 26 L2 26 Z" fill="#111" />
-                <path d="M16 2 L30 26" stroke="#E55A2B" strokeWidth="3" />
-              </svg>
-            </div>
-            <span className="font-bold text-base tracking-tight text-gray-900 uppercase">Lenslab</span>
+          <Link href="/">
+            <Image src="/logo.png" alt="LensLab" width={120} height={32} className="h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</Link>
