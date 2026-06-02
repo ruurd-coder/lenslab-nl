@@ -59,10 +59,20 @@ export default async function PhotographerProfilePage({ params }: Props) {
     .order("review_date", { ascending: false })
     .limit(6);
 
+  // Haal andere fotografen op (echte data, met avatar_url)
+  const { data: otherPhotographers } = await supabase
+    .from("photographers")
+    .select("id, slug, business_name, city, avatar_url")
+    .eq("is_published", true)
+    .neq("id", photographer.id)
+    .order("rating", { ascending: false })
+    .limit(8);
+
   return (
     <ProfileClient
       photographer={photographer as Photographer}
       reviews={(reviews as Review[]) || []}
+      otherPhotographers={otherPhotographers || []}
     />
   );
 }

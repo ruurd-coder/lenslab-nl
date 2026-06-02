@@ -12,9 +12,18 @@ import TrustpilotBar from "@/components/trustpilot-bar";
 
 const MAX_IMAGES_PER_CATEGORY = 10;
 
+interface OtherPhotographer {
+  id: string;
+  slug: string;
+  business_name: string;
+  city: string | null;
+  avatar_url: string | null;
+}
+
 interface Props {
   photographer: Photographer;
   reviews: Review[];
+  otherPhotographers: OtherPhotographer[];
 }
 
 function Stars({ rating, size = "md" }: { rating: number; size?: "sm" | "md" }) {
@@ -50,7 +59,7 @@ function Nav() {
   );
 }
 
-export default function ProfileClient({ photographer, reviews }: Props) {
+export default function ProfileClient({ photographer, reviews, otherPhotographers }: Props) {
   const membership = getMembership(photographer.membership_tier);
   const categories = photographer.specialties.slice(0, membership.maxCategories);
   const [activeCategory, setActiveCategory] = useState("Alle");
@@ -67,8 +76,8 @@ export default function ProfileClient({ photographer, reviews }: Props) {
     trackEvent(photographer.id, "impression");
   }, [photographer.id]);
 
-  const otherPhotographers = membership.showOtherPhotographers
-    ? MOCK_PHOTOGRAPHERS.filter((p) => p.id !== photographer.id)
+  const visibleOtherPhotographers = membership.showOtherPhotographers
+    ? otherPhotographers
     : [];
 
   const initials = photographer.contact_name
@@ -282,17 +291,17 @@ export default function ProfileClient({ photographer, reviews }: Props) {
       </section>
 
       {/* ── Andere creators — alleen Free ───────── */}
-      {membership.showOtherPhotographers && otherPhotographers.length > 0 && (
+      {membership.showOtherPhotographers && visibleOtherPhotographers.length > 0 && (
       <section className="max-w-5xl mx-auto px-6 py-10 border-t border-gray-100">
         <h2 className="text-2xl font-bold text-gray-900 mb-1">Ontdek andere creators</h2>
         <p className="text-sm text-gray-500 mb-6">Bekijk profielen van fotografen en creatieven bij jou in de buurt.</p>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-          {otherPhotographers.map((p) => (
+          {visibleOtherPhotographers.map((p) => (
             <Link key={p.id} href={`/beeldmakers/${p.slug}`}
               className="flex-none bg-[#E9E7F0] rounded-2xl p-4 flex flex-col items-center text-center w-36 hover:shadow-md transition-shadow group">
               <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-300 mb-3">
-                {p.hero_image_url ? (
-                  <Image src={p.hero_image_url} alt={p.business_name} width={64} height={64} className="object-cover w-full h-full" />
+                {p.avatar_url ? (
+                  <Image src={p.avatar_url} alt={p.business_name} width={64} height={64} className="object-cover w-full h-full" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-lg font-bold text-gray-400">{p.business_name[0]}</div>
                 )}
