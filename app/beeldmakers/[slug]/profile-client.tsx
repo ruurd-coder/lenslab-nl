@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import Lightbox from "@/components/lightbox";
 import { MOCK_PHOTOGRAPHERS } from "@/lib/mock-data";
 import { getMembership } from "@/lib/membership";
 import type { Photographer } from "@/lib/types";
@@ -63,6 +64,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
   const membership = getMembership(photographer.membership_tier);
   const categories = photographer.specialties.slice(0, membership.maxCategories);
   const [activeCategory, setActiveCategory] = useState("Alle");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // "Alle" = mix van alle categorieën (max 10 totaal), anders gefilterd per cat
   const categoryImages = activeCategory === "Alle"
@@ -216,36 +218,42 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
               </div>
             </div>
 
-            {/* Hero foto — altijd groot */}
+            {/* Hero foto — klikbaar, opent lightbox op index 0 */}
             {photographer.hero_image_url ? (
-              <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100 mb-2">
-                <Image src={photographer.hero_image_url} alt={photographer.business_name} fill className="object-cover" priority />
-              </div>
+              <button
+                onClick={() => setLightboxIndex(0)}
+                className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100 mb-2 group cursor-zoom-in block"
+              >
+                <Image src={photographer.hero_image_url} alt={photographer.business_name} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" priority />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              </button>
             ) : (
               <div className="w-full aspect-[4/3] bg-[#E9E7F0] flex items-center justify-center mb-2">
                 <p className="text-sm text-gray-400">Geen hoofdfoto beschikbaar</p>
               </div>
             )}
 
-            {/* Portfolio thumbnails — altijd 4, 4e toont "+ X foto's" als er meer zijn */}
+            {/* Portfolio thumbnails — klikbaar, openen lightbox */}
             {categoryImages.length > 0 && (
               <div className="grid grid-cols-4 gap-1.5 mb-2">
                 {categoryImages.slice(0, 4).map((img, i) => {
-                  const isLast = i === 3;
                   const remaining = categoryImages.length - 3;
-                  const showOverlay = isLast && categoryImages.length > 4;
+                  const showOverlay = i === 3 && categoryImages.length > 4;
                   return (
-                    <div
+                    <button
                       key={i}
-                      className="relative aspect-square overflow-hidden bg-gray-100"
+                      onClick={() => setLightboxIndex(photographer.hero_image_url ? i + 1 : i)}
+                      className="relative aspect-square overflow-hidden bg-gray-100 group cursor-zoom-in"
                     >
-                      <Image src={img} alt={`Foto ${i + 1}`} fill className="object-cover" />
-                      {showOverlay && (
+                      <Image src={img} alt={`Foto ${i + 1}`} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.05]" />
+                      {showOverlay ? (
                         <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
                           <span className="text-white text-sm font-semibold">+ {remaining} foto&apos;s</span>
                         </div>
+                      ) : (
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -317,6 +325,24 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
       <footer className="border-t border-gray-100 py-8 px-6 text-center mt-4">
         <p className="text-sm text-gray-400">© 2025 LensLab — Alle beeldmakers in Nederland</p>
       </footer>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (() => {
+        const allImages = [
+          ...(photographer.hero_image_url ? [photographer.hero_image_url] : []),
+          ...categoryImages,
+        ];
+        return (
+          <Lightbox
+            images={allImages}
+            currentIndex={lightboxIndex}
+            photographerName={photographer.business_name}
+            onClose={() => setLightboxIndex(null)}
+            onNext={() => setLightboxIndex((i) => i !== null ? (i + 1) % allImages.length : null)}
+            onPrev={() => setLightboxIndex((i) => i !== null ? (i - 1 + allImages.length) % allImages.length : null)}
+          />
+        );
+      })()}
     </div>
   );
 }
