@@ -5,21 +5,21 @@ import SiteFooter from "@/components/site-footer";
 import PhotographerCard from "@/components/photographer-card";
 import type { Photographer } from "@/lib/types";
 
-const CATEGORIES: Record<string, { name: string; emoji: string; singular: string }> = {
-  "drone-lucht":       { name: "Drone / Lucht",      emoji: "☁️",  singular: "Drone fotograaf" },
-  "food-restaurant":   { name: "Food & restaurant",  emoji: "🌶️", singular: "Food fotograaf" },
-  "afscheid":          { name: "Afscheid",            emoji: "🌹",  singular: "Afscheidsfotograaf" },
-  "baby":              { name: "Baby",                emoji: "👶🏼", singular: "Babyfotograaf" },
-  "evenementen":       { name: "Evenementen",         emoji: "🎤",  singular: "Evenementfotograaf" },
-  "makelaars":         { name: "Makelaars",           emoji: "🏘️", singular: "Vastgoedfotograaf" },
-  "bedrijf":           { name: "Bedrijf",             emoji: "🏢",  singular: "Bedrijfsfotograaf" },
-  "huisdier":          { name: "Huisdier",            emoji: "🐶",  singular: "Huis­dier­fotograaf" },
-  "familie":           { name: "Familie",             emoji: "👨‍👨‍👧‍👧", singular: "Familie­fotograaf" },
-  "portret":           { name: "Portret",             emoji: "👱‍♀️", singular: "Portret­fotograaf" },
-  "boudoir":           { name: "Boudoir",             emoji: "💋",  singular: "Boudoir­fotograaf" },
-  "bruiloft":          { name: "Bruiloft",            emoji: "💍",  singular: "Bruilofts­fotograaf" },
-  "zwangerschap":      { name: "Zwangerschap",        emoji: "🤰",  singular: "Zwanger­schaps­fotograaf" },
-  "feest":             { name: "Feest",               emoji: "🥳",  singular: "Feest­fotograaf" },
+const CATEGORIES: Record<string, { name: string; emoji: string; singular: string; plural: string }> = {
+  "drone-lucht":       { name: "Drone / Lucht",      emoji: "☁️",  singular: "Drone fotograaf",           plural: "Drone fotografen" },
+  "food-restaurant":   { name: "Food & restaurant",  emoji: "🌶️", singular: "Food fotograaf",            plural: "Food fotografen" },
+  "afscheid":          { name: "Afscheid",            emoji: "🌹",  singular: "Afscheidsfotograaf",        plural: "Afscheidsfotografen" },
+  "baby":              { name: "Baby",                emoji: "👶🏼", singular: "Babyfotograaf",             plural: "Babyfotografen" },
+  "evenementen":       { name: "Evenementen",         emoji: "🎤",  singular: "Evenementfotograaf",        plural: "Evenementfotografen" },
+  "makelaars":         { name: "Makelaars",           emoji: "🏘️", singular: "Vastgoedfotograaf",         plural: "Vastgoedfotografen" },
+  "bedrijf":           { name: "Bedrijf",             emoji: "🏢",  singular: "Bedrijfsfotograaf",         plural: "Bedrijfsfotografen" },
+  "huisdier":          { name: "Huisdier",            emoji: "🐶",  singular: "Huisdierfotograaf",         plural: "Huisdierfotografen" },
+  "familie":           { name: "Familie",             emoji: "👨‍👨‍👧‍👧", singular: "Familiefotograaf",          plural: "Familiefotografen" },
+  "portret":           { name: "Portret",             emoji: "👱‍♀️", singular: "Portretfotograaf",          plural: "Portretfotografen" },
+  "boudoir":           { name: "Boudoir",             emoji: "💋",  singular: "Boudoirfotograaf",          plural: "Boudoirfotografen" },
+  "bruiloft":          { name: "Bruiloft",            emoji: "💍",  singular: "Bruiloftsfotograaf",        plural: "Bruiloftsfotografen" },
+  "zwangerschap":      { name: "Zwangerschap",        emoji: "🤰",  singular: "Zwangerschapsfotograaf",    plural: "Zwangerschapsfotografen" },
+  "feest":             { name: "Feest",               emoji: "🥳",  singular: "Feestfotograaf",            plural: "Feestfotografen" },
 };
 
 interface Props {
@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: Props) {
   if (!cat) return {};
 
   return {
-    title: `De beste ${cat.singular}en in Nederland | LensLab`,
-    description: `Vind de beste ${cat.singular}en in Nederland. Bekijk portfolio's, lees reviews en neem direct contact op via LensLab.`,
+    title: `De beste ${cat.plural} in Nederland | LensLab`,
+    description: `Vind de beste ${cat.plural} in Nederland. Bekijk portfolio's, lees reviews en neem direct contact op via LensLab.`,
   };
 }
 
@@ -165,7 +165,7 @@ export default async function CategoriePage({ params }: Props) {
           {cat.emoji} {cat.name}
         </p>
         <h1 className="text-5xl font-black text-gray-900 leading-tight tracking-tight mb-4">
-          De beste {cat.singular}en<br />in Nederland
+          De beste {cat.plural}<br />in Nederland
         </h1>
         <p className="text-gray-500 text-lg max-w-2xl mb-8">
           Vind de perfecte {cat.singular} voor jouw moment. Bekijk portfolio&apos;s en neem direct contact op.
@@ -185,7 +185,7 @@ export default async function CategoriePage({ params }: Props) {
           <div className="bg-white rounded-2xl border border-gray-100 text-center py-16">
             <p className="text-4xl mb-3">{cat.emoji}</p>
             <p className="text-gray-600 font-medium">Binnenkort beschikbaar</p>
-            <p className="text-sm text-gray-400 mt-1">{cat.singular}en worden binnenkort toegevoegd.</p>
+            <p className="text-sm text-gray-400 mt-1">{cat.plural} worden binnenkort toegevoegd.</p>
           </div>
         )}
       </section>
