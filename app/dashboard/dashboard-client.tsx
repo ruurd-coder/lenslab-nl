@@ -159,6 +159,53 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
             <div>
               <h2 className="text-lg font-bold text-gray-900 mb-5">Profielinformatie</h2>
 
+              {/* Avatar upload */}
+              <div className="flex items-center gap-5 mb-6 pb-6 border-b border-[#E9E7F0]">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-[#E9E7F0] shrink-0">
+                  {photographer.avatar_url ? (
+                    <Image src={photographer.avatar_url} alt="Avatar" width={80} height={80} className="object-cover w-full h-full" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400">
+                      {photographer.business_name?.[0] || "?"}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-1">Profielfoto</p>
+                  <p className="text-xs text-gray-400 mb-3">JPG, PNG of WEBP · max 1MB · wordt weergegeven als ronde foto</p>
+                  <label className="cursor-pointer inline-flex items-center gap-2 bg-[#E9E7F0] text-gray-700 text-sm px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Foto uploaden
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 1 * 1024 * 1024) {
+                          alert("Bestand is groter dan 1MB. Kies een kleiner bestand.");
+                          return;
+                        }
+                        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+                        const path = `${photographer.id}/avatar/avatar-${Date.now()}.${ext}`;
+                        const { error } = await supabase.storage
+                          .from("photographer-assets")
+                          .upload(path, file, { upsert: true });
+                        if (!error) {
+                          const { data } = supabase.storage.from("photographer-assets").getPublicUrl(path);
+                          await supabase.from("photographers").update({ avatar_url: data.publicUrl }).eq("id", photographer.id);
+                          setPhotographer((prev) => ({ ...prev, avatar_url: data.publicUrl }));
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
