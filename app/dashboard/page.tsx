@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import DashboardClient from "./dashboard-client";
 
 export default async function DashboardPage() {
@@ -8,8 +8,10 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  // Zoek fotograaf op basis van ingelogd e-mailadres
-  const { data: photographer } = await supabase
+  // Gebruik service client om fotograaf op te halen (bypast RLS)
+  const serviceSupabase = await createServiceClient();
+
+  const { data: photographer } = await serviceSupabase
     .from("photographers")
     .select("*")
     .eq("email", user.email)
@@ -23,9 +25,9 @@ export default async function DashboardPage() {
           <h1 className="text-xl font-bold text-gray-900 mb-2">Geen profiel gevonden</h1>
           <p className="text-sm text-gray-500 mb-6">
             Er is geen beeldmakersprofiel gekoppeld aan <strong>{user.email}</strong>.
-            Neem contact op via info@lenslab.nl.
+            Neem contact op via hello@lenslab.nl.
           </p>
-          <a href="mailto:info@lenslab.nl" className="inline-block bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors">
+          <a href="mailto:hello@lenslab.nl" className="inline-block bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors">
             Contact opnemen
           </a>
         </div>
@@ -33,13 +35,16 @@ export default async function DashboardPage() {
     );
   }
 
-  // Koppel user_id als dat nog niet gedaan is
+  // Koppel user_id via service client (bypast RLS — user_id was null)
   if (!photographer.user_id) {
-    await supabase
+    await serviceSupabase
       .from("photographers")
       .update({ user_id: user.id })
       .eq("id", photographer.id);
   }
 
-  return <DashboardClient photographer={photographer} user={user} />;
+  // Geef de fotograaf terug met de gekoppelde user_id
+  const photographerWithUser = { ...photographer, user_id: user.id };
+
+  return <DashboardClient photographer={photographerWithUser} user={user} />;
 }
