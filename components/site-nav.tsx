@@ -201,7 +201,7 @@ export default function SiteNav() {
             </div>
 
             {/* Alle fotografen */}
-            <Link href="/beeldmakers" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/fotografen" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
               Alle fotografen
             </Link>
           </div>
