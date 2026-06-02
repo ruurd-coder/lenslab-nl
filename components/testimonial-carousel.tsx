@@ -3,27 +3,32 @@
 import { useState } from "react";
 import Image from "next/image";
 
+const BASE = "https://xbvriaxprnupoakjpqnh.supabase.co/storage/v1/object/public/photographer-assets/testimonials";
+
 const TESTIMONIALS = [
   {
-    company: "Spektre",
+    logo: "/logo-spektre.svg",
+    logoAlt: "Spektre",
     quote: "LensLab heeft mij last minute perfect geholpen met de juiste fotograaf. Snel en top geregeld!",
     name: "Thijs Visser",
-    title: "CCO & Co-Founder, Spektre",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop",
+    title: "CCO & Co-founder, Spektre",
+    avatar: `${BASE}/thijs-visser.jpg`,
   },
   {
-    company: "Studio Noord",
-    quote: "Binnen een dag de perfecte fotograaf gevonden voor ons teamportret. Geweldige kwaliteit!",
-    name: "Laura de Vries",
-    title: "Marketing Manager, Studio Noord",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop",
+    logo: "/logo-selecta.svg",
+    logoAlt: "Selecta",
+    quote: "Via LensLab heb ik snel de juiste shoot geregeld. Het resultaat: sterke foto's. Zeer tevreden.",
+    name: "Martine Beiten",
+    title: "CEO / C-Suite Leader Driving Strategic Commercial",
+    avatar: `${BASE}/martine-beiten.jpg`,
   },
   {
-    company: "Bloom Agency",
-    quote: "Via LensLab vinden wij consistent topfotografen voor al onze klanten. Aanrader!",
-    name: "Mark Janssen",
-    title: "Creative Director, Bloom Agency",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop",
+    logo: null,
+    logoAlt: null,
+    quote: "Met LensLab vinden klanten mij snel en word ik vaker op het juiste moment geboekt.",
+    name: "Jill van den Hoven",
+    title: "Fotograaf",
+    avatar: `${BASE}/jill-van-den-hoven.jpg`,
   },
 ];
 
@@ -53,8 +58,14 @@ export default function TestimonialCarousel() {
         </svg>
       </button>
 
-      {/* Bedrijfsnaam */}
-      <p className="text-sm font-semibold text-gray-400 mb-5 tracking-wide">{t.company}</p>
+      {/* Logo of spacer */}
+      <div className="h-10 flex items-center justify-center mb-5">
+        {t.logo ? (
+          <Image src={t.logo} alt={t.logoAlt!} width={120} height={40} className="h-8 w-auto object-contain" />
+        ) : (
+          <div className="h-8" />
+        )}
+      </div>
 
       {/* Quote */}
       <blockquote className="text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-8">
@@ -63,12 +74,19 @@ export default function TestimonialCarousel() {
 
       {/* Persoon */}
       <div className="flex items-center justify-center gap-3">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0">
-          <Image src={t.avatar} alt={t.name} width={40} height={40} className="object-cover" />
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#E9E7F0] shrink-0">
+          <Image
+            src={t.avatar}
+            alt={t.name}
+            width={40}
+            height={40}
+            className="object-cover w-full h-full"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
         </div>
         <div className="text-left">
           <p className="text-sm font-semibold text-gray-900">{t.name}</p>
-          <p className="text-xs text-gray-400">{t.title}</p>
+          <p className="text-xs text-gray-400 max-w-[220px] leading-tight">{t.title}</p>
         </div>
       </div>
 
