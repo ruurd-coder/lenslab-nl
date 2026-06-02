@@ -5,21 +5,41 @@ import Link from "next/link";
 import Image from "next/image";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
-const CATEGORIES = [
-  { emoji: "☁️", name: "Drone / Lucht", slug: "drone-lucht" },
-  { emoji: "🌶️", name: "Food & restaurant", slug: "food-restaurant" },
-  { emoji: "🌹", name: "Afscheid", slug: "afscheid" },
-  { emoji: "👶🏼", name: "Baby", slug: "baby" },
-  { emoji: "🎤", name: "Evenementen", slug: "evenementen" },
-  { emoji: "🏘️", name: "Makelaars", slug: "makelaars" },
-  { emoji: "🏢", name: "Bedrijf", slug: "bedrijf" },
-  { emoji: "🐶", name: "Huisdier", slug: "huisdier" },
-  { emoji: "👨‍👨‍👧‍👧", name: "Familie", slug: "familie" },
-  { emoji: "👱‍♀️", name: "Portret", slug: "portret" },
-  { emoji: "💋", name: "Boudoir", slug: "boudoir" },
-  { emoji: "💍", name: "Bruiloft", slug: "bruiloft" },
-  { emoji: "🤰", name: "Zwangerschap", slug: "zwangerschap" },
-  { emoji: "🥳", name: "Feest", slug: "feest" },
+const CATEGORY_GROUPS = [
+  {
+    heading: "Persoonlijk",
+    items: [
+      { name: "Portret", slug: "portret" },
+      { name: "Familie", slug: "familie" },
+      { name: "Baby", slug: "baby" },
+      { name: "Zwangerschap", slug: "zwangerschap" },
+      { name: "Boudoir", slug: "boudoir" },
+    ],
+  },
+  {
+    heading: "Speciale momenten",
+    items: [
+      { name: "Bruiloft", slug: "bruiloft" },
+      { name: "Afscheid", slug: "afscheid" },
+      { name: "Feest", slug: "feest" },
+      { name: "Evenementen", slug: "evenementen" },
+    ],
+  },
+  {
+    heading: "Zakelijk",
+    items: [
+      { name: "Bedrijf", slug: "bedrijf" },
+      { name: "Makelaars", slug: "makelaars" },
+      { name: "Food & restaurant", slug: "food-restaurant" },
+    ],
+  },
+  {
+    heading: "Overige",
+    items: [
+      { name: "Huisdier", slug: "huisdier" },
+      { name: "Drone / Lucht", slug: "drone-lucht" },
+    ],
+  },
 ];
 
 const PROVINCES = [
@@ -182,18 +202,27 @@ export default function SiteNav() {
               </button>
 
               {gelegenheid.open && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-5 w-72 z-50">
-                  <div className="grid grid-cols-1 gap-1">
-                    {CATEGORIES.map((cat) => (
-                      <Link
-                        key={cat.slug}
-                        href={`/categorie/${cat.slug}`}
-                        onClick={() => gelegenheid.setOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#FCFAFF] transition-colors text-sm text-gray-700 hover:text-gray-900"
-                      >
-                        <span className="text-base">{cat.emoji}</span>
-                        {cat.name}
-                      </Link>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-6 w-[520px] z-50">
+                  <div className="grid grid-cols-4 gap-x-6 gap-y-5">
+                    {CATEGORY_GROUPS.map((group) => (
+                      <div key={group.heading}>
+                        <p className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+                          {group.heading}
+                        </p>
+                        <ul className="space-y-1">
+                          {group.items.map((item) => (
+                            <li key={item.slug}>
+                              <Link
+                                href={`/categorie/${item.slug}`}
+                                onClick={() => gelegenheid.setOpen(false)}
+                                className="text-sm text-gray-500 hover:text-gray-900 transition-colors block"
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ))}
                   </div>
                 </div>
