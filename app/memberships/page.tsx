@@ -163,14 +163,26 @@ export default function MembershipsPage() {
           </h2>
           <div className="space-y-4">
             {[
-              { q: "Kan ik op elk moment opzeggen?", a: "Ja, je kunt maandelijks opzeggen. De betaling vindt jaarlijks plaats maar je kunt tussentijds stoppen." },
-              { q: "Hoe upgrade ik mijn membership?", a: "Stuur een mail naar hello@lenslab.nl en we regelen de upgrade voor je." },
-              { q: "Wat is het verschil tussen locaties?", a: "Met meer locaties ben je zichtbaar op meer stad- en provinciepagina's. Free = 1 provincie, Plus = 3, Premium = alle provincies." },
-              { q: "Kan ik eerst gratis proberen?", a: "Ja! Begin gratis en upgrade wanneer je meer zichtbaarheid wilt. Er is geen tijdslimiet op het gratis account." },
+              {
+                q: "Kan ik op elk moment opzeggen?",
+                a: "Ja, absoluut. Hoewel het membership jaarlijks wordt gefactureerd, kun je op ieder moment aangeven dat je wilt stoppen. Je membership blijft dan actief tot de eerstvolgende verlengingsdatum en wordt daarna automatisch beëindigd. Je zit dus niet vast aan een nieuwe termijn en hoeft geen rekening te houden met opzegtermijnen.",
+              },
+              {
+                q: "Hoe upgrade ik mijn membership?",
+                a: "Je kunt je membership op elk moment upgraden of aanpassen vanuit je account. Met een upgrade krijg je toegang tot extra functies en mogelijkheden, waardoor je meer zichtbaarheid krijgt op het platform en je kansen vergroot om nieuwe opdrachtgevers te winnen.",
+              },
+              {
+                q: "Wat is het verschil tussen locaties?",
+                a: "Met meer locaties vergroot je je zichtbaarheid binnen LensLab. Je profiel wordt namelijk getoond op meer stad- en provinciepagina's, waardoor potentiële klanten je op meer plekken kunnen vinden.\n\n• Free: zichtbaar in steden binnen 1 provincie\n• Plus: zichtbaar in steden binnen 3 provincies\n• Premium: zichtbaar in alle provincies (of minder naar wens) van Nederland\n\nHoe meer locaties je activeert, hoe groter je bereik en hoe meer kansen je hebt om nieuwe opdrachten binnen te halen.",
+              },
+              {
+                q: "Kan ik eerst gratis proberen?",
+                a: "Ja, absoluut. Je kunt gratis starten en het platform vrijblijvend ontdekken. Er geldt geen tijdslimiet voor het gratis account, dus je kunt LensLab zo lang gebruiken als je wilt. Pas wanneer je behoefte hebt aan meer zichtbaarheid, extra functies of een groter bereik, kun je upgraden naar een betaald membership.",
+              },
             ].map((faq, i) => (
               <div key={i} className="rounded-2xl p-5" style={{ backgroundColor: "#E9E7F0" }}>
                 <p className="font-semibold mb-2" style={{ color: "#030005" }}>{faq.q}</p>
-                <p className="text-sm leading-relaxed" style={{ color: "rgba(3,0,5,0.6)" }}>{faq.a}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: "rgba(3,0,5,0.6)" }}>{faq.a}</p>
               </div>
             ))}
           </div>
