@@ -84,7 +84,7 @@ export default function MembershipsPage() {
           Zet jezelf op de kaart als fotograaf of videograaf. Begin gratis en upgrade wanneer je meer wilt.
         </p>
         <p className="text-sm" style={{ color: "rgba(3,0,5,0.4)" }}>
-          Betaling per jaar · Opzegbaar per maand
+          Betaling per jaar · Opzegbaar per maand · Alle prijzen exclusief btw
         </p>
       </section>
 
