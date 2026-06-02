@@ -144,31 +144,6 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
         />
       </section>
 
-      {/* Filterbar */}
-      <section className="pb-6 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-wrap gap-3 items-center">
-          <FilterDropdown
-            label="Diensten"
-            value={dienstFilter}
-            options={DIENSTEN}
-            onChange={setDienstFilter}
-          />
-          <FilterDropdown
-            label="Categorie"
-            value={categoryFilter}
-            options={CATEGORIES}
-            onChange={setCategoryFilter}
-          />
-          {hasFilters && (
-            <button
-              onClick={() => { setSearch(""); setDienstFilter(""); setCategoryFilter(""); }}
-              className="text-sm text-gray-400 hover:text-gray-700 transition-colors px-2"
-            >
-              Wis filters
-            </button>
-          )}
-        </div>
-      </section>
 
       {/* Grid */}
       <main className="max-w-7xl mx-auto px-6 pb-16">
