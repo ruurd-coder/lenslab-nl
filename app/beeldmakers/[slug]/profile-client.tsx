@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import Lightbox from "@/components/lightbox";
+import ContactModal from "@/components/contact-modal";
 import { MOCK_PHOTOGRAPHERS } from "@/lib/mock-data";
 import { getMembership } from "@/lib/membership";
 import type { Photographer } from "@/lib/types";
@@ -65,6 +66,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
   const categories = photographer.specialties.slice(0, membership.maxCategories);
   const [activeCategory, setActiveCategory] = useState("Alle");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showContact, setShowContact] = useState(false);
 
   // "Alle" = mix van alle categorieën (max 10 totaal), anders gefilterd per cat
   const categoryImages = activeCategory === "Alle"
@@ -173,7 +175,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
             <div className="flex gap-3 mb-5">
               {membership.showMail && photographer.email && (
                 <button
-                  onClick={() => { trackEvent(photographer.id, "mail_click"); window.location.href = `mailto:${photographer.email}`; }}
+                  onClick={() => { trackEvent(photographer.id, "mail_click"); setShowContact(true); }}
                   className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors font-medium"
                 >
                   Contact
@@ -332,6 +334,15 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
       <footer className="border-t border-gray-100 py-8 px-6 text-center mt-4">
         <p className="text-sm text-gray-400">© 2025 LensLab — Alle beeldmakers in Nederland</p>
       </footer>
+
+      {/* Contact modal */}
+      {showContact && (
+        <ContactModal
+          photographerId={photographer.id}
+          photographerName={photographer.business_name}
+          onClose={() => setShowContact(false)}
+        />
+      )}
 
       {/* Lightbox */}
       {lightboxIndex !== null && (() => {
