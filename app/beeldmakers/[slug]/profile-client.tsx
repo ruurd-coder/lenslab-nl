@@ -90,8 +90,21 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
     <div className="min-h-screen bg-[#FCFAFF]">
       <Nav />
 
+      {/* ── Terug knop ──────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 pt-6">
+        <Link
+          href="/beeldmakers"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Terug
+        </Link>
+      </div>
+
       {/* ── Profiel ─────────────────────────────── */}
-      <main className="max-w-5xl mx-auto px-6 py-10">
+      <main className="max-w-5xl mx-auto px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-10 items-start">
 
           {/* Links: info */}
