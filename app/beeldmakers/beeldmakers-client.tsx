@@ -8,13 +8,21 @@ import TypewriterInput from "@/components/typewriter-input";
 import { FAQ_ITEMS } from "@/lib/mock-data";
 import type { Photographer } from "@/lib/types";
 
+const BASE = "https://xbvriaxprnupoakjpqnh.supabase.co/storage/v1/object/public/photographer-assets/provincies";
+
 const PROVINCES = [
-  { name: "Noord-Holland", slug: "noord-holland", image: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=600&h=400&fit=crop" },
-  { name: "Groningen", slug: "groningen", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop" },
-  { name: "Utrecht", slug: "utrecht", image: "https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=600&h=400&fit=crop" },
-  { name: "Noord-Brabant", slug: "noord-brabant", image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=600&h=400&fit=crop" },
-  { name: "Friesland", slug: "friesland", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop" },
-  { name: "Limburg", slug: "limburg", image: "https://images.unsplash.com/photo-1549144511-f099e773c147?w=600&h=400&fit=crop" },
+  { name: "Noord-Holland", slug: "noord-holland", image: `${BASE}/Noord-Holland%20provincie.webp` },
+  { name: "Zuid-Holland",  slug: "zuid-holland",  image: `${BASE}/Zuid-Holland%20provincie.webp` },
+  { name: "Utrecht",       slug: "utrecht-provincie", image: `${BASE}/Utrecht%20provincie.webp` },
+  { name: "Noord-Brabant", slug: "noord-brabant", image: `${BASE}/Brabant%20provincie.webp` },
+  { name: "Gelderland",    slug: "gelderland",    image: `${BASE}/Gelderland%20provincie.webp` },
+  { name: "Overijssel",    slug: "overijssel",    image: `${BASE}/Overrijsel%20provincie.webp` },
+  { name: "Groningen",     slug: "groningen",     image: `${BASE}/Groningen%20provincie.webp` },
+  { name: "Friesland",     slug: "friesland",     image: `${BASE}/Friesland%20provincie.webp` },
+  { name: "Limburg",       slug: "limburg",       image: `${BASE}/Limburg%20provincie.webp` },
+  { name: "Drenthe",       slug: "drenthe",       image: `${BASE}/Drenthe%20provincie.webp` },
+  { name: "Flevoland",     slug: "flevoland",     image: `${BASE}/Flevoland%20provincie.webp` },
+  { name: "Zeeland",       slug: "zeeland",       image: `${BASE}/Zeeland%20provincie.webp` },
 ];
 
 interface Props {
