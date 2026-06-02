@@ -58,7 +58,10 @@ export default function TypewriterInput({ value, onChange, onSubmit }: Props) {
   }, [charIndex, isDeleting, textIndex]);
 
   return (
-    <div className="relative max-w-xl mx-auto">
+    <div
+      className="flex items-center gap-2 rounded-full pl-5 md:pl-7 pr-2 py-2 max-w-xl mx-auto"
+      style={{ backgroundColor: "#EDEDF0" }}
+    >
       <input
         ref={inputRef}
         type="text"
@@ -66,14 +69,16 @@ export default function TypewriterInput({ value, onChange, onSubmit }: Props) {
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") onSubmit(); }}
         placeholder={placeholder}
-        className="w-full bg-white border border-[#E9E7F0] rounded-full px-6 py-4 pr-14 text-sm text-gray-700 shadow-sm focus:outline-none focus:border-gray-300 placeholder:text-gray-400 transition-all"
+        className="flex-1 min-w-0 bg-transparent outline-none text-base md:text-lg py-3 placeholder:opacity-50"
+        style={{ color: "#030005" }}
       />
       <button
         type="button"
         onClick={onSubmit}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-900 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+        className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full transition-opacity hover:opacity-80"
+        style={{ backgroundColor: "#000000" }}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       </button>
