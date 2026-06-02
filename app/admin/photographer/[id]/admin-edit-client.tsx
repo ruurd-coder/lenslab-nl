@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { SpecialtyUploader } from "@/components/specialty-uploader";
 
 const ALL_CATEGORIES = [
   "Drone / Lucht", "Food & restaurant", "Afscheid", "Baby",
@@ -191,6 +192,33 @@ export default function AdminEditClient({ photographer: initial }: { photographe
             })}
           </div>
         </div>
+
+        {/* Portfolio */}
+        {(p.specialties || []).length > 0 && (
+          <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Portfolio</h2>
+            <p className="text-sm text-gray-500 mb-6">Upload en beheer foto&apos;s per categorie namens de beeldmaker.</p>
+            <div className="space-y-5">
+              {(p.specialties || []).map((specialty: string) => (
+                <SpecialtyUploader
+                  key={specialty}
+                  specialty={specialty}
+                  photographerId={p.id}
+                  existingImages={p.portfolio_by_category?.[specialty] || []}
+                  heroImage={p.hero_image_url}
+                  onUpdate={(images) => setP((prev: any) => ({
+                    ...prev,
+                    portfolio_by_category: { ...(prev.portfolio_by_category || {}), [specialty]: images },
+                  }))}
+                  onSetHero={async (url) => {
+                    await supabase.from("photographers").update({ hero_image_url: url }).eq("id", p.id);
+                    setP((prev: any) => ({ ...prev, hero_image_url: url }));
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* SEO */}
         <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8 space-y-4">
