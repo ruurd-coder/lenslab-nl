@@ -95,9 +95,9 @@ export default function LoginPage() {
 
                 <p className="text-xs text-gray-400 text-center mt-6">
                   Nog geen profiel?{" "}
-                  <a href="mailto:info@lenslab.nl" className="underline hover:text-gray-700">
-                    Neem contact op
-                  </a>
+                  <Link href="/aanmelden" className="underline hover:text-gray-700">
+                    Aanmelden
+                  </Link>
                 </p>
               </>
             ) : (
