@@ -472,31 +472,70 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
           <span className="text-xs text-gray-400">{activeCategories.length}/{maxCategories} geselecteerd</span>
         </div>
         <p className="text-sm text-gray-500 mb-5">
-          Selecteer de categorieën waarvoor je geboekt wilt worden. Je bent zichtbaar op die landingspagina&apos;s.
+          Selecteer de categorieën waarvoor je geboekt wilt worden. Sleep om de volgorde aan te passen — de eerste staat bovenaan je profiel.
           {maxCategories < 8 && <> Wil je meer? <button onClick={onUpgradeClick} className="underline">Upgrade je account</button>.</>}
         </p>
-        <div className="flex flex-wrap gap-2 mb-5">
-          {ALL_CATEGORIES.map((cat) => {
-            const isActive = activeCategories.includes(cat);
-            const isDisabled = !isActive && activeCategories.length >= maxCategories;
-            return (
-              <button
-                key={cat}
-                onClick={() => toggleCategory(cat)}
-                disabled={isDisabled}
-                className={`text-sm px-4 py-2 rounded-full border transition-colors flex items-center gap-1.5 ${
-                  isActive
-                    ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-700"
-                    : isDisabled
-                    ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
-                    : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
-                }`}
-              >
-                {cat}
-                {isActive && <span className="opacity-60 text-xs leading-none">×</span>}
-              </button>
-            );
-          })}
+
+        {/* Geselecteerde categorieën — sleepbaar */}
+        {activeCategories.length > 0 && (
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Geselecteerd — sleep om volgorde aan te passen</p>
+            <div className="flex flex-wrap gap-2">
+              {activeCategories.map((cat, i) => (
+                <div
+                  key={cat}
+                  draggable
+                  onDragStart={(e) => e.dataTransfer.setData("text/plain", String(i))}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const from = parseInt(e.dataTransfer.getData("text/plain"));
+                    if (from === i) return;
+                    const updated = [...activeCategories];
+                    const [moved] = updated.splice(from, 1);
+                    updated.splice(i, 0, moved);
+                    setActiveCategories(updated);
+                  }}
+                  className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-full border bg-gray-900 text-white border-gray-900 cursor-grab active:cursor-grabbing select-none"
+                >
+                  <span className="opacity-40 text-xs">⠿</span>
+                  {i === 0 && <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full leading-none">1e</span>}
+                  {cat}
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className="opacity-50 hover:opacity-100 text-xs leading-none ml-0.5"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Beschikbare categorieën — klik om toe te voegen */}
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Toevoegen</p>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {ALL_CATEGORIES.filter((cat) => !activeCategories.includes(cat)).map((cat) => {
+              const isDisabled = activeCategories.length >= maxCategories;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  disabled={isDisabled}
+                  className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                    isDisabled
+                      ? "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"
+                      : "bg-[#FCFAFF] text-gray-700 border-[#E9E7F0] hover:border-gray-400"
+                  }`}
+                >
+                  + {cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <div className="flex items-center gap-3 mt-5">
           <button
