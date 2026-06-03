@@ -99,10 +99,10 @@ export default function HoeHetWerktBeeldmakersPage() {
 
       {/* ── 3 stappen ── */}
       <section className="max-w-5xl mx-auto px-5 md:px-8 pb-20">
-        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 text-center">
           3 eenvoudige stappen naar jouw volgende opdracht
         </h2>
-        <p className="text-gray-500 text-sm mb-8">
+        <p className="text-gray-500 text-sm mb-8 text-center">
           Zet jouw werk in de spotlight en word gevonden door opdrachtgevers die bij jou passen. Zo ga je van start:
         </p>
 
@@ -134,16 +134,16 @@ export default function HoeHetWerktBeeldmakersPage() {
 
       {/* ── Waarom LensLab ── */}
       <section className="max-w-5xl mx-auto px-5 md:px-8 py-16 border-t border-[#E9E7F0]">
-        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 text-center">
           Waarom beeldmakers kiezen voor LensLab
         </h2>
-        <p className="text-gray-500 text-sm mb-12">
+        <p className="text-gray-500 text-sm mb-12 text-center">
           Word gevonden door de opdrachtgevers die écht bij jou passen.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {BENEFITS.map((b) => (
-            <div key={b.title}>
+            <div key={b.title} className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-[#F0EDF5] flex items-center justify-center mb-5">
                 {b.icon}
               </div>
