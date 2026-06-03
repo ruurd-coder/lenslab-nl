@@ -14,18 +14,27 @@ export async function GET(request: Request) {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user?.email) {
-        // Bepaal rol: admin of photographer
-        const role = isAdmin(user.email) ? "admin" : "photographer";
+        // Check existing profile to avoid overwriting company users from lenslab.tech
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("role, organization_id")
+          .eq("id", user.id)
+          .single();
 
-        // Upsert profiel met juiste rol
-        await supabase.from("profiles").upsert({
-          id: user.id,
-          role,
-          full_name: user.email,
-        }, { onConflict: "id" });
+        const isCompanyUser = !!existingProfile?.organization_id;
+        const isExistingAdmin = existingProfile?.role === "admin";
 
-        // Admin → /admin, photographer → /dashboard
-        const redirectPath = role === "admin" ? "/admin" : "/dashboard";
+        if (!isCompanyUser && !isExistingAdmin) {
+          // New user or photographer — set photographer role
+          const role = isAdmin(user.email) ? "admin" : "photographer";
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            role,
+            full_name: user.user_metadata?.full_name || user.email,
+          }, { onConflict: "id" });
+        }
+
+        const redirectPath = isAdmin(user.email) ? "/admin" : "/dashboard";
         return NextResponse.redirect(`${origin}${redirectPath}`);
       }
     }
