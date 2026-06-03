@@ -59,4 +59,5 @@ export type AnalyticsEventType =
   | "mail_click"
   | "instagram_click"
   | "linkedin_click"
-  | "website_click";
+  | "website_click"
+  | "contact_request";

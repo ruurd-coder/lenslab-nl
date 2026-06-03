@@ -4,24 +4,41 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 interface MonthData {
-  month: string; // "2025-01"
-  label: string; // "Jan '25"
+  month: string;
+  label: string;
   impression: number;
   profile_click: number;
-  mail_click: number;
   website_click: number;
   instagram_click: number;
   linkedin_click: number;
+  contact_request: number;
 }
 
-const CHANNELS = [
-  { key: "impression",      label: "Impressies",      color: "#6366f1" },
-  { key: "profile_click",   label: "Profielclicks",   color: "#0ea5e9" },
-  { key: "mail_click",      label: "Mail clicks",     color: "#10b981" },
-  { key: "website_click",   label: "Website clicks",  color: "#f59e0b" },
-  { key: "instagram_click", label: "Instagram",       color: "#ec4899" },
-  { key: "linkedin_click",  label: "LinkedIn",        color: "#3b82f6" },
+const GROUPS = [
+  {
+    label: "Impressies",
+    channels: [
+      { key: "impression", label: "Impressies", color: "#6366f1" },
+    ],
+  },
+  {
+    label: "Clicks",
+    channels: [
+      { key: "profile_click",   label: "Profielclicks",  color: "#0ea5e9" },
+      { key: "website_click",   label: "Website",        color: "#f59e0b" },
+      { key: "instagram_click", label: "Instagram",      color: "#ec4899" },
+      { key: "linkedin_click",  label: "LinkedIn",       color: "#3b82f6" },
+    ],
+  },
+  {
+    label: "Aanvragen ontvangen",
+    channels: [
+      { key: "contact_request", label: "Aanvragen", color: "#10b981" },
+    ],
+  },
 ];
+
+const ALL_CHANNELS = GROUPS.flatMap((g) => g.channels);
 
 function getLast12Months(): { month: string; label: string }[] {
   const result = [];
@@ -36,10 +53,11 @@ function getLast12Months(): { month: string; label: string }[] {
 }
 
 // Simpele SVG lijnengrafiek
-function LineChart({ data, months, activeChannels }: {
+function LineChart({ data, months, activeChannels, allChannels }: {
   data: MonthData[];
   months: { month: string; label: string }[];
   activeChannels: string[];
+  allChannels: { key: string; label: string; color: string }[];
 }) {
   const W = 600;
   const H = 200;
@@ -70,7 +88,7 @@ function LineChart({ data, months, activeChannels }: {
       ))}
 
       {/* Lijnen per kanaal */}
-      {CHANNELS.filter((ch) => activeChannels.includes(ch.key)).map((ch) => {
+      {allChannels.filter((ch) => activeChannels.includes(ch.key)).map((ch) => {
         const points = months.map((m, i) => {
           const d = data.find((d) => d.month === m.month);
           return `${x(i)},${y((d as any)?.[ch.key] || 0)}`;
@@ -105,7 +123,7 @@ function LineChart({ data, months, activeChannels }: {
 export default function StatsDashboard({ photographerId }: { photographerId: string }) {
   const [data, setData] = useState<MonthData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeChannels, setActiveChannels] = useState(["impression", "profile_click", "mail_click"]);
+  const [activeChannels, setActiveChannels] = useState(["impression", "profile_click", "contact_request"]);
   const months = getLast12Months();
   const supabase = createClient();
 
@@ -120,7 +138,7 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
       // Groepeer per maand
       const byMonth: Record<string, MonthData> = {};
       months.forEach(({ month, label }) => {
-        byMonth[month] = { month, label, impression: 0, profile_click: 0, mail_click: 0, website_click: 0, instagram_click: 0, linkedin_click: 0 };
+        byMonth[month] = { month, label, impression: 0, profile_click: 0, website_click: 0, instagram_click: 0, linkedin_click: 0, contact_request: 0 };
       });
 
       (events || []).forEach((e) => {
@@ -137,14 +155,6 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
     load();
   }, [photographerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Totalen afgelopen 30 dagen
-  const last30 = data.slice(-1)[0] || {};
-  const totals = CHANNELS.map((ch) => ({
-    ...ch,
-    total: data.reduce((sum, d) => sum + ((d as any)[ch.key] || 0), 0),
-    last30: (last30 as any)[ch.key] || 0,
-  }));
-
   const toggleChannel = (key: string) => {
     setActiveChannels((prev) =>
       prev.includes(key) ? (prev.length > 1 ? prev.filter((k) => k !== key) : prev) : [...prev, key]
@@ -155,19 +165,40 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
     return <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8 text-center text-sm text-gray-400">Statistieken laden...</div>;
   }
 
-  const hasData = data.some((d) => CHANNELS.some((ch) => (d as any)[ch.key] > 0));
+  const hasData = data.some((d) => ALL_CHANNELS.some((ch) => (d as any)[ch.key] > 0));
 
   return (
     <div className="space-y-5">
-      {/* Totaalkaartjes */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-        {totals.map((ch) => (
-          <div key={ch.key} className="bg-white rounded-2xl border border-[#E9E7F0] p-4">
-            <p className="text-xs text-gray-400 mb-1 truncate">{ch.label}</p>
-            <p className="text-2xl font-black text-gray-900">{ch.total}</p>
-            <p className="text-xs text-gray-400 mt-0.5">totaal</p>
-          </div>
-        ))}
+      {/* Totaalkaartjes per groep */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {GROUPS.map((group) => {
+          const total = group.channels.reduce(
+            (sum, ch) => sum + data.reduce((s, d) => s + ((d as any)[ch.key] || 0), 0),
+            0
+          );
+          const mainChannel = group.channels[0];
+          return (
+            <div key={group.label} className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: mainChannel.color }} />
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{group.label}</p>
+              </div>
+              <p className="text-3xl font-black text-gray-900 mb-1">{total}</p>
+              {group.channels.length > 1 && (
+                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                  {group.channels.map((ch) => {
+                    const chTotal = data.reduce((s, d) => s + ((d as any)[ch.key] || 0), 0);
+                    return (
+                      <span key={ch.key} className="text-xs text-gray-400">
+                        {ch.label}: <span className="font-semibold text-gray-600">{chTotal}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Grafiek */}
@@ -176,27 +207,34 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
           <h3 className="text-sm font-bold text-gray-900">Afgelopen 12 maanden</h3>
         </div>
 
-        {/* Kanaal toggles */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          {CHANNELS.map((ch) => (
-            <button
-              key={ch.key}
-              onClick={() => toggleChannel(ch.key)}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                activeChannels.includes(ch.key)
-                  ? "border-transparent text-white"
-                  : "border-[#E9E7F0] text-gray-400 bg-[#FCFAFF]"
-              }`}
-              style={activeChannels.includes(ch.key) ? { backgroundColor: ch.color, borderColor: ch.color } : {}}
-            >
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: activeChannels.includes(ch.key) ? "white" : ch.color }} />
-              {ch.label}
-            </button>
+        {/* Kanaal toggles gegroepeerd */}
+        <div className="flex flex-wrap gap-x-6 gap-y-3 mb-5">
+          {GROUPS.map((group) => (
+            <div key={group.label} className="flex flex-col gap-1.5">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{group.label}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {group.channels.map((ch) => (
+                  <button
+                    key={ch.key}
+                    onClick={() => toggleChannel(ch.key)}
+                    className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      activeChannels.includes(ch.key)
+                        ? "border-transparent text-white"
+                        : "border-[#E9E7F0] text-gray-400 bg-[#FCFAFF]"
+                    }`}
+                    style={activeChannels.includes(ch.key) ? { backgroundColor: ch.color, borderColor: ch.color } : {}}
+                  >
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: activeChannels.includes(ch.key) ? "white" : ch.color }} />
+                    {ch.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
         {hasData ? (
-          <LineChart data={data} months={months} activeChannels={activeChannels} />
+          <LineChart data={data} months={months} activeChannels={activeChannels} allChannels={ALL_CHANNELS} />
         ) : (
           <div className="h-48 flex flex-col items-center justify-center text-center">
             <p className="text-3xl mb-3">📊</p>
@@ -217,7 +255,7 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
               <thead>
                 <tr className="bg-[#FCFAFF] border-b border-[#E9E7F0]">
                   <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Maand</th>
-                  {CHANNELS.map((ch) => (
+                  {ALL_CHANNELS.map((ch) => (
                     <th key={ch.key} className="text-center px-3 py-3 text-xs font-bold text-gray-500 uppercase whitespace-nowrap">
                       {ch.label}
                     </th>
@@ -228,7 +266,7 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
                 {[...data].reverse().map((d) => (
                   <tr key={d.month} className="border-b border-[#E9E7F0] hover:bg-[#FCFAFF]">
                     <td className="px-5 py-3 text-gray-700 font-medium capitalize">{d.label}</td>
-                    {CHANNELS.map((ch) => (
+                    {ALL_CHANNELS.map((ch) => (
                       <td key={ch.key} className="px-3 py-3 text-center font-mono text-gray-600">
                         {(d as any)[ch.key] || 0}
                       </td>

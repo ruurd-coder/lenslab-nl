@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   photographerId: string;
@@ -47,6 +48,7 @@ export default function ContactModal({ photographerId, photographerName, onClose
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Versturen mislukt");
       setSent(true);
+      trackEvent(photographerId, "contact_request");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Versturen mislukt, probeer opnieuw");
     } finally {
