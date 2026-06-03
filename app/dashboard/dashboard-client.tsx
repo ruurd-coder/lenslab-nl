@@ -145,12 +145,12 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-[#E9E7F0] rounded-full p-1 mb-8 w-fit">
+        <div className="flex gap-1 bg-[#E9E7F0] rounded-full p-1 mb-8 overflow-x-auto max-w-full">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`text-sm px-5 py-2 rounded-full transition-colors font-medium ${
+              className={`text-sm px-4 py-2 rounded-full transition-colors font-medium shrink-0 ${
                 activeTab === tab.id
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -215,7 +215,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
               </div>
 
               <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Bedrijfsnaam</label>
                     <input
@@ -248,7 +248,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Website</label>
                     <input
@@ -748,7 +748,7 @@ function SpecialtyUploader({
         <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2 mb-3">{sizeError}</p>
       )}
 
-      <div className="grid grid-cols-5 gap-2 mb-3">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3">
         {images.map((url, i) => (
           <div
             key={url}
@@ -889,7 +889,7 @@ function ReviewInviteTab({ photographerId, photographerSlug }: { photographerId:
         )}
 
         <form onSubmit={sendInvite} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Naam klant</label>
               <input

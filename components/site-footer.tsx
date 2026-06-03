@@ -31,7 +31,7 @@ export default function SiteFooter() {
   return (
     <footer style={{ backgroundColor: "#FCFAFF" }}>
       <div className="border-t border-black/[0.08]">
-        <div className="max-w-[1400px] mx-auto w-full px-5 md:px-12 py-16 flex flex-col md:flex-row justify-between gap-12">
+        <div className="max-w-[1400px] mx-auto w-full px-5 md:px-12 py-10 md:py-16 flex flex-col md:flex-row justify-between gap-8 md:gap-12">
 
           {/* Logo + tagline + socials */}
           <div>
@@ -64,7 +64,7 @@ export default function SiteFooter() {
           </div>
 
           {/* Nav kolommen */}
-          <div className="flex flex-wrap gap-10 md:gap-16">
+          <div className="flex flex-wrap gap-8 md:gap-16">
             {COLUMNS.map((col) => (
               <div key={col.heading}>
                 <p className="text-[13.8px] font-semibold tracking-widest uppercase mb-5" style={{ color: "#030005" }}>
@@ -90,9 +90,9 @@ export default function SiteFooter() {
 
         {/* Copyright bar */}
         <div className="border-t border-black/[0.08]">
-          <div className="max-w-[1400px] mx-auto w-full px-5 md:px-12 py-6 flex flex-col md:flex-row justify-between gap-4 text-[14px]" style={{ color: "#030005", opacity: 0.7 }}>
+          <div className="max-w-[1400px] mx-auto w-full px-5 md:px-12 py-6 flex flex-col md:flex-row justify-between gap-3 md:gap-4 text-[14px]" style={{ color: "#030005", opacity: 0.7 }}>
             <span>Copyright © 2025 LensLab. All rights reserved.</span>
-            <div className="flex items-center gap-8">
+            <div className="flex flex-wrap items-center gap-4 md:gap-8">
               <span>Lange Kleiweg 62, 2288GK Rijswijk</span>
               <Link href="/algemene-voorwaarden" className="hover:opacity-100 transition-opacity">Algemene voorwaarden</Link>
               <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy</Link>

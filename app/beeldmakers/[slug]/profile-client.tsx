@@ -323,7 +323,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
 
             {/* Portfolio thumbnails */}
             {thumbnailImages.length > 0 && (
-              <div className="grid grid-cols-4 gap-1.5 mb-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-2">
                 {thumbnailImages.slice(0, 4).map((img, i) => {
                   const totalPhotos = 1 + thumbnailImages.length; // main + alle thumbnails
                   const remaining = totalPhotos - 4; // 4 al zichtbaar (1 main + 3 thumbs)
