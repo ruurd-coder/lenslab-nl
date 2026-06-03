@@ -44,9 +44,9 @@ const PREMIUM_FEATURES: Feature[] = [
 ];
 
 const TIERS = [
-  { name: "Free",    price: "Gratis", period: "",        description: "Starten op het platform en direct zichtbaar worden.",                         featured: false, cta: "Gratis aanmelden",   ctaLink: "/login",                                             billing: "Geen creditcard nodig.",       features: FREE_FEATURES    },
-  { name: "Plus",    price: "€7",     period: "/maand",  description: "Meer zichtbaarheid en een completer profiel voor groeiende fotografen.",       featured: true,  cta: "Start met Plus",     ctaLink: "mailto:hello@lenslab.nl?subject=Plus membership",    billing: "Jaarlijks gefactureerd.",      features: PLUS_FEATURES    },
-  { name: "Premium", price: "€14",    period: "/maand",  description: "Maximum zichtbaarheid en uitgelicht op het hele platform.",                    featured: false, cta: "Start met Premium",  ctaLink: "mailto:hello@lenslab.nl?subject=Premium membership", billing: "Jaarlijks gefactureerd.",      features: PREMIUM_FEATURES },
+  { name: "Free",    price: "Gratis", period: "",        description: "Maak een vliegende start en word gevonden door potentiële klanten.",              featured: false, cta: "Gratis aanmelden",   ctaLink: "/login",                                             billing: "Geen creditcard nodig.",  features: FREE_FEATURES    },
+  { name: "Plus",    price: "€7",     period: "/maand",  description: "Bereik meer potentiële klanten met extra zichtbaarheid en meer locaties.",         featured: true,  cta: "Start met Plus",     ctaLink: "mailto:hello@lenslab.nl?subject=Plus membership",    billing: "Jaarlijks gefactureerd.", features: PLUS_FEATURES    },
+  { name: "Premium", price: "€14",    period: "/maand",  description: "Voor professionals die maximale zichtbaarheid en groei nastreven.",                featured: false, cta: "Start met Premium",  ctaLink: "mailto:hello@lenslab.nl?subject=Premium membership", billing: "Jaarlijks gefactureerd.", features: PREMIUM_FEATURES },
 ];
 
 function CheckIcon() {
@@ -75,13 +75,13 @@ export default function MembershipsPage() {
       {/* Hero */}
       <section className="max-w-2xl mx-auto px-6 pt-16 pb-12 text-center">
         <p className="text-xs font-bold tracking-widest uppercase mb-4" style={{ color: "rgba(3,0,5,0.4)" }}>
-          Beeldmakers
+          Onze memberships
         </p>
         <h1 className="text-5xl font-black leading-tight tracking-tight mb-4" style={{ color: "#030005" }}>
-          Kies jouw membership
+          Meer zichtbaarheid.<br />Meer aanvragen.
         </h1>
         <p className="text-lg mb-2" style={{ color: "rgba(3,0,5,0.6)" }}>
-          Zet jezelf op de kaart als fotograaf of videograaf. Begin gratis en upgrade wanneer je meer wilt.
+          Krijg meer zichtbaarheid, verschijn op meer locaties en vergroot je kans op nieuwe opdrachten. Kies het membership dat bij jouw ambities past.
         </p>
         <p className="text-sm" style={{ color: "rgba(3,0,5,0.4)" }}>
           Alle prijzen exclusief btw
