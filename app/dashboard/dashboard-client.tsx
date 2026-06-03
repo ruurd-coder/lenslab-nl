@@ -351,18 +351,15 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Upgraden naar Plus of Premium</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Meer zichtbaarheid, meer portfolio&apos;s</p>
+              {/* Stripe upgrade / portal */}
+              {photographer.membership_tier === "free" ? (
+                <div className="space-y-3">
+                  <UpgradeButton tier="plus" label="Upgrade naar Plus — €84/jaar" />
+                  <UpgradeButton tier="premium" label="Upgrade naar Premium — €168/jaar" />
                 </div>
-                <a
-                  href="mailto:info@lenslab.nl?subject=Upgrade membership"
-                  className="text-sm bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
-                >
-                  Contact
-                </a>
-              </div>
+              ) : (
+                <ManageBillingButton />
+              )}
 
               <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
                 <div>
@@ -863,6 +860,62 @@ function ReviewInviteTab({ photographerId, photographerSlug }: { photographerId:
           </button>
         </form>
       </div>
+    </div>
+  );
+}
+
+// ── Stripe knoppen ───────────────────────────────────────────────────
+
+function UpgradeButton({ tier, label }: { tier: "plus" | "premium"; label: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    const res = await fetch("/api/stripe/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tier }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else { alert(data.error || "Er ging iets mis"); setLoading(false); }
+  };
+
+  return (
+    <button
+      onClick={handleUpgrade}
+      disabled={loading}
+      className="w-full bg-gray-900 text-white text-sm px-5 py-3 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
+    >
+      {loading ? "Doorsturen naar betaling..." : label}
+    </button>
+  );
+}
+
+function ManageBillingButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handlePortal = async () => {
+    setLoading(true);
+    const res = await fetch("/api/stripe/portal", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else { alert(data.error || "Er ging iets mis"); setLoading(false); }
+  };
+
+  return (
+    <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
+      <div>
+        <p className="text-sm font-semibold text-gray-900">Membership beheren</p>
+        <p className="text-xs text-gray-400 mt-0.5">Upgraden, downgraden of opzeggen</p>
+      </div>
+      <button
+        onClick={handlePortal}
+        disabled={loading}
+        className="text-sm bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50"
+      >
+        {loading ? "Laden..." : "Beheer abonnement"}
+      </button>
     </div>
   );
 }
