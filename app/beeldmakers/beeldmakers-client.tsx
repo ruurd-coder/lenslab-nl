@@ -175,7 +175,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
               <h2 className="text-2xl font-black text-gray-900 mb-1">Uitgelichte creators</h2>
               <p className="text-sm text-gray-400">Bekijk onze beste fotografen en videografen op een rij</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
               {featured.map((p) => (
                 <PhotographerCard key={p.id} photographer={p} pageContext="/beeldmakers" />
               ))}
@@ -187,7 +187,7 @@ export default function BeeldmakersClient({ photographers, featured }: Props) {
             <p className="text-sm text-gray-500 mb-6">
               <span className="font-semibold text-gray-900">{filtered.length}</span> beeldmaker{filtered.length !== 1 ? "s" : ""} gevonden
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
               {filtered.map((p) => (
                 <PhotographerCard key={p.id} photographer={p} pageContext="/beeldmakers" />
               ))}
