@@ -74,7 +74,7 @@ export default function PhotographerCard({ photographer, pageContext }: Props) {
             <div className="flex flex-wrap gap-1.5">
               {photographer.specialties.slice(0, 3).map((s) => (
                 <span key={s} className="text-xs bg-[#E9E7F0] text-gray-700 rounded-full px-2.5 py-0.5">
-                  {s}
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
                 </span>
               ))}
             </div>
