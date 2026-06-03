@@ -33,10 +33,14 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
   const [showOnboarding, setShowOnboarding] = useState(!initial.is_published);
   const [showPortfolioPrompt, setShowPortfolioPrompt] = useState(false);
   const maxCategories = TIER_LIMITS[photographer.membership_tier] || 1;
+  // Normaliseer naar canonieke casing uit ALL_CATEGORIES (case-insensitive match)
+  const normalizeCategory = (cat: string) =>
+    ALL_CATEGORIES.find((c) => c.toLowerCase() === cat.toLowerCase()) ?? cat;
+
   // Actieve portfolio-categorieën: uit specialties OF uit portfolio_by_category keys
   const [activeCategories, setActiveCategories] = useState<string[]>(() => {
-    const fromPortfolio = Object.keys(photographer.portfolio_by_category || {});
-    const fromSpecialties = photographer.specialties || [];
+    const fromPortfolio = Object.keys(photographer.portfolio_by_category || {}).map(normalizeCategory);
+    const fromSpecialties = (photographer.specialties || []).map(normalizeCategory);
     const combined = [...new Set([...fromPortfolio, ...fromSpecialties])];
     return combined.slice(0, maxCategories);
   });

@@ -61,20 +61,42 @@ function Nav() {
   );
 }
 
+// Canonieke categorieënlijst
+const CANONICAL_CATEGORIES = [
+  "Drone / Lucht", "Food & restaurant", "Afscheid", "Baby",
+  "Evenementen", "Makelaars", "Bedrijf", "Huisdier",
+  "Familie", "Portret", "Boudoir", "Bruiloft", "Zwangerschap", "Feest",
+];
+
+function normalizeCat(cat: string): string {
+  return CANONICAL_CATEGORIES.find((c) => c.toLowerCase() === cat.toLowerCase()) ?? cat;
+}
+
+function normalizePortfolio(portfolio: Record<string, string[]> | null | undefined): Record<string, string[]> {
+  if (!portfolio) return {};
+  const result: Record<string, string[]> = {};
+  for (const [key, images] of Object.entries(portfolio)) {
+    const normalized = normalizeCat(key);
+    result[normalized] = [...(result[normalized] ?? []), ...images];
+  }
+  return result;
+}
+
 export default function ProfileClient({ photographer, reviews, otherPhotographers }: Props) {
   const membership = getMembership(photographer.membership_tier);
-  const categories = photographer.specialties.slice(0, membership.maxCategories);
+  const normalizedPortfolio = normalizePortfolio(photographer.portfolio_by_category);
+  const categories = photographer.specialties.slice(0, membership.maxCategories).map(normalizeCat);
   const [activeCategory, setActiveCategory] = useState("Alle");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showContact, setShowContact] = useState(false);
 
   // "Alle" = mix van alle categorieën (max 10 totaal), anders gefilterd per cat
   const categoryImages = activeCategory === "Alle"
-    ? Object.values(photographer.portfolio_by_category ?? {})
+    ? Object.values(normalizedPortfolio)
         .flat()
         .filter((v, i, a) => a.indexOf(v) === i)
         .slice(0, MAX_IMAGES_PER_CATEGORY)
-    : (photographer.portfolio_by_category?.[activeCategory] ?? []).slice(0, MAX_IMAGES_PER_CATEGORY);
+    : (normalizedPortfolio[activeCategory] ?? []).slice(0, MAX_IMAGES_PER_CATEGORY);
 
   // Hoofdfoto: hero bij "Alle", anders eerste foto van de geselecteerde categorie
   const mainImage = activeCategory === "Alle"
