@@ -32,6 +32,31 @@ export async function GET(request: Request) {
             role,
             full_name: user.user_metadata?.full_name || user.email,
           }, { onConflict: "id" });
+
+          // Auto-create photographers record if none exists yet
+          if (role === "photographer") {
+            const { data: existingPhotographer } = await supabase
+              .from("photographers")
+              .select("id")
+              .eq("email", user.email)
+              .single();
+
+            if (!existingPhotographer) {
+              const emailPrefix = user.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "-");
+              const suffix = user.id.slice(0, 6);
+              const slug = `${emailPrefix}-${suffix}`;
+              const businessName = emailPrefix.replace(/-/g, " ");
+
+              await supabase.from("photographers").insert({
+                user_id: user.id,
+                email: user.email,
+                slug,
+                business_name: businessName,
+                type: "fotograaf",
+                is_published: false,
+              });
+            }
+          }
         }
 
         const redirectPath = isAdmin(user.email) ? "/admin" : "/dashboard";
