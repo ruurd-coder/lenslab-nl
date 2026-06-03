@@ -61,6 +61,42 @@ function Nav() {
   );
 }
 
+// ── Review card met expand/collapse ──────────────────────────────────
+
+function ReviewCard({ review: r }: { review: Review }) {
+  const [expanded, setExpanded] = useState(false);
+  const CLAMP_THRESHOLD = 180; // tekens waarboven we afkappen
+  const isLong = (r.review_text?.length ?? 0) > CLAMP_THRESHOLD;
+
+  return (
+    <div className="bg-[#E9E7F0] rounded-2xl p-5 flex flex-col">
+      <Stars rating={r.rating} size="sm" />
+      <p className="text-sm font-semibold text-gray-900 mt-2 mb-0.5">
+        {r.review_date
+          ? new Date(r.review_date).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" })
+          : ""}{" "}
+        door {r.reviewer_name}
+      </p>
+      {r.review_text && (
+        <>
+          <p className={`text-sm text-gray-500 mt-2 ${!expanded && isLong ? "line-clamp-3" : ""}`}>
+            {r.review_text}
+          </p>
+          {isLong && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="text-xs text-gray-400 hover:text-gray-700 underline mt-1.5 self-start transition-colors"
+            >
+              {expanded ? "Lees minder" : "Lees meer"}
+            </button>
+          )}
+        </>
+      )}
+      {r.source && <p className="text-xs text-gray-400 mt-auto pt-2">{r.source}</p>}
+    </div>
+  );
+}
+
 // Canonieke categorieënlijst
 const CANONICAL_CATEGORIES = [
   "Drone / Lucht", "Food & restaurant", "Afscheid", "Baby",
@@ -324,18 +360,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {reviews.slice(0, 3).map((r) => (
-            <div key={r.id} className="bg-[#E9E7F0] rounded-2xl p-5">
-              <Stars rating={r.rating} size="sm" />
-              <p className="text-sm font-semibold text-gray-900 mt-2 mb-0.5">
-                {r.review_date ? new Date(r.review_date).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" }) : ""} door {r.reviewer_name}
-              </p>
-              {r.review_text && (
-                <p className="text-sm text-gray-500 mt-2 line-clamp-3">{r.review_text}</p>
-              )}
-              {r.source && (
-                <p className="text-xs text-gray-400 mt-2">{r.source}</p>
-              )}
-            </div>
+            <ReviewCard key={r.id} review={r} />
           ))}
         </div>
         {reviews.length > 3 && (
