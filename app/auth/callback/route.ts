@@ -53,7 +53,7 @@ export async function GET(request: Request) {
                 slug,
                 business_name: businessName,
                 type: "fotograaf",
-                is_published: false,
+                is_published: true,
               });
             }
           }
