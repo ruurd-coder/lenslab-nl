@@ -318,6 +318,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
             activeCategories={activeCategories}
             setActiveCategories={setActiveCategories}
             setPhotographer={setPhotographer}
+            onUpgradeClick={() => setActiveTab("instellingen")}
           />
         )}
 
@@ -389,12 +390,13 @@ const ALL_PROVINCES = [
   "Limburg", "Drenthe", "Flevoland", "Zeeland",
 ];
 
-function PortfolioTab({ photographer, maxCategories, activeCategories, setActiveCategories, setPhotographer }: {
+function PortfolioTab({ photographer, maxCategories, activeCategories, setActiveCategories, setPhotographer, onUpgradeClick }: {
   photographer: Photographer;
   maxCategories: number;
   activeCategories: string[];
   setActiveCategories: React.Dispatch<React.SetStateAction<string[]>>;
   setPhotographer: React.Dispatch<React.SetStateAction<Photographer>>;
+  onUpgradeClick: () => void;
 }) {
   const supabase = createClient();
   const membership = getMembership(photographer.membership_tier as any);
@@ -441,7 +443,7 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
         </div>
         <p className="text-sm text-gray-500 mb-5">
           Selecteer de categorieën waarvoor je geboekt wilt worden. Je bent zichtbaar op die landingspagina&apos;s.
-          {maxCategories < 8 && <> Wil je meer? <a href="mailto:hello@lenslab.nl?subject=Upgrade" className="underline">Upgrade je account</a>.</>}
+          {maxCategories < 8 && <> Wil je meer? <button onClick={onUpgradeClick} className="underline">Upgrade je account</button>.</>}
         </p>
         <div className="flex flex-wrap gap-2 mb-5">
           {ALL_CATEGORIES.map((cat) => {
@@ -495,7 +497,7 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
         </div>
         <p className="text-sm text-gray-500 mb-5">
           Selecteer de provincies waar je actief bent. Je bent zichtbaar op alle stad- en provinciepagina&apos;s binnen je selectie.
-          {membership.maxLocations !== null && membership.maxLocations < 12 && <> Wil je meer? <a href="mailto:hello@lenslab.nl?subject=Upgrade" className="underline">Upgrade je account</a>.</>}
+          {membership.maxLocations !== null && membership.maxLocations < 12 && <> Wil je meer? <button onClick={onUpgradeClick} className="underline">Upgrade je account</button>.</>}
         </p>
         <div className="flex flex-wrap gap-2 mb-5">
           {ALL_PROVINCES.map((region) => {
