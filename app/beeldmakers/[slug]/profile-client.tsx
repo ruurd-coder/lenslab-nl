@@ -76,6 +76,22 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
         .slice(0, MAX_IMAGES_PER_CATEGORY)
     : (photographer.portfolio_by_category?.[activeCategory] ?? []).slice(0, MAX_IMAGES_PER_CATEGORY);
 
+  // Hoofdfoto: hero bij "Alle", anders eerste foto van de geselecteerde categorie
+  const mainImage = activeCategory === "Alle"
+    ? (photographer.hero_image_url || categoryImages[0] || null)
+    : (categoryImages[0] || photographer.hero_image_url || null);
+
+  // Thumbnails: bij "Alle" met hero toon alle categoryImages, anders sla eerste over (al mainImage)
+  const thumbnailImages = activeCategory === "Alle" && photographer.hero_image_url
+    ? categoryImages
+    : categoryImages.slice(1);
+
+  // Lightbox afbeeldingen: mainImage voorop, daarna de rest
+  const lightboxImages = [
+    ...(mainImage ? [mainImage] : []),
+    ...( activeCategory === "Alle" && photographer.hero_image_url ? categoryImages : categoryImages.slice(1)),
+  ];
+
   useEffect(() => {
     trackEvent(photographer.id, "impression");
   }, [photographer.id]);
@@ -233,34 +249,34 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
               </div>
             </div>
 
-            {/* Hero foto — klikbaar, opent lightbox op index 0 */}
-            {photographer.hero_image_url ? (
+            {/* Hoofdfoto — wisselt mee met geselecteerde categorie */}
+            {mainImage ? (
               <button
                 onClick={() => setLightboxIndex(0)}
                 className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100 mb-2 group cursor-zoom-in block"
               >
-                <Image src={photographer.hero_image_url} alt={photographer.business_name} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" priority />
+                <Image src={mainImage} alt={photographer.business_name} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" priority />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
               </button>
             ) : (
               <div className="w-full aspect-[4/3] bg-[#E9E7F0] flex items-center justify-center mb-2">
-                <p className="text-sm text-gray-400">Geen hoofdfoto beschikbaar</p>
+                <p className="text-sm text-gray-400">Geen foto&apos;s beschikbaar</p>
               </div>
             )}
 
-            {/* Portfolio thumbnails — klikbaar, openen lightbox */}
-            {categoryImages.length > 0 && (
+            {/* Portfolio thumbnails */}
+            {thumbnailImages.length > 0 && (
               <div className="grid grid-cols-4 gap-1.5 mb-2">
-                {categoryImages.slice(0, 4).map((img, i) => {
-                  const remaining = categoryImages.length - 3;
-                  const showOverlay = i === 3 && categoryImages.length > 4;
+                {thumbnailImages.slice(0, 4).map((img, i) => {
+                  const remaining = thumbnailImages.length - 3;
+                  const showOverlay = i === 3 && thumbnailImages.length > 4;
                   return (
                     <button
                       key={i}
-                      onClick={() => setLightboxIndex(photographer.hero_image_url ? i + 1 : i)}
+                      onClick={() => setLightboxIndex(i + 1)}
                       className="relative aspect-square overflow-hidden bg-gray-100 group cursor-zoom-in"
                     >
-                      <Image src={img} alt={`Foto ${i + 1}`} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.05]" />
+                      <Image src={img} alt={`Foto ${i + 2}`} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.05]" />
                       {showOverlay ? (
                         <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
                           <span className="text-white text-sm font-semibold">+ {remaining} foto&apos;s</span>
@@ -345,22 +361,16 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
       )}
 
       {/* Lightbox */}
-      {lightboxIndex !== null && (() => {
-        const allImages = [
-          ...(photographer.hero_image_url ? [photographer.hero_image_url] : []),
-          ...categoryImages,
-        ];
-        return (
-          <Lightbox
-            images={allImages}
-            currentIndex={lightboxIndex}
-            photographerName={photographer.business_name}
-            onClose={() => setLightboxIndex(null)}
-            onNext={() => setLightboxIndex((i) => i !== null ? (i + 1) % allImages.length : null)}
-            onPrev={() => setLightboxIndex((i) => i !== null ? (i - 1 + allImages.length) % allImages.length : null)}
-          />
-        );
-      })()}
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={lightboxImages}
+          currentIndex={lightboxIndex}
+          photographerName={photographer.business_name}
+          onClose={() => setLightboxIndex(null)}
+          onNext={() => setLightboxIndex((i) => i !== null ? (i + 1) % lightboxImages.length : null)}
+          onPrev={() => setLightboxIndex((i) => i !== null ? (i - 1 + lightboxImages.length) % lightboxImages.length : null)}
+        />
+      )}
     </div>
   );
 }
