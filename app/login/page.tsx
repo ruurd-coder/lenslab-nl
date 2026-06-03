@@ -96,7 +96,7 @@ export default function LoginPage() {
                 <p className="text-xs text-gray-400 text-center mt-6">
                   Nog geen profiel?{" "}
                   <Link href="/aanmelden" className="underline hover:text-gray-700">
-                    Aanmelden
+                    Maak gratis een profiel aan.
                   </Link>
                 </p>
               </>
