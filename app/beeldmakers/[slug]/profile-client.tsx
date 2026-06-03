@@ -12,7 +12,7 @@ import type { Photographer } from "@/lib/types";
 import type { Review } from "./page";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
-const MAX_IMAGES_PER_CATEGORY = 10;
+const MAX_IMAGES_PER_CATEGORY = 10; // upload-limiet per categorie in dashboard
 
 interface OtherPhotographer {
   id: string;
@@ -95,8 +95,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
     ? Object.values(normalizedPortfolio)
         .flat()
         .filter((v, i, a) => a.indexOf(v) === i)
-        .slice(0, MAX_IMAGES_PER_CATEGORY)
-    : (normalizedPortfolio[activeCategory] ?? []).slice(0, MAX_IMAGES_PER_CATEGORY);
+    : (normalizedPortfolio[activeCategory] ?? []);
 
   // Hoofdfoto: hero bij "Alle", anders eerste foto van de geselecteerde categorie
   const mainImage = activeCategory === "Alle"
@@ -290,8 +289,9 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
             {thumbnailImages.length > 0 && (
               <div className="grid grid-cols-4 gap-1.5 mb-2">
                 {thumbnailImages.slice(0, 4).map((img, i) => {
-                  const remaining = thumbnailImages.length - 3;
-                  const showOverlay = i === 3 && thumbnailImages.length > 4;
+                  const totalPhotos = 1 + thumbnailImages.length; // main + alle thumbnails
+                  const remaining = totalPhotos - 4; // 4 al zichtbaar (1 main + 3 thumbs)
+                  const showOverlay = i === 3 && totalPhotos > 4;
                   return (
                     <button
                       key={i}
