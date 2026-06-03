@@ -183,7 +183,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
               )}
               {membership.showWebsite && photographer.website_url && (
                 <button
-                  onClick={() => { trackEvent(photographer.id, "website_click"); window.open(photographer.website_url!, "_blank"); }}
+                  onClick={() => { trackEvent(photographer.id, "website_click"); const url = photographer.website_url!; window.open(url.startsWith("http") ? url : `https://${url}`, "_blank"); }}
                   className="flex items-center gap-1.5 border border-gray-200 text-gray-700 text-sm px-5 py-2.5 rounded-full hover:border-gray-400 transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
