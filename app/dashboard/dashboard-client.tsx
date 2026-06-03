@@ -30,6 +30,8 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
   const [photographer, setPhotographer] = useState(initial);
   const [activeTab, setActiveTab] = useState<Tab>("profiel");
   const [saving, setSaving] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(!initial.is_published);
+  const [showPortfolioPrompt, setShowPortfolioPrompt] = useState(false);
   const maxCategories = TIER_LIMITS[photographer.membership_tier] || 1;
   // Actieve portfolio-categorieën: uit specialties OF uit portfolio_by_category keys
   const [activeCategories, setActiveCategories] = useState<string[]>(() => {
@@ -378,6 +380,30 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
           </div>
         )}
       </main>
+
+      {showOnboarding && (
+        <OnboardingModal
+          photographer={photographer}
+          onComplete={(updated) => {
+            setPhotographer(updated);
+            setForm((f) => ({
+              ...f,
+              business_name: updated.business_name || "",
+              contact_name: updated.contact_name || "",
+              bio: updated.bio || "",
+            }));
+            setShowOnboarding(false);
+            setShowPortfolioPrompt(true);
+          }}
+        />
+      )}
+
+      {showPortfolioPrompt && (
+        <PortfolioPromptModal
+          onClose={() => { setShowPortfolioPrompt(false); setActiveTab("portfolio"); }}
+          onDismiss={() => setShowPortfolioPrompt(false)}
+        />
+      )}
     </div>
   );
 }
@@ -861,6 +887,194 @@ function ReviewInviteTab({ photographerId, photographerSlug }: { photographerId:
             {sending ? "Versturen..." : "Stuur uitnodiging →"}
           </button>
         </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Onboarding modal ─────────────────────────────────────────────────
+
+function OnboardingModal({ photographer, onComplete }: {
+  photographer: Photographer;
+  onComplete: (updated: Photographer) => void;
+}) {
+  const supabase = createClient();
+  const [form, setForm] = useState({
+    business_name: photographer.business_name || "",
+    contact_name: photographer.contact_name || "",
+    bio: photographer.bio || "",
+  });
+  const [avatarUrl, setAvatarUrl] = useState(photographer.avatar_url || "");
+  const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const isComplete = form.business_name.trim() && form.contact_name.trim() && form.bio.trim() && avatarUrl;
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1 * 1024 * 1024) { alert("Bestand is groter dan 1MB."); return; }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${photographer.id}/avatar/avatar-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("photographer-assets").upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from("photographer-assets").getPublicUrl(path);
+      setAvatarUrl(data.publicUrl);
+    }
+    setUploadingAvatar(false);
+    e.target.value = "";
+  };
+
+  const handleSave = async () => {
+    if (!isComplete) return;
+    setSaving(true);
+    const { data } = await supabase
+      .from("photographers")
+      .update({
+        business_name: form.business_name.trim(),
+        contact_name: form.contact_name.trim(),
+        bio: form.bio.trim(),
+        avatar_url: avatarUrl,
+        is_published: true,
+      })
+      .eq("id", photographer.id)
+      .select()
+      .single();
+    setSaving(false);
+    if (data) onComplete(data as Photographer);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-[#E9E7F0]">
+          <div className="flex items-center gap-3 mb-2">
+            <Image src="/logo.png" alt="LensLab" width={90} height={24} className="h-6 w-auto" />
+          </div>
+          <h2 className="text-xl font-black text-gray-900 mt-3">Welkom bij LensLab! 👋</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Vul je basisprofiel in zodat merken jou kunnen vinden. Dit duurt minder dan 2 minuten.
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="px-8 py-6 space-y-5">
+          {/* Profielfoto */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Profielfoto <span className="text-red-400">*</span>
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-[#E9E7F0] shrink-0 flex items-center justify-center">
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt="Avatar" width={64} height={64} className="object-cover w-full h-full" />
+                ) : (
+                  <span className="text-2xl text-gray-400">📷</span>
+                )}
+              </div>
+              <label className={`cursor-pointer inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full transition-colors font-medium ${
+                avatarUrl ? "bg-green-50 text-green-700 border border-green-200" : "bg-gray-900 text-white hover:bg-gray-700"
+              }`}>
+                {uploadingAvatar ? "Uploaden..." : avatarUrl ? "✓ Foto geüpload — wijzigen" : "Foto uploaden"}
+                <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+              </label>
+            </div>
+          </div>
+
+          {/* Bedrijfsnaam */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Bedrijfsnaam <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.business_name}
+              onChange={(e) => setForm({ ...form, business_name: e.target.value })}
+              placeholder="Jouw bedrijfsnaam"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+            />
+          </div>
+
+          {/* Contactnaam */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Jouw naam <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.contact_name}
+              onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+              placeholder="Voor- en achternaam"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+            />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Bio <span className="text-red-400">*</span>
+            </label>
+            <textarea
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              placeholder="Vertel iets over jezelf, je stijl en wat je het liefst fotografeert..."
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 pb-8">
+          <button
+            onClick={handleSave}
+            disabled={!isComplete || saving}
+            className="w-full bg-gray-900 text-white py-3.5 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving ? "Profiel aanmaken..." : "Profiel aanmaken en publiceren →"}
+          </button>
+          {!isComplete && (
+            <p className="text-xs text-gray-400 text-center mt-3">Vul alle velden in om door te gaan</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Portfolio prompt modal ────────────────────────────────────────────
+
+function PortfolioPromptModal({ onClose, onDismiss }: {
+  onClose: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md text-center overflow-hidden">
+        <div className="px-8 pt-10 pb-8">
+          <div className="text-5xl mb-4">🎉</div>
+          <h2 className="text-xl font-black text-gray-900 mb-3">Je profiel staat live!</h2>
+          <p className="text-sm text-gray-500 leading-relaxed mb-2">
+            Merken kunnen je nu al vinden — maar beeldmakers <strong>met een portfolio</strong> krijgen gemiddeld <strong>4x meer aanvragen</strong>.
+          </p>
+          <p className="text-sm text-gray-500 leading-relaxed mb-8">
+            Upload je mooiste werk en laat zien wat je in huis hebt. Het duurt maar een paar minuten en het maakt écht het verschil. 📸
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full bg-gray-900 text-white py-3.5 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors mb-3"
+          >
+            Portfolio invullen →
+          </button>
+          <button
+            onClick={onDismiss}
+            className="w-full text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors"
+          >
+            Later doen
+          </button>
+        </div>
       </div>
     </div>
   );
