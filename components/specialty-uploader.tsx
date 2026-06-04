@@ -35,9 +35,19 @@ export function SpecialtyUploader({
       .select("portfolio_by_category")
       .eq("id", photographerId)
       .single();
+
+    // Verwijder alle case-insensitive varianten van dezelfde sleutel om duplicaten te voorkomen
+    const existing = current?.portfolio_by_category || {};
+    const cleaned: Record<string, string[]> = {};
+    for (const [k, v] of Object.entries(existing)) {
+      if (k.toLowerCase() !== specialty.toLowerCase()) {
+        cleaned[k] = v as string[];
+      }
+    }
+
     await supabase
       .from("photographers")
-      .update({ portfolio_by_category: { ...(current?.portfolio_by_category || {}), [specialty]: updated } })
+      .update({ portfolio_by_category: { ...cleaned, [specialty]: updated } })
       .eq("id", photographerId);
     onUpdate(updated);
   };

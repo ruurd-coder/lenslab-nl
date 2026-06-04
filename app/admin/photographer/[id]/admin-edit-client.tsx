@@ -204,7 +204,7 @@ export default function AdminEditClient({ photographer: initial }: { photographe
                   key={specialty}
                   specialty={specialty}
                   photographerId={p.id}
-                  existingImages={p.portfolio_by_category?.[specialty] || []}
+                  existingImages={Object.entries(p.portfolio_by_category || {}).find(([k]) => k.toLowerCase() === specialty.toLowerCase())?.[1] as string[] || []}
                   heroImage={p.hero_image_url}
                   onUpdate={(images) => setP((prev: any) => ({
                     ...prev,
