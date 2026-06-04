@@ -84,7 +84,7 @@ export default function HoeHetWerktPage() {
           className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.08] tracking-tight text-gray-900 mb-10"
           style={{ fontFamily: "var(--font-dm-sans)" }}
         >
-          Ontdek honderden fotografen<br className="hidden sm:block" /> en videografen op één plek.&rdquo;
+          Ontdek honderden fotografen<br /> en videografen op één plek.
         </h1>
 
         <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden">
@@ -138,16 +138,16 @@ export default function HoeHetWerktPage() {
 
       {/* Waarom opdrachtgevers kiezen voor LensLab */}
       <section className="max-w-5xl mx-auto px-5 md:px-8 py-16 border-t border-[#E9E7F0]">
-        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 text-center">
           Waarom opdrachtgevers kiezen voor LensLab
         </h2>
-        <p className="text-gray-500 text-sm mb-12">
+        <p className="text-gray-500 text-sm mb-12 text-center">
           Vind de fotograaf of videograaf die bij jouw opdracht past. Zo ga je van start:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {BENEFITS.map((b) => (
-            <div key={b.title}>
+            <div key={b.title} className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-[#F0EDF5] flex items-center justify-center mb-5">
                 {b.icon}
               </div>
