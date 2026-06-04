@@ -1,7 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
 import type { AnalyticsEventType } from "@/lib/types";
 
-// Genereer of haal een anonieme sessie ID op
 function getSessionId(): string {
   if (typeof window === "undefined") return "";
   const key = "ll_session_id";
@@ -19,14 +17,18 @@ export async function trackEvent(
   pageContext?: string
 ) {
   try {
-    const supabase = createClient();
-    await supabase.from("photographer_analytics").insert({
-      photographer_id: photographerId,
-      event_type: eventType,
-      page_context: pageContext || window.location.pathname,
-      session_id: getSessionId(),
+    // Route through server API so Vercel geo headers (city/country) are captured
+    await fetch("/api/track-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        photographer_id: photographerId,
+        event_type: eventType,
+        page_context: pageContext || window.location.pathname,
+        session_id: getSessionId(),
+      }),
     });
   } catch {
-    // Analytics fouten mogen nooit de UX breken
+    // Analytics errors must never break UX
   }
 }

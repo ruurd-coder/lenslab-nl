@@ -129,24 +129,33 @@ function LineChart({
   );
 }
 
+type GeoEntry = { label: string; count: number };
+
 export default function StatsDashboard({ photographerId }: { photographerId: string }) {
   const [data, setData] = useState<MonthData[]>([]);
+  const [topCities, setTopCities] = useState<GeoEntry[]>([]);
+  const [topCountries, setTopCountries] = useState<GeoEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const months = getLast12Months();
   const supabase = createClient();
 
   useEffect(() => {
     async function load() {
+      const since = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString();
+
       const { data: events } = await supabase
         .from("photographer_analytics")
-        .select("event_type, created_at")
+        .select("event_type, created_at, city, country")
         .eq("photographer_id", photographerId)
-        .gte("created_at", new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString());
+        .gte("created_at", since);
 
       const byMonth: Record<string, MonthData> = {};
       months.forEach(({ month, label }) => {
         byMonth[month] = { month, label, impression: 0, profile_click: 0, website_click: 0, instagram_click: 0, linkedin_click: 0, contact_request: 0 };
       });
+
+      const cityCount: Record<string, number> = {};
+      const countryCount: Record<string, number> = {};
 
       (events || []).forEach((e) => {
         const d = new Date(e.created_at);
@@ -154,9 +163,26 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
         if (byMonth[key] && e.event_type in byMonth[key]) {
           (byMonth[key] as any)[e.event_type]++;
         }
+        // Geo — only count impressions for location stats
+        if (e.event_type === "impression") {
+          if (e.city) cityCount[e.city] = (cityCount[e.city] || 0) + 1;
+          if (e.country) countryCount[e.country] = (countryCount[e.country] || 0) + 1;
+        }
       });
 
       setData(Object.values(byMonth));
+      setTopCities(
+        Object.entries(cityCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([label, count]) => ({ label, count }))
+      );
+      setTopCountries(
+        Object.entries(countryCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([label, count]) => ({ label, count }))
+      );
       setLoading(false);
     }
     load();
@@ -254,6 +280,52 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+      {/* Locaties */}
+      {(topCities.length > 0 || topCountries.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Steden */}
+          {topCities.length > 0 && (
+            <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per stad</h3>
+              <div className="space-y-2.5">
+                {topCities.map(({ label, count }) => {
+                  const max = topCities[0].count;
+                  return (
+                    <div key={label} className="flex items-center gap-3">
+                      <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
+                      <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#6366f1] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
+                      </div>
+                      <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Landen */}
+          {topCountries.length > 0 && (
+            <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per land</h3>
+              <div className="space-y-2.5">
+                {topCountries.map(({ label, count }) => {
+                  const max = topCountries[0].count;
+                  return (
+                    <div key={label} className="flex items-center gap-3">
+                      <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
+                      <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#10b981] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
+                      </div>
+                      <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
