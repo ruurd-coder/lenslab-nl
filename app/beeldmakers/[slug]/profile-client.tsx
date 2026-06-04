@@ -115,6 +115,10 @@ function normalizePortfolio(portfolio: Record<string, string[]> | null | undefin
     const normalized = normalizeCat(key);
     result[normalized] = [...(result[normalized] ?? []), ...images];
   }
+  // Verwijder dubbele URL's binnen elke categorie (bijv. door case-mismatch in opgeslagen keys)
+  for (const key of Object.keys(result)) {
+    result[key] = [...new Set(result[key])];
+  }
   return result;
 }
 
