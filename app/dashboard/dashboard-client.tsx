@@ -387,7 +387,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
 
             {/* Opzeggen — alleen zichtbaar voor betaalde members */}
             {photographer.membership_tier && photographer.membership_tier !== "free" && (
-              <CancelMembershipButton />
+              <CancellationFlow membershipTier={photographer.membership_tier} />
             )}
 
             {/* Uitloggen */}
@@ -1258,52 +1258,231 @@ function MembershipCard({ name, price, period, description, billing, features, i
 
 // ── Stripe knoppen ───────────────────────────────────────────────────
 
-function CancelMembershipButton() {
-  const [loading, setLoading] = useState(false);
-  const [confirm, setConfirm] = useState(false);
+const CANCEL_REASONS = [
+  { id: "leads",     label: "Ik krijg onvoldoende aanvragen/opdrachten" },
+  { id: "expensive", label: "Het membership is te duur" },
+  { id: "unused",    label: "Ik gebruik LensLab te weinig" },
+  { id: "pause",     label: "Ik heb tijdelijk geen nieuwe klanten nodig" },
+  { id: "switch",    label: "Ik stap over naar een alternatief" },
+  { id: "value",     label: "Ik begrijp de waarde niet goed" },
+  { id: "other",     label: "Anders" },
+];
 
-  const handlePortal = async () => {
+function CancellationFlow({ membershipTier }: { membershipTier: string }) {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"reason" | "retain" | "feedback">("reason");
+  const [reason, setReason] = useState("");
+  const [retentionChoice, setRetentionChoice] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const retainScreen = reason === "expensive" ? "expensive"
+    : reason === "pause" ? "pause"
+    : reason === "leads" ? "leads"
+    : null;
+
+  const reset = () => {
+    setStep("reason");
+    setReason("");
+    setRetentionChoice("");
+    setFeedback("");
+    setLoading(false);
+    setDone(false);
+    setOpen(false);
+  };
+
+  const goToStep2 = () => {
+    if (retainScreen) setStep("retain");
+    else setStep("feedback");
+  };
+
+  const handleRetentionChoice = async (choice: string) => {
+    setRetentionChoice(choice);
+    if (choice !== "stop") {
+      // Positive retention — notify team and close
+      setLoading(true);
+      await fetch("/api/membership/cancel-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason, retentionChoice: choice }),
+      });
+      setLoading(false);
+      setDone(true);
+    } else {
+      setStep("feedback");
+    }
+  };
+
+  const handleFinalCancel = async () => {
     setLoading(true);
+    await fetch("/api/membership/cancel-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason, retentionChoice: "stop", feedback }),
+    });
     const res = await fetch("/api/stripe/portal", { method: "POST" });
     const data = await res.json();
     if (data.url) window.location.href = data.url;
     else { alert(data.error || "Er ging iets mis"); setLoading(false); }
   };
 
-  if (confirm) {
+  if (!open) {
     return (
-      <div className="bg-red-50 border border-red-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-red-700">Weet je het zeker?</p>
-          <p className="text-xs text-red-500 mt-0.5">Je membership blijft actief tot de eerstvolgende verlengingsdatum.</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={() => setConfirm(false)}
-            className="text-sm border border-gray-200 text-gray-600 px-4 py-2 rounded-full hover:border-gray-400 transition-colors"
-          >
-            Annuleren
-          </button>
-          <button
-            onClick={handlePortal}
-            disabled={loading}
-            className="text-sm bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Laden..." : "Ja, opzeggen"}
-          </button>
-        </div>
+      <div className="text-center">
+        <button onClick={() => setOpen(true)} className="text-xs text-gray-400 hover:text-red-500 underline transition-colors">
+          Membership opzeggen
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="text-center">
-      <button
-        onClick={() => setConfirm(true)}
-        className="text-xs text-gray-400 hover:text-red-500 underline transition-colors"
-      >
-        Membership opzeggen
-      </button>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+
+        {/* ── Scherm 1: Reden ── */}
+        {step === "reason" && (
+          <div className="p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-black text-gray-900">Waarom wil je opzeggen?</h2>
+              <button onClick={reset} className="text-gray-400 hover:text-gray-700">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-5">Ik zeg op omdat:</p>
+            <div className="space-y-2 mb-8">
+              {CANCEL_REASONS.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => setReason(r.id)}
+                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-colors ${
+                    reason === r.id
+                      ? "border-gray-900 bg-gray-50 text-gray-900 font-medium"
+                      : "border-[#E9E7F0] text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  {reason === r.id && <span className="mr-2">●</span>}{r.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={goToStep2}
+              disabled={!reason}
+              className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+            >
+              Volgende →
+            </button>
+          </div>
+        )}
+
+        {/* ── Scherm 2: Retentie ── */}
+        {step === "retain" && !done && (
+          <div className="p-8">
+            <button onClick={() => setStep("reason")} className="text-xs text-gray-400 hover:text-gray-700 mb-6 flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              Terug
+            </button>
+
+            {retainScreen === "expensive" && (
+              <>
+                <h2 className="text-lg font-black text-gray-900 mb-2">Wil je liever downgraden naar Free?</h2>
+                <p className="text-sm text-gray-500 mb-6">Je behoudt toegang tot het platform — zonder maandelijkse kosten.</p>
+                <div className="space-y-3">
+                  <button onClick={() => handleRetentionChoice("downgrade_free")} disabled={loading}
+                    className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50">
+                    Ja, ik blijf op Free
+                  </button>
+                  <button onClick={() => handleRetentionChoice("stop")} disabled={loading}
+                    className="w-full border border-gray-200 text-gray-600 py-3 rounded-full text-sm hover:border-gray-400 transition-colors disabled:opacity-50">
+                    Nee, ik wil liever helemaal stoppen
+                  </button>
+                </div>
+              </>
+            )}
+
+            {retainScreen === "pause" && (
+              <>
+                <h2 className="text-lg font-black text-gray-900 mb-2">Wil je je membership pauzeren?</h2>
+                <p className="text-sm text-gray-500 mb-6">We zetten je membership 3 maanden on hold — daarna gaat het automatisch weer verder.</p>
+                <div className="space-y-3">
+                  <button onClick={() => handleRetentionChoice("pause_3months")} disabled={loading}
+                    className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50">
+                    {loading ? "Even geduld..." : "Ja, pauzeer mijn membership voor 3 maanden"}
+                  </button>
+                  <button onClick={() => handleRetentionChoice("stop")} disabled={loading}
+                    className="w-full border border-gray-200 text-gray-600 py-3 rounded-full text-sm hover:border-gray-400 transition-colors disabled:opacity-50">
+                    Nee, ik wil liever helemaal stoppen
+                  </button>
+                </div>
+              </>
+            )}
+
+            {retainScreen === "leads" && (
+              <>
+                <h2 className="text-lg font-black text-gray-900 mb-2">Wil je eerst een gratis profielcheck ontvangen?</h2>
+                <p className="text-sm text-gray-500 mb-6">We kijken gratis met je mee en geven concrete tips om meer aanvragen te krijgen.</p>
+                <div className="space-y-3">
+                  <button onClick={() => handleRetentionChoice("profile_check")} disabled={loading}
+                    className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors disabled:opacity-50">
+                    {loading ? "Even geduld..." : "Ja, help me mijn profiel te verbeteren"}
+                  </button>
+                  <button onClick={() => handleRetentionChoice("stop")} disabled={loading}
+                    className="w-full border border-gray-200 text-gray-600 py-3 rounded-full text-sm hover:border-gray-400 transition-colors disabled:opacity-50">
+                    Nee, ik wil graag stoppen
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Bevestiging positieve retentie */}
+        {step === "retain" && done && (
+          <div className="p-8 text-center">
+            <div className="text-4xl mb-4">🎉</div>
+            <h2 className="text-lg font-black text-gray-900 mb-2">Geregeld!</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              {retentionChoice === "downgrade_free" && "We nemen contact met je op om de downgrade te regelen."}
+              {retentionChoice === "pause_3months" && "We nemen contact met je op om je membership te pauzeren."}
+              {retentionChoice === "profile_check" && "We nemen binnenkort contact met je op voor de profielcheck."}
+            </p>
+            <button onClick={reset} className="bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors">
+              Sluiten
+            </button>
+          </div>
+        )}
+
+        {/* ── Scherm 3: Feedback + bevestiging ── */}
+        {step === "feedback" && (
+          <div className="p-8">
+            <button onClick={() => retainScreen ? setStep("retain") : setStep("reason")} className="text-xs text-gray-400 hover:text-gray-700 mb-6 flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              Terug
+            </button>
+            <h2 className="text-lg font-black text-gray-900 mb-2">Wat had LensLab moeten doen om je te behouden?</h2>
+            <p className="text-sm text-gray-400 mb-4">Jouw feedback helpt ons het platform te verbeteren.</p>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Vertel ons wat we hadden kunnen doen..."
+              rows={4}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none mb-6"
+            />
+            <div className="space-y-3">
+              <button onClick={reset}
+                className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors">
+                Membership behouden
+              </button>
+              <button onClick={handleFinalCancel} disabled={loading}
+                className="w-full border border-red-200 text-red-500 py-3 rounded-full text-sm hover:border-red-400 hover:text-red-700 transition-colors disabled:opacity-50">
+                {loading ? "Doorsturen naar Stripe..." : "Definitief opzeggen"}
+              </button>
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
