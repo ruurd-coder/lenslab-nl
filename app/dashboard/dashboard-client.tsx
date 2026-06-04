@@ -385,6 +385,11 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
               />
             </div>
 
+            {/* Opzeggen — alleen zichtbaar voor betaalde members */}
+            {photographer.membership_tier && photographer.membership_tier !== "free" && (
+              <CancelMembershipButton />
+            )}
+
             {/* Uitloggen */}
             <div className="bg-white rounded-3xl border border-[#E9E7F0] p-5 flex items-center justify-between">
               <div>
@@ -1252,6 +1257,56 @@ function MembershipCard({ name, price, period, description, billing, features, i
 }
 
 // ── Stripe knoppen ───────────────────────────────────────────────────
+
+function CancelMembershipButton() {
+  const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+
+  const handlePortal = async () => {
+    setLoading(true);
+    const res = await fetch("/api/stripe/portal", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else { alert(data.error || "Er ging iets mis"); setLoading(false); }
+  };
+
+  if (confirm) {
+    return (
+      <div className="bg-red-50 border border-red-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-red-700">Weet je het zeker?</p>
+          <p className="text-xs text-red-500 mt-0.5">Je membership blijft actief tot de eerstvolgende verlengingsdatum.</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => setConfirm(false)}
+            className="text-sm border border-gray-200 text-gray-600 px-4 py-2 rounded-full hover:border-gray-400 transition-colors"
+          >
+            Annuleren
+          </button>
+          <button
+            onClick={handlePortal}
+            disabled={loading}
+            className="text-sm bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Laden..." : "Ja, opzeggen"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center">
+      <button
+        onClick={() => setConfirm(true)}
+        className="text-xs text-gray-400 hover:text-red-500 underline transition-colors"
+      >
+        Membership opzeggen
+      </button>
+    </div>
+  );
+}
 
 function UpgradeButton({ tier, label, compact = false }: { tier: "plus" | "premium"; label: string; compact?: boolean }) {
   const [loading, setLoading] = useState(false);
