@@ -366,7 +366,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
                 featured={true}
                 cta={photographer.membership_tier === "plus"
                   ? <ManageBillingButton compact />
-                  : <UpgradeButton tier="plus" label="Start met Plus" compact />
+                  : <UpgradeButton tier="plus" label="Upgrade naar Plus" compact />
                 }
               />
               <MembershipCard
@@ -380,7 +380,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
                 featured={false}
                 cta={photographer.membership_tier === "premium"
                   ? <ManageBillingButton compact />
-                  : <UpgradeButton tier="premium" label="Start met Premium" compact />
+                  : <UpgradeButton tier="premium" label="Upgrade naar Premium" compact />
                 }
               />
             </div>
