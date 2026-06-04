@@ -10,9 +10,12 @@ export async function POST(request: Request) {
   const body = await request.json();
   const service = await createServiceClient();
 
+  // Strip any leading slashes or /blog/ prefix from slug
+  const cleanSlug = (body.slug as string).replace(/^\/+/, "").replace(/^blog\//, "");
+
   const { data, error } = await service.from("blog_posts").insert({
     title: body.title,
-    slug: body.slug,
+    slug: cleanSlug,
     category: body.category,
     intro: body.intro,
     hero_image_url: body.hero_image_url || null,
@@ -42,9 +45,11 @@ export async function PUT(request: Request) {
   const body = await request.json();
   const service = await createServiceClient();
 
+  const cleanSlugPut = (body.slug as string).replace(/^\/+/, "").replace(/^blog\//, "");
+
   const { data, error } = await service.from("blog_posts").update({
     title: body.title,
-    slug: body.slug,
+    slug: cleanSlugPut,
     category: body.category,
     intro: body.intro,
     hero_image_url: body.hero_image_url || null,

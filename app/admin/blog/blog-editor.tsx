@@ -142,7 +142,8 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
 
   const set = (field: keyof BlogPost, value: unknown) => setPost((p) => ({ ...p, [field]: value }));
 
-  // Auto-slug from title
+  // Auto-slug from title — always clean, no leading slashes or /blog/ prefix
+  const cleanSlug = (s: string) => s.replace(/^\/+/, "").replace(/^blog\//, "");
   const handleTitleChange = (v: string) => {
     set("title", v);
     if (!slugManual) set("slug", slugify(v));
@@ -273,8 +274,7 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
                 <input value={post.slug}
                   onChange={(e) => {
                     setSlugManual(true);
-                    // Strip any accidental /blog/ prefix
-                    set("slug", e.target.value.replace(/^\/?blog\/?/, ""));
+                    set("slug", cleanSlug(e.target.value));
                   }}
                   className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] font-mono" />
               </div>
