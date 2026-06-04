@@ -21,7 +21,6 @@ const COLUMNS = [
   {
     heading: "Over LensLab",
     links: [
-      { label: "Over ons", href: "/over-ons" },
       { label: "Blog", href: "/blog" },
     ],
   },
