@@ -142,15 +142,15 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
     ? (photographer.hero_image_url || categoryImages[0] || null)
     : (categoryImages[0] || photographer.hero_image_url || null);
 
-  // Thumbnails: bij "Alle" met hero toon alle categoryImages, anders sla eerste over (al mainImage)
+  // Thumbnails: sla mainImage over zodat hij niet dubbel verschijnt
   const thumbnailImages = activeCategory === "Alle" && photographer.hero_image_url
-    ? categoryImages
+    ? categoryImages.filter((img) => img !== photographer.hero_image_url)
     : categoryImages.slice(1);
 
-  // Lightbox afbeeldingen: mainImage voorop, daarna de rest
+  // Lightbox afbeeldingen: mainImage voorop, daarna de rest (zonder mainImage om dubbeling te voorkomen)
   const lightboxImages = [
     ...(mainImage ? [mainImage] : []),
-    ...( activeCategory === "Alle" && photographer.hero_image_url ? categoryImages : categoryImages.slice(1)),
+    ...thumbnailImages,
   ];
 
   useEffect(() => {
