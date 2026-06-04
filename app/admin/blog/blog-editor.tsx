@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 export type ContentBlock = {
   id: string;
@@ -56,6 +58,79 @@ const BLOCK_TYPES: { value: ContentBlock["type"]; label: string }[] = [
   { value: "bulletList", label: "Opsomming" },
   { value: "image", label: "Afbeelding" },
 ];
+
+// ── Image upload helper ──────────────────────────────────────────────
+
+async function uploadBlogImage(file: File): Promise<string> {
+  const supabase = createClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `blog/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage
+    .from("photographer-assets")
+    .upload(path, file, { upsert: false });
+  if (error) throw new Error(error.message);
+  const { data } = supabase.storage.from("photographer-assets").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function ImageUploadButton({
+  currentUrl,
+  onUploaded,
+  label = "Afbeelding uploaden",
+}: {
+  currentUrl?: string;
+  onUploaded: (url: string) => void;
+  label?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("Max 5MB per afbeelding."); return; }
+    setUploading(true);
+    try {
+      const url = await uploadBlogImage(file);
+      onUploaded(url);
+    } catch (err) {
+      alert("Upload mislukt: " + (err instanceof Error ? err.message : "onbekende fout"));
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {currentUrl && (
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100">
+          <Image src={currentUrl} alt="Preview" fill className="object-cover" />
+        </div>
+      )}
+      <label className={`inline-flex items-center gap-2 cursor-pointer text-sm px-4 py-2 rounded-xl border transition-colors font-medium ${
+        currentUrl
+          ? "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+          : "border-gray-200 bg-[#FCFAFF] text-gray-700 hover:border-gray-400"
+      }`}>
+        {uploading ? (
+          <>
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+            Uploaden...
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            {currentUrl ? "Andere afbeelding uploaden" : label}
+          </>
+        )}
+        <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleFile} disabled={uploading} />
+      </label>
+    </div>
+  );
+}
+
+// ── Blog editor ──────────────────────────────────────────────────────
 
 export default function BlogEditor({ initial }: { initial: BlogPost }) {
   const router = useRouter();
@@ -226,10 +301,12 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1.5">Hero afbeelding URL</label>
-            <input value={post.hero_image_url} onChange={(e) => set("hero_image_url", e.target.value)}
-              placeholder="https://..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]" />
+            <label className="block text-xs font-semibold text-gray-500 mb-1.5">Hero afbeelding</label>
+            <ImageUploadButton
+              currentUrl={post.hero_image_url}
+              onUploaded={(url) => set("hero_image_url", url)}
+              label="Hero afbeelding uploaden"
+            />
           </div>
         </div>
 
@@ -297,13 +374,13 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
 
                 {block.type === "image" && (
                   <div className="space-y-2">
-                    <input value={block.url || ""}
-                      onChange={(e) => updateBlock(block.id, { url: e.target.value })}
-                      placeholder="https://afbeelding-url.jpg"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]" />
+                    <ImageUploadButton
+                      currentUrl={block.url}
+                      onUploaded={(url) => updateBlock(block.id, { url })}
+                    />
                     <input value={block.alt || ""}
                       onChange={(e) => updateBlock(block.id, { alt: e.target.value })}
-                      placeholder="Alt tekst (SEO)"
+                      placeholder="Alt tekst (SEO — beschrijf de afbeelding)"
                       className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]" />
                   </div>
                 )}
