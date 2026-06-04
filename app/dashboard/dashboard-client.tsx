@@ -340,46 +340,63 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
 
         {/* Instellingen tab */}
         {activeTab === "instellingen" && (
-          <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-6">Instellingen</h2>
+          <div className="space-y-6">
+            {/* Membership kaarten */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MembershipCard
+                name="Free"
+                price="Gratis"
+                description="Maak een vliegende start en word gevonden door potentiële klanten."
+                billing="Geen creditcard nodig."
+                features={FREE_FEATURES}
+                isCurrent={!photographer.membership_tier || photographer.membership_tier === "free"}
+                featured={false}
+                cta={<div className="rounded-xl py-3 text-center text-sm font-semibold bg-gray-100 text-gray-400 cursor-default">
+                  {(!photographer.membership_tier || photographer.membership_tier === "free") ? "Jouw huidige membership" : "Free"}
+                </div>}
+              />
+              <MembershipCard
+                name="Plus"
+                price="€7"
+                period="/maand"
+                description="Bereik meer potentiële klanten met extra zichtbaarheid en meer locaties."
+                billing="Jaarlijks gefactureerd."
+                features={PLUS_FEATURES}
+                isCurrent={photographer.membership_tier === "plus"}
+                featured={true}
+                cta={photographer.membership_tier === "plus"
+                  ? <ManageBillingButton compact />
+                  : <UpgradeButton tier="plus" label="Start met Plus" compact />
+                }
+              />
+              <MembershipCard
+                name="Premium"
+                price="€14"
+                period="/maand"
+                description="Voor professionals die maximale zichtbaarheid en groei nastreven."
+                billing="Jaarlijks gefactureerd."
+                features={PREMIUM_FEATURES}
+                isCurrent={photographer.membership_tier === "premium"}
+                featured={false}
+                cta={photographer.membership_tier === "premium"
+                  ? <ManageBillingButton compact />
+                  : <UpgradeButton tier="premium" label="Start met Premium" compact />
+                }
+              />
+            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Membership</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Huidig abonnement</p>
-                </div>
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                  photographer.membership_tier === "premium" ? "bg-yellow-100 text-yellow-700" :
-                  photographer.membership_tier === "plus" ? "bg-blue-100 text-blue-700" :
-                  "bg-gray-100 text-gray-600"
-                }`}>
-                  {photographer.membership_tier?.toUpperCase() || "FREE"}
-                </span>
+            {/* Uitloggen */}
+            <div className="bg-white rounded-3xl border border-[#E9E7F0] p-5 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Uitloggen</p>
+                <p className="text-xs text-gray-400 mt-0.5">{user.email}</p>
               </div>
-
-              {/* Stripe upgrade / portal */}
-              {photographer.membership_tier === "free" ? (
-                <div className="space-y-3">
-                  <UpgradeButton tier="plus" label="Upgrade naar Plus — €84/jaar" />
-                  <UpgradeButton tier="premium" label="Upgrade naar Premium — €168/jaar" />
-                </div>
-              ) : (
-                <ManageBillingButton />
-              )}
-
-              <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Uitloggen</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{user.email}</p>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-full hover:border-gray-400 transition-colors"
-                >
-                  Uitloggen
-                </button>
-              </div>
+              <button
+                onClick={handleSignOut}
+                className="text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-full hover:border-gray-400 transition-colors"
+              >
+                Uitloggen
+              </button>
             </div>
           </div>
         )}
@@ -1123,9 +1140,120 @@ function PortfolioPromptModal({ onClose, onDismiss }: {
   );
 }
 
+// ── Membership feature arrays ────────────────────────────────────────
+
+type Feature = { prefix?: string; label: string; value?: string; included: boolean };
+
+const FREE_FEATURES: Feature[] = [
+  { label: "Zichtbaar op listing pagina's", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "1 provincie", included: true },
+  { label: "Zichtbaar op", value: "1 categorie", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
+  { label: "Link naar website", included: false },
+  { label: "Link naar socials", included: false },
+];
+
+const PLUS_FEATURES: Feature[] = [
+  { label: "Zichtbaar boven Free op listing pagina's", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "3 provincies", included: true },
+  { label: "Zichtbaar op", value: "4 categorieën", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
+  { label: "Link naar website", included: true },
+  { label: "Link naar socials", included: true },
+  { label: "Andere beeldmakers niet zichtbaar op jouw profiel", included: true },
+];
+
+const PREMIUM_FEATURES: Feature[] = [
+  { label: "Zichtbaar boven Plus op listing pagina's", included: true },
+  { label: "Zichtbaar op de landingspagina's van", value: "onbeperkt aantal provincies", included: true },
+  { label: "Zichtbaar op", value: "8 categorieën", included: true },
+  { prefix: "Ontvang emails", label: "direct vanuit potentiële opdrachtgevers", included: true },
+  { label: "Creëer meer vertrouwen met een", value: "Review-tool", included: true },
+  { label: "Link naar website", included: true },
+  { label: "Link naar socials", included: true },
+  { label: "Andere beeldmakers niet zichtbaar op jouw profiel", included: true },
+  { label: "Uitgelicht op home / categorie pagina's", included: true },
+];
+
+function MembershipCheckIcon() {
+  return (
+    <svg className="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="#16A34A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="10" />
+    </svg>
+  );
+}
+function MembershipCrossIcon() {
+  return (
+    <svg className="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" />
+    </svg>
+  );
+}
+
+function MembershipCard({ name, price, period, description, billing, features, isCurrent, featured, cta }: {
+  name: string;
+  price: string;
+  period?: string;
+  description: string;
+  billing: string;
+  features: Feature[];
+  isCurrent: boolean;
+  featured: boolean;
+  cta: React.ReactNode;
+}) {
+  return (
+    <div
+      className="flex flex-col rounded-3xl p-6"
+      style={{
+        backgroundColor: "#FFFFFF",
+        border: isCurrent ? "2px solid #030005" : featured ? "2px solid #030005" : "1px solid rgba(3,0,5,0.10)",
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-lg font-bold" style={{ color: "#030005" }}>{name}</span>
+        {isCurrent && (
+          <span className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white bg-gray-900">
+            Huidig
+          </span>
+        )}
+        {!isCurrent && featured && (
+          <span className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white bg-gray-900">
+            Meest gekozen
+          </span>
+        )}
+      </div>
+      <p className="text-xs leading-snug mb-4 min-h-[32px]" style={{ color: "rgba(3,0,5,0.6)" }}>
+        {description}
+      </p>
+      <div className="flex items-baseline gap-1 mb-1">
+        <span className="text-2xl font-bold" style={{ color: "#030005" }}>{price}</span>
+        {period && <span className="text-xs" style={{ color: "rgba(3,0,5,0.5)" }}>{period}</span>}
+      </div>
+      <p className="text-xs mb-4" style={{ color: "rgba(3,0,5,0.5)" }}>{billing}</p>
+      {cta}
+      <ul className="flex flex-col gap-2.5 mt-5">
+        {features.map((f, i) => (
+          <li key={i} className="flex items-start gap-2">
+            {f.included ? <MembershipCheckIcon /> : <MembershipCrossIcon />}
+            <span className="text-xs leading-snug" style={{ color: "#030005" }}>
+              {f.prefix && <><strong>{f.prefix}</strong>{" "}</>}
+              {f.label}
+              {f.value && <><strong className="ml-1">{f.value}</strong></>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ── Stripe knoppen ───────────────────────────────────────────────────
 
-function UpgradeButton({ tier, label }: { tier: "plus" | "premium"; label: string }) {
+function UpgradeButton({ tier, label, compact = false }: { tier: "plus" | "premium"; label: string; compact?: boolean }) {
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
@@ -1144,14 +1272,14 @@ function UpgradeButton({ tier, label }: { tier: "plus" | "premium"; label: strin
     <button
       onClick={handleUpgrade}
       disabled={loading}
-      className="w-full bg-gray-900 text-white text-sm px-5 py-3 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
+      className={`w-full bg-gray-900 text-white rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium ${compact ? "text-sm py-3" : "text-sm px-5 py-3 rounded-full"}`}
     >
       {loading ? "Doorsturen naar betaling..." : label}
     </button>
   );
 }
 
-function ManageBillingButton() {
+function ManageBillingButton({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false);
 
   const handlePortal = async () => {
@@ -1161,6 +1289,18 @@ function ManageBillingButton() {
     if (data.url) window.location.href = data.url;
     else { alert(data.error || "Er ging iets mis"); setLoading(false); }
   };
+
+  if (compact) {
+    return (
+      <button
+        onClick={handlePortal}
+        disabled={loading}
+        className="w-full border border-gray-200 text-gray-700 text-sm py-3 rounded-xl hover:border-gray-400 transition-colors disabled:opacity-50 font-medium"
+      >
+        {loading ? "Laden..." : "Beheer abonnement"}
+      </button>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between p-4 bg-[#FCFAFF] rounded-2xl border border-[#E9E7F0]">
