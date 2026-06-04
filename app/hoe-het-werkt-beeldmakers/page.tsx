@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
+import TestimonialCarousel from "@/components/testimonial-carousel";
 
 export const metadata = {
   title: "Zo werkt LensLab voor beeldmakers — LensLab",
@@ -152,6 +153,20 @@ export default function HoeHetWerktBeeldmakersPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ── Testimonials ── */}
+      <section className="max-w-5xl mx-auto px-5 md:px-8 py-16 border-t border-[#E9E7F0]">
+        <TestimonialCarousel testimonials={[
+          {
+            logo: null,
+            logoAlt: null,
+            quote: "Met LensLab vinden klanten mij snel en word ik vaker op het juiste moment geboekt.",
+            name: "Jill van den Hoven",
+            title: "Fotograaf",
+            avatar: "https://xbvriaxprnupoakjpqnh.supabase.co/storage/v1/object/public/photographer-assets/testimonials/jill-van-den-hoven.jpg",
+          },
+        ]} />
       </section>
 
       {/* ── Kwaliteit checklist ── */}

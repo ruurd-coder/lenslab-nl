@@ -32,15 +32,24 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function TestimonialCarousel({ fullWidth = false }: { fullWidth?: boolean }) {
+type Testimonial = typeof TESTIMONIALS[number];
+
+export default function TestimonialCarousel({
+  fullWidth = false,
+  testimonials,
+}: {
+  fullWidth?: boolean;
+  testimonials?: Testimonial[];
+}) {
+  const list = testimonials ?? TESTIMONIALS;
   const [index, setIndex] = useState(0);
-  const t = TESTIMONIALS[index];
+  const t = list[index];
 
   return (
     <div className={`relative bg-[#FCFAFF] rounded-3xl border border-[#E9E7F0] px-16 py-12 text-center w-full`}>
       {/* Pijl links */}
       <button
-        onClick={() => setIndex((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+        onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +59,7 @@ export default function TestimonialCarousel({ fullWidth = false }: { fullWidth?:
 
       {/* Pijl rechts */}
       <button
-        onClick={() => setIndex((i) => (i + 1) % TESTIMONIALS.length)}
+        onClick={() => setIndex((i) => (i + 1) % list.length)}
         className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +101,7 @@ export default function TestimonialCarousel({ fullWidth = false }: { fullWidth?:
 
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-6">
-        {TESTIMONIALS.map((_, i) => (
+        {list.map((_, i) => (
           <button
             key={i}
             onClick={() => setIndex(i)}
