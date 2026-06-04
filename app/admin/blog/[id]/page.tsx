@@ -26,6 +26,7 @@ export default async function EditBlogPage({ params }: Props) {
     meta_title: post.meta_title || "",
     meta_description: post.meta_description || "",
     meta_keywords: post.meta_keywords || "",
+    og_image_url: post.og_image_url || "",
     content_blocks: post.content_blocks || [],
     faq_items: post.faq_items || [],
     summary_items: post.summary_items || [],

@@ -14,6 +14,7 @@ const EMPTY: BlogPost = {
   meta_title: "",
   meta_description: "",
   meta_keywords: "",
+  og_image_url: "",
   content_blocks: [],
   faq_items: [],
   summary_items: [],

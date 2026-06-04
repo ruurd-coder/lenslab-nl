@@ -27,6 +27,7 @@ export type BlogPost = {
   meta_title: string;
   meta_description: string;
   meta_keywords: string;
+  og_image_url: string;
   content_blocks: ContentBlock[];
   faq_items: FaqItem[];
   summary_items: string[];
@@ -424,6 +425,28 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
               <input value={post.meta_keywords} onChange={(e) => set("meta_keywords", e.target.value)}
                 placeholder="productfotografie, foto's laten maken, webshop fotograaf"
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                Social media afbeelding (OG image)
+              </label>
+              <p className="text-xs text-gray-400 mb-2">1200 × 630px · verhouding 1.91:1 · PNG, JPG of WEBP</p>
+              <ImageUploadButton
+                currentUrl={post.og_image_url}
+                onUploaded={(url) => set("og_image_url", url)}
+                label="Social media afbeelding uploaden"
+              />
+              {post.og_image_url && (
+                <p className="text-xs text-gray-400 mt-2">
+                  ✓ Wordt getoond bij delen op LinkedIn, Twitter, WhatsApp etc.
+                  {!post.og_image_url && " (valt terug op hero afbeelding als leeg)"}
+                </p>
+              )}
+              {!post.og_image_url && (
+                <p className="text-xs text-gray-400 mt-2">
+                  Niet ingevuld → hero afbeelding wordt gebruikt als fallback.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-500 mb-1.5">Gerelateerde artikelen (slugs, komma-gescheiden)</label>

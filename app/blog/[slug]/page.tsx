@@ -13,13 +13,20 @@ interface Props { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const service = await createServiceClient();
-  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url").eq("slug", slug).eq("is_published", true).single();
+  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url, og_image_url").eq("slug", slug).eq("is_published", true).single();
   if (!data) return {};
+  const ogImage = data.og_image_url || data.hero_image_url;
   return {
     title: data.meta_title || `${data.title} | LensLab`,
     description: data.meta_description || undefined,
     keywords: data.meta_keywords || undefined,
-    openGraph: { images: data.hero_image_url ? [data.hero_image_url] : [] },
+    openGraph: {
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ogImage ? [ogImage] : [],
+    },
   };
 }
 
