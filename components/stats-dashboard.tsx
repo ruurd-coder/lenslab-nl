@@ -134,10 +134,11 @@ function LineChart({
               points={points}
               fill="none"
               stroke={bm.color}
-              strokeWidth="1.5"
-              strokeDasharray="5,4"
+              strokeWidth="2"
+              strokeDasharray="6,5"
               strokeLinejoin="round"
               strokeLinecap="round"
+              opacity="0.7"
             />
           );
         })
@@ -251,12 +252,13 @@ export default function StatsDashboard({
   const hasData = data.some((d) => ALL_CHANNELS.some((ch) => (d as any)[ch.key] > 0));
 
   // Bepaal welke benchmarklijnen zichtbaar zijn op basis van tier
+  // Premium eerst (groen), Plus daarna (paars)
   const visibleBenchmarks: BenchmarkLine[] = [];
   if (membershipTier === "free" || !membershipTier) {
-    if (benchmarks?.plus)    visibleBenchmarks.push({ label: "Gem. Plus",    color: "#C4B5FD", data: benchmarks.plus });
-    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gem. Premium", color: "#A78BFA", data: benchmarks.premium });
+    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gemiddelde Premium", color: "#86EFAC", data: benchmarks.premium });
+    if (benchmarks?.plus)    visibleBenchmarks.push({ label: "Gemiddelde Plus",    color: "#DDD6FE", data: benchmarks.plus });
   } else if (membershipTier === "plus") {
-    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gem. Premium", color: "#A78BFA", data: benchmarks.premium });
+    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gemiddelde Premium", color: "#86EFAC", data: benchmarks.premium });
   }
 
   return (
@@ -296,26 +298,29 @@ export default function StatsDashboard({
       {GROUPS.map((group) => (
         <div key={group.label}>
           <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.channels[0].color }} />
-              <h3 className="text-sm font-bold text-gray-900">{group.label}</h3>
-              {group.channels.length > 1 && (
-                <div className="flex gap-3 ml-2">
-                  {group.channels.map((ch) => (
-                    <span key={ch.key} className="flex items-center gap-1 text-xs text-gray-400">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ch.color }} />
-                      {ch.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {/* Benchmark legenda */}
+            <div className="mb-4">
+              {/* Grafiek titel + kanaallegenda */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.channels[0].color }} />
+                <h3 className="text-sm font-bold text-gray-900">{group.label}</h3>
+                {group.channels.length > 1 && (
+                  <div className="flex gap-3 ml-2">
+                    {group.channels.map((ch) => (
+                      <span key={ch.key} className="flex items-center gap-1 text-xs text-gray-400">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ch.color }} />
+                        {ch.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Benchmark legenda — verticaal gestapeld */}
               {visibleBenchmarks.length > 0 && (
-                <div className="flex gap-3 ml-auto">
+                <div className="flex flex-col gap-1 mt-2 ml-[18px]">
                   {visibleBenchmarks.map((bm) => (
-                    <span key={bm.label} className="flex items-center gap-1.5 text-xs text-gray-400">
-                      <svg width="18" height="8" viewBox="0 0 18 8">
-                        <line x1="0" y1="4" x2="18" y2="4" stroke={bm.color} strokeWidth="1.5" strokeDasharray="5,4" />
+                    <span key={bm.label} className="flex items-center gap-2 text-xs text-gray-400">
+                      <svg width="20" height="8" viewBox="0 0 20 8" className="shrink-0">
+                        <line x1="0" y1="4" x2="20" y2="4" stroke={bm.color} strokeWidth="2" strokeDasharray="5,4" />
                       </svg>
                       {bm.label}
                     </span>
