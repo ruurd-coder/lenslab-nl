@@ -22,6 +22,7 @@ const COLUMNS = [
     heading: "Over LensLab",
     links: [
       { label: "Blog", href: "/blog" },
+      { label: "Help & Support", href: "/help-support" },
     ],
   },
 ];
