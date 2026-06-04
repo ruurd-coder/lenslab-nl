@@ -130,10 +130,10 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showContact, setShowContact] = useState(false);
 
-  // "Alle" = mix van alle categorieën (max 10 totaal), anders gefilterd per cat
+  // "Alle" = alleen foto's van actieve specialties (niet van orphan categorieën in DB)
   const categoryImages = activeCategory === "Alle"
-    ? Object.values(normalizedPortfolio)
-        .flat()
+    ? categories
+        .flatMap((cat) => normalizedPortfolio[cat] ?? [])
         .filter((v, i, a) => a.indexOf(v) === i)
     : (normalizedPortfolio[activeCategory] ?? []);
 
