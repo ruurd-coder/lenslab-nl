@@ -192,7 +192,7 @@ export default function ProfileClient({ photographer, reviews, otherPhotographer
               <div className="flex items-center gap-2 mb-4">
                 <Stars rating={photographer.rating} />
                 <span className="text-sm text-gray-400">
-                  {photographer.rating.toFixed(1)}/5 gebaseerd op {photographer.review_count} reviews
+                  {photographer.rating === 5 ? "5" : photographer.rating.toFixed(1)}/5 gebaseerd op {photographer.review_count} reviews
                 </span>
               </div>
             )}
