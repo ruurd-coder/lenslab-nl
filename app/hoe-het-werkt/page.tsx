@@ -81,10 +81,10 @@ export default function HoeHetWerktPage() {
           Zo werkt LensLab
         </p>
         <h1
-          className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.08] tracking-tight text-gray-900 mb-10"
+          className="text-4xl sm:text-[2.75rem] md:text-5xl font-black leading-[1.08] tracking-tight text-gray-900 mb-10"
           style={{ fontFamily: "var(--font-dm-sans)" }}
         >
-          Ontdek honderden fotografen<br /> en videografen op één plek.
+          Ontdek honderden fotografen<br />en videografen op één plek.
         </h1>
 
         <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden">
