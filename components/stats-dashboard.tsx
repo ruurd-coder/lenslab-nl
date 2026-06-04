@@ -229,22 +229,68 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
 
       {/* Drie losse grafieken */}
       {GROUPS.map((group) => (
-        <div key={group.label} className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.channels[0].color }} />
-            <h3 className="text-sm font-bold text-gray-900">{group.label}</h3>
-            {group.channels.length > 1 && (
-              <div className="flex gap-3 ml-2">
-                {group.channels.map((ch) => (
-                  <span key={ch.key} className="flex items-center gap-1 text-xs text-gray-400">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ch.color }} />
-                    {ch.label}
-                  </span>
-                ))}
-              </div>
-            )}
+        <div key={group.label}>
+          <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.channels[0].color }} />
+              <h3 className="text-sm font-bold text-gray-900">{group.label}</h3>
+              {group.channels.length > 1 && (
+                <div className="flex gap-3 ml-2">
+                  {group.channels.map((ch) => (
+                    <span key={ch.key} className="flex items-center gap-1 text-xs text-gray-400">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ch.color }} />
+                      {ch.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <LineChart data={data} months={months} channels={group.channels} />
           </div>
-          <LineChart data={data} months={months} channels={group.channels} />
+
+          {/* Geo — direct onder de Impressies grafiek */}
+          {group.label === "Impressies" && (topCities.length > 0 || topCountries.length > 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              {topCities.length > 0 && (
+                <div className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per stad</h3>
+                  <div className="space-y-2.5">
+                    {topCities.map(({ label, count }) => {
+                      const max = topCities[0].count;
+                      return (
+                        <div key={label} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
+                          <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
+                            <div className="h-full bg-[#6366f1] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
+                          </div>
+                          <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {topCountries.length > 0 && (
+                <div className="bg-white rounded-2xl border border-[#E9E7F0] p-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per land</h3>
+                  <div className="space-y-2.5">
+                    {topCountries.map(({ label, count }) => {
+                      const max = topCountries[0].count;
+                      return (
+                        <div key={label} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
+                          <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
+                            <div className="h-full bg-[#10b981] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
+                          </div>
+                          <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ))}
 
@@ -280,52 +326,6 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-      {/* Locaties */}
-      {(topCities.length > 0 || topCountries.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Steden */}
-          {topCities.length > 0 && (
-            <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per stad</h3>
-              <div className="space-y-2.5">
-                {topCities.map(({ label, count }) => {
-                  const max = topCities[0].count;
-                  return (
-                    <div key={label} className="flex items-center gap-3">
-                      <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
-                      <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#6366f1] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
-                      </div>
-                      <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Landen */}
-          {topCountries.length > 0 && (
-            <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Bezoekers per land</h3>
-              <div className="space-y-2.5">
-                {topCountries.map(({ label, count }) => {
-                  const max = topCountries[0].count;
-                  return (
-                    <div key={label} className="flex items-center gap-3">
-                      <span className="text-sm text-gray-700 w-28 shrink-0 truncate">{label}</span>
-                      <div className="flex-1 h-2 bg-[#E9E7F0] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#10b981] rounded-full" style={{ width: `${(count / max) * 100}%` }} />
-                      </div>
-                      <span className="text-xs font-mono text-gray-500 w-6 text-right shrink-0">{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
