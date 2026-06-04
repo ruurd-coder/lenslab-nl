@@ -13,7 +13,8 @@ interface Props { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const service = await createServiceClient();
-  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url, og_image_url").eq("slug", slug).eq("is_published", true).single();
+  const cleanSlug = slug.replace(/^\/+/, "");
+  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url, og_image_url").or(`slug.eq.${cleanSlug},slug.eq./${cleanSlug}`).eq("is_published", true).single();
   if (!data) return {};
   const ogImage = data.og_image_url || data.hero_image_url;
   return {
@@ -64,10 +65,12 @@ export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
   const service = await createServiceClient();
 
+  // Try both with and without leading slash for robustness
+  const cleanSlug = slug.replace(/^\/+/, "");
   const { data: post } = await service
     .from("blog_posts")
     .select("*")
-    .eq("slug", slug)
+    .or(`slug.eq.${cleanSlug},slug.eq./${cleanSlug}`)
     .eq("is_published", true)
     .single();
 
