@@ -1100,7 +1100,7 @@ function PortfolioPromptModal({ onClose, onDismiss }: {
           <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-xl font-black text-gray-900 mb-3">Je profiel staat live!</h2>
           <p className="text-sm text-gray-500 leading-relaxed mb-2">
-            Merken kunnen je nu al vinden — maar beeldmakers <strong>met een portfolio</strong> krijgen gemiddeld <strong>4x meer aanvragen</strong>.
+            Je bent nu al vindbaar. Maar beeldmakers met een goed portfolio krijgen gemiddeld <strong>4x meer aanvragen</strong>.
           </p>
           <p className="text-sm text-gray-500 leading-relaxed mb-8">
             Upload je mooiste werk en laat zien wat je in huis hebt. Het duurt maar een paar minuten en het maakt écht het verschil. 📸
