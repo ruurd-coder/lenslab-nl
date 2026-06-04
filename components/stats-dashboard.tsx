@@ -14,6 +14,22 @@ interface MonthData {
   contact_request: number;
 }
 
+interface BenchmarkMonth {
+  month: string;
+  impression: number;
+  profile_click: number;
+  website_click: number;
+  instagram_click: number;
+  linkedin_click: number;
+  contact_request: number;
+}
+
+interface BenchmarkLine {
+  label: string;
+  color: string;
+  data: BenchmarkMonth[];
+}
+
 const GROUPS = [
   {
     label: "Impressies",
@@ -56,10 +72,12 @@ function LineChart({
   data,
   months,
   channels,
+  benchmarks = [],
 }: {
   data: MonthData[];
   months: { month: string; label: string }[];
   channels: { key: string; label: string; color: string }[];
+  benchmarks?: BenchmarkLine[];
 }) {
   const W = 600;
   const H = 160;
@@ -67,15 +85,18 @@ function LineChart({
   const chartW = W - PAD.left - PAD.right;
   const chartH = H - PAD.top - PAD.bottom;
 
-  const allValues = data.flatMap((d) => channels.map((ch) => (d as any)[ch.key] as number));
-  const maxVal = Math.max(...allValues, 1);
+  const ownValues = data.flatMap((d) => channels.map((ch) => (d as any)[ch.key] as number));
+  const benchmarkValues = benchmarks.flatMap((b) =>
+    b.data.flatMap((d) => channels.map((ch) => (d as any)[ch.key] as number))
+  );
+  const maxVal = Math.max(...ownValues, ...benchmarkValues, 1);
 
   const x = (i: number) => PAD.left + (i / (months.length - 1)) * chartW;
   const y = (v: number) => PAD.top + chartH - (v / maxVal) * chartH;
 
-  const hasAnyData = allValues.some((v) => v > 0);
+  const hasAnyData = ownValues.some((v) => v > 0);
 
-  if (!hasAnyData) {
+  if (!hasAnyData && benchmarks.length === 0) {
     return (
       <div className="h-32 flex flex-col items-center justify-center text-center">
         <p className="text-sm text-gray-400">Nog geen data</p>
@@ -98,6 +119,31 @@ function LineChart({
         </g>
       ))}
 
+      {/* Benchmark stippellijnen */}
+      {benchmarks.map((bm) =>
+        channels.map((ch) => {
+          const points = months
+            .map((m, i) => {
+              const d = bm.data.find((d) => d.month === m.month);
+              return `${x(i)},${y((d as any)?.[ch.key] || 0)}`;
+            })
+            .join(" ");
+          return (
+            <polyline
+              key={`${bm.label}-${ch.key}`}
+              points={points}
+              fill="none"
+              stroke={bm.color}
+              strokeWidth="1.5"
+              strokeDasharray="5,4"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          );
+        })
+      )}
+
+      {/* Eigen data lijnen */}
       {channels.map((ch) => {
         const points = months
           .map((m, i) => {
@@ -131,10 +177,17 @@ function LineChart({
 
 type GeoEntry = { label: string; count: number };
 
-export default function StatsDashboard({ photographerId }: { photographerId: string }) {
+export default function StatsDashboard({
+  photographerId,
+  membershipTier,
+}: {
+  photographerId: string;
+  membershipTier: string;
+}) {
   const [data, setData] = useState<MonthData[]>([]);
   const [topCities, setTopCities] = useState<GeoEntry[]>([]);
   const [topCountries, setTopCountries] = useState<GeoEntry[]>([]);
+  const [benchmarks, setBenchmarks] = useState<{ plus: BenchmarkMonth[]; premium: BenchmarkMonth[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const months = getLast12Months();
   const supabase = createClient();
@@ -143,11 +196,14 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
     async function load() {
       const since = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString();
 
-      const { data: events } = await supabase
-        .from("photographer_analytics")
-        .select("event_type, created_at, city, country")
-        .eq("photographer_id", photographerId)
-        .gte("created_at", since);
+      const [{ data: events }, benchmarkRes] = await Promise.all([
+        supabase
+          .from("photographer_analytics")
+          .select("event_type, created_at, city, country")
+          .eq("photographer_id", photographerId)
+          .gte("created_at", since),
+        fetch("/api/tier-benchmarks").then((r) => r.json()).catch(() => null),
+      ]);
 
       const byMonth: Record<string, MonthData> = {};
       months.forEach(({ month, label }) => {
@@ -163,7 +219,6 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
         if (byMonth[key] && e.event_type in byMonth[key]) {
           (byMonth[key] as any)[e.event_type]++;
         }
-        // Geo — only count impressions for location stats
         if (e.event_type === "impression") {
           if (e.city) cityCount[e.city] = (cityCount[e.city] || 0) + 1;
           if (e.country) countryCount[e.country] = (countryCount[e.country] || 0) + 1;
@@ -183,6 +238,7 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
           .slice(0, 5)
           .map(([label, count]) => ({ label, count }))
       );
+      if (benchmarkRes) setBenchmarks(benchmarkRes);
       setLoading(false);
     }
     load();
@@ -193,6 +249,15 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
   }
 
   const hasData = data.some((d) => ALL_CHANNELS.some((ch) => (d as any)[ch.key] > 0));
+
+  // Bepaal welke benchmarklijnen zichtbaar zijn op basis van tier
+  const visibleBenchmarks: BenchmarkLine[] = [];
+  if (membershipTier === "free" || !membershipTier) {
+    if (benchmarks?.plus)    visibleBenchmarks.push({ label: "Gem. Plus",    color: "#C4B5FD", data: benchmarks.plus });
+    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gem. Premium", color: "#A78BFA", data: benchmarks.premium });
+  } else if (membershipTier === "plus") {
+    if (benchmarks?.premium) visibleBenchmarks.push({ label: "Gem. Premium", color: "#A78BFA", data: benchmarks.premium });
+  }
 
   return (
     <div className="space-y-5">
@@ -231,7 +296,7 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
       {GROUPS.map((group) => (
         <div key={group.label}>
           <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.channels[0].color }} />
               <h3 className="text-sm font-bold text-gray-900">{group.label}</h3>
               {group.channels.length > 1 && (
@@ -244,8 +309,26 @@ export default function StatsDashboard({ photographerId }: { photographerId: str
                   ))}
                 </div>
               )}
+              {/* Benchmark legenda */}
+              {visibleBenchmarks.length > 0 && (
+                <div className="flex gap-3 ml-auto">
+                  {visibleBenchmarks.map((bm) => (
+                    <span key={bm.label} className="flex items-center gap-1.5 text-xs text-gray-400">
+                      <svg width="18" height="8" viewBox="0 0 18 8">
+                        <line x1="0" y1="4" x2="18" y2="4" stroke={bm.color} strokeWidth="1.5" strokeDasharray="5,4" />
+                      </svg>
+                      {bm.label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <LineChart data={data} months={months} channels={group.channels} />
+            <LineChart
+              data={data}
+              months={months}
+              channels={group.channels}
+              benchmarks={visibleBenchmarks}
+            />
           </div>
 
           {/* Geo — direct onder de Impressies grafiek */}

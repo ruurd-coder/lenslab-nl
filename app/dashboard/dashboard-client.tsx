@@ -330,7 +330,7 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
 
         {/* Statistieken tab */}
         {activeTab === "statistieken" && (
-          <StatsDashboard photographerId={photographer.id} />
+          <StatsDashboard photographerId={photographer.id} membershipTier={photographer.membership_tier || "free"} />
         )}
 
         {/* Reviews tab */}
