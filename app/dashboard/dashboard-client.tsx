@@ -1210,7 +1210,7 @@ function MembershipCard({ name, price, period, description, billing, features, i
       className="flex flex-col rounded-3xl p-6"
       style={{
         backgroundColor: "#FFFFFF",
-        border: isCurrent ? "2px solid #030005" : featured ? "2px solid #030005" : "1px solid rgba(3,0,5,0.10)",
+        border: "1px solid rgba(3,0,5,0.10)",
       }}
     >
       <div className="flex items-center gap-2 mb-1.5">
