@@ -10,25 +10,25 @@ const TEAM = [
   {
     name: "Ruurd Boehlee",
     title: "Chief Executive Officer",
-    image: "/team/ruurd-boehlee.jpg",
+    image: "/team/ruurd-boehlee.png",
     linkedin: "https://www.linkedin.com/in/ruurdboehlee/",
   },
   {
     name: "Nicky van Dinter",
     title: "Chief Product Officer",
-    image: "/team/nicky-van-dinter.jpg",
+    image: "/team/nicky-van-dinter.png",
     linkedin: "https://www.linkedin.com/in/nickyvandinter/",
   },
   {
     name: "Alain Manche",
     title: "Non Executive Officer",
-    image: "/team/alain-manche.jpg",
+    image: "/team/alain-manche.png",
     linkedin: "https://www.linkedin.com/in/alainmanche/",
   },
   {
     name: "Anouk de Bruijne",
     title: "Growth Marketeer",
-    image: "/team/anouk-de-bruijne.jpg",
+    image: "/team/anouk-de-bruijne.png",
     linkedin: "https://www.linkedin.com/in/anoukdebruijne/",
   },
 ];
@@ -48,7 +48,7 @@ const TABS = [
     tag: "VISIE",
     heading: "Gevonden worden op basis van talent, niet op basis van toeval.",
     body: "Wij geloven in een wereld waarin ieder bedrijf en iedere particulier toegang heeft tot topkwaliteit visuele content. Een wereld waarin beeldmakers worden gevonden op basis van talent, niet op basis van netwerk of toeval. LensLab bouwt aan dat platform, elke dag.",
-    image: "/showcase/grid-2-1.webp",
+    image: "/over-ons-visie.png",
   },
   {
     id: "succes",
@@ -90,10 +90,10 @@ export default function OverOnsPage() {
         {/* Two hero images */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
           <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-            <Image src="/showcase/grid-1-2.webp" alt="LensLab opdrachtgevers" fill className="object-cover" priority />
+            <Image src="/over-ons-hero-links.png" alt="LensLab opdrachtgevers" fill className="object-cover" priority />
           </div>
           <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-            <Image src="/showcase/grid-2-2.webp" alt="LensLab beeldmakers" fill className="object-cover" priority />
+            <Image src="/over-ons-hero-rechts.png" alt="LensLab beeldmakers" fill className="object-cover" priority />
           </div>
         </div>
 
