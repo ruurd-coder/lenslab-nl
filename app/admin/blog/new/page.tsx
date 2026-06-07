@@ -21,6 +21,7 @@ const EMPTY: BlogPost = {
   related_slugs: [],
   is_published: false,
   author: "LensLab",
+  listing_image_url: "",
 };
 
 export default async function NewBlogPage() {

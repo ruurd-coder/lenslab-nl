@@ -33,5 +33,6 @@ export default async function EditBlogPage({ params }: Props) {
     related_slugs: post.related_slugs || [],
     is_published: post.is_published,
     author: post.author || "LensLab",
+    listing_image_url: post.listing_image_url || "",
   }} />;
 }

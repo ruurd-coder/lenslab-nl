@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     is_published: body.is_published,
     published_at: body.published_at || null,
     author: body.author,
+    listing_image_url: body.listing_image_url || null,
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -65,6 +66,7 @@ export async function PUT(request: Request) {
     is_published: body.is_published,
     published_at: body.published_at || null,
     author: body.author,
+    listing_image_url: body.listing_image_url || null,
   }).eq("id", body.id).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

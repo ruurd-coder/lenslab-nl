@@ -35,6 +35,7 @@ export type BlogPost = {
   is_published: boolean;
   published_at?: string;
   author: string;
+  listing_image_url: string;
 };
 
 function uid() {
@@ -306,13 +307,25 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
               rows={3} placeholder="Kort intro die direct onder de H1 staat..."
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none" />
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1.5">Hero afbeelding</label>
-            <ImageUploadButton
-              currentUrl={post.hero_image_url}
-              onUploaded={(url) => set("hero_image_url", url)}
-              label="Hero afbeelding uploaden"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Hero afbeelding</label>
+              <p className="text-xs text-gray-400 mb-2">Gebruikt op de artikelpagina (16:9)</p>
+              <ImageUploadButton
+                currentUrl={post.hero_image_url}
+                onUploaded={(url) => set("hero_image_url", url)}
+                label="Hero afbeelding uploaden"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Listing afbeelding</label>
+              <p className="text-xs text-gray-400 mb-2">Gebruikt op de blogpagina (portret-ratio). Valt terug op hero.</p>
+              <ImageUploadButton
+                currentUrl={post.listing_image_url}
+                onUploaded={(url) => set("listing_image_url", url)}
+                label="Listing afbeelding uploaden"
+              />
+            </div>
           </div>
         </div>
 
