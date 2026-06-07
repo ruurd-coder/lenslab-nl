@@ -71,7 +71,7 @@ export function SpecialtyUploader({
     for (const file of toUpload) {
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const path = `${photographerId}/${specialty.replace(/\s+/g, "-").toLowerCase()}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: false });
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: false, contentType: file.type });
       if (!error) {
         const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
         newUrls.push(data.publicUrl);
