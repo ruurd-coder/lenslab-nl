@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -21,6 +21,16 @@ export async function POST(request: Request) {
     if (!photographer?.email) {
       return NextResponse.json({ error: "Fotograaf niet gevonden" }, { status: 404 });
     }
+
+    // Sla bericht op in database
+    const serviceSupabase = await createServiceClient();
+    await serviceSupabase.from("contact_messages").insert({
+      photographer_id: photographerId,
+      sender_name: senderName,
+      sender_email: senderEmail,
+      sender_phone: senderPhone || null,
+      message,
+    });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 

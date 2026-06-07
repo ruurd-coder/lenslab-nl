@@ -46,5 +46,11 @@ export default async function DashboardPage() {
   // Geef de fotograaf terug met de gekoppelde user_id
   const photographerWithUser = { ...photographer, user_id: user.id };
 
-  return <DashboardClient photographer={photographerWithUser} user={user} />;
+  const { data: messages } = await serviceSupabase
+    .from("contact_messages")
+    .select("*")
+    .eq("photographer_id", photographer.id)
+    .order("created_at", { ascending: false });
+
+  return <DashboardClient photographer={photographerWithUser} user={user} messages={messages || []} />;
 }

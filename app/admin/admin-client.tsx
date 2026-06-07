@@ -5,6 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
+interface ContactMessage {
+  id: string;
+  photographer_id: string;
+  sender_name: string;
+  sender_email: string;
+  sender_phone: string | null;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  photographers: { business_name: string; slug: string } | null;
+}
+
 interface Photographer {
   id: string;
   slug: string;
@@ -24,6 +36,7 @@ interface Props {
   photographers: Photographer[];
   analyticsMap: Record<string, Record<string, number>>;
   adminEmail: string;
+  messages: ContactMessage[];
 }
 
 const TIER_COLORS: Record<string, string> = {
@@ -32,7 +45,8 @@ const TIER_COLORS: Record<string, string> = {
   free: "bg-gray-100 text-gray-600",
 };
 
-export default function AdminClient({ photographers, analyticsMap, adminEmail }: Props) {
+export default function AdminClient({ photographers, analyticsMap, adminEmail, messages }: Props) {
+  const [activeTab, setActiveTab] = useState<"fotografen" | "berichten">("fotografen");
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("");
   const [publishFilter, setPublishFilter] = useState("");
@@ -72,6 +86,7 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail }:
   const totalImpressions = Object.values(analyticsMap).reduce((sum, a) => sum + (a.impression || 0), 0);
   const totalClicks = Object.values(analyticsMap).reduce((sum, a) => sum + (a.profile_click || 0), 0);
   const published = photographers.filter((p) => p.is_published).length;
+  const unreadMessages = messages.filter((m) => !m.is_read).length;
 
   return (
     <div className="min-h-screen bg-[#FCFAFF]">
@@ -109,6 +124,31 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail }:
           ))}
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-1 bg-[#E9E7F0] rounded-full p-1 mb-6 w-fit">
+          {(["fotografen", "berichten"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`text-sm px-5 py-2 rounded-full transition-colors font-medium flex items-center gap-1.5 ${
+                activeTab === tab ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab === "fotografen" ? "Fotografen" : "Berichten"}
+              {tab === "berichten" && unreadMessages > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                  {unreadMessages}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "berichten" && (
+          <AdminBerichtenTab messages={messages} supabase={supabase} />
+        )}
+
+        {activeTab === "fotografen" && <>
         {/* Filters */}
         <div className="bg-white rounded-2xl border border-[#E9E7F0] p-4 mb-6 flex flex-wrap gap-3 items-center">
           <input
@@ -216,7 +256,111 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail }:
             </table>
           </div>
         </div>
+        </>}
       </div>
+    </div>
+  );
+}
+
+function AdminBerichtenTab({ messages, supabase }: {
+  messages: ContactMessage[];
+  supabase: ReturnType<typeof createClient>;
+}) {
+  const [localMessages, setLocalMessages] = useState(messages);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const toggle = async (id: string, isRead: boolean) => {
+    if (expanded === id) {
+      setExpanded(null);
+    } else {
+      setExpanded(id);
+      if (!isRead) {
+        await supabase.from("contact_messages").update({ is_read: true }).eq("id", id);
+        setLocalMessages((prev) => prev.map((m) => m.id === id ? { ...m, is_read: true } : m));
+      }
+    }
+  };
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#E9E7F0]">
+      <div className="px-5 py-4 border-b border-[#E9E7F0] flex items-center justify-between">
+        <h2 className="text-sm font-bold text-gray-900">Alle contactberichten</h2>
+        <span className="text-xs text-gray-400">{localMessages.length} totaal</span>
+      </div>
+
+      {localMessages.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-3xl mb-2">📬</p>
+          <p className="text-sm text-gray-500">Nog geen berichten ontvangen.</p>
+        </div>
+      ) : (
+        <div>
+          {localMessages.map((msg) => (
+            <div key={msg.id} className={`border-b border-[#E9E7F0] last:border-0 ${msg.is_read ? "" : "bg-blue-50/40"}`}>
+              <button
+                onClick={() => toggle(msg.id, msg.is_read)}
+                className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-[#FCFAFF] transition-colors"
+              >
+                {!msg.is_read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
+                <div className="flex-1 min-w-0 grid grid-cols-[1fr_1fr_1fr_auto] gap-4 items-center">
+                  <div>
+                    <p className={`text-sm ${msg.is_read ? "font-medium text-gray-700" : "font-bold text-gray-900"}`}>
+                      {msg.sender_name}
+                    </p>
+                    <p className="text-xs text-gray-400">{msg.sender_email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium">
+                      {msg.photographers?.business_name || "—"}
+                    </p>
+                    <p className="text-xs text-gray-400">fotograaf</p>
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">{msg.message}</p>
+                  <p className="text-xs text-gray-400 shrink-0">{formatDate(msg.created_at)}</p>
+                </div>
+                <svg
+                  className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${expanded === msg.id ? "rotate-180" : ""}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {expanded === msg.id && (
+                <div className="px-5 pb-5 pt-2 space-y-3 bg-[#FCFAFF] border-t border-[#E9E7F0]">
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                    <div><span className="text-gray-400">Van: </span>
+                      <a href={`mailto:${msg.sender_email}`} className="text-gray-900 underline underline-offset-2">{msg.sender_email}</a>
+                    </div>
+                    {msg.sender_phone && (
+                      <div><span className="text-gray-400">Tel: </span><span className="text-gray-900">{msg.sender_phone}</span></div>
+                    )}
+                    <div><span className="text-gray-400">Aan: </span>
+                      {msg.photographers?.slug ? (
+                        <Link href={`/beeldmakers/${msg.photographers.slug}`} target="_blank" className="text-gray-900 underline underline-offset-2">
+                          {msg.photographers.business_name}
+                        </Link>
+                      ) : "—"}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                  <a
+                    href={`mailto:${msg.sender_email}?subject=Re: jouw bericht via LensLab`}
+                    className="inline-flex items-center gap-2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
+                  >
+                    Beantwoorden →
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

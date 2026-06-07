@@ -24,11 +24,23 @@ interface Props {
   user: User;
 }
 
-type Tab = "profiel" | "portfolio" | "reviews" | "statistieken" | "instellingen";
+export interface ContactMessage {
+  id: string;
+  photographer_id: string;
+  sender_name: string;
+  sender_email: string;
+  sender_phone: string | null;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
 
-export default function DashboardClient({ photographer: initial, user }: Props) {
+type Tab = "profiel" | "portfolio" | "reviews" | "statistieken" | "berichten" | "instellingen";
+
+export default function DashboardClient({ photographer: initial, user, messages: initialMessages }: Props & { messages: ContactMessage[] }) {
   const [photographer, setPhotographer] = useState(initial);
   const [activeTab, setActiveTab] = useState<Tab>("profiel");
+  const [messages, setMessages] = useState<ContactMessage[]>(initialMessages);
   const [saving, setSaving] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(!initial.is_published);
   const [showPortfolioPrompt, setShowPortfolioPrompt] = useState(false);
@@ -80,11 +92,14 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
     window.location.href = "/";
   };
 
-  const tabs: { id: Tab; label: string }[] = [
+  const unreadCount = messages.filter((m) => !m.is_read).length;
+
+  const tabs: { id: Tab; label: string; badge?: number }[] = [
     { id: "profiel", label: "Profiel" },
     { id: "portfolio", label: "Portfolio" },
     { id: "reviews", label: "Reviews" },
     { id: "statistieken", label: "Statistieken" },
+    { id: "berichten", label: "Berichten", badge: unreadCount },
     { id: "instellingen", label: "Instellingen" },
   ];
 
@@ -150,13 +165,18 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`text-sm px-4 py-2 rounded-full transition-colors font-medium shrink-0 ${
+              className={`text-sm px-4 py-2 rounded-full transition-colors font-medium shrink-0 flex items-center gap-1.5 ${
                 activeTab === tab.id
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {tab.label}
+              {tab.badge ? (
+                <span className="bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                  {tab.badge}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
@@ -336,6 +356,17 @@ export default function DashboardClient({ photographer: initial, user }: Props) 
         {/* Reviews tab */}
         {activeTab === "reviews" && (
           <ReviewInviteTab photographerId={photographer.id} photographerSlug={photographer.slug} />
+        )}
+
+        {/* Berichten tab */}
+        {activeTab === "berichten" && (
+          <BerichtenTab
+            messages={messages}
+            onMarkRead={async (id) => {
+              await supabase.from("contact_messages").update({ is_read: true }).eq("id", id);
+              setMessages((prev) => prev.map((m) => m.id === id ? { ...m, is_read: true } : m));
+            }}
+          />
         )}
 
         {/* Instellingen tab */}
@@ -1252,6 +1283,100 @@ function MembershipCard({ name, price, period, description, billing, features, i
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+// ── Berichten tab ────────────────────────────────────────────────────
+
+function BerichtenTab({ messages, onMarkRead }: {
+  messages: ContactMessage[];
+  onMarkRead: (id: string) => Promise<void>;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const toggle = async (id: string, isRead: boolean) => {
+    if (expanded === id) {
+      setExpanded(null);
+    } else {
+      setExpanded(id);
+      if (!isRead) await onMarkRead(id);
+    }
+  };
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8">
+      <h2 className="text-lg font-bold text-gray-900 mb-1">Berichten</h2>
+      <p className="text-sm text-gray-500 mb-6">Contactverzoeken van potentiële opdrachtgevers.</p>
+
+      {messages.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-3">📬</p>
+          <p className="text-sm text-gray-500">Nog geen berichten ontvangen.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`rounded-2xl border transition-colors ${
+                msg.is_read ? "border-[#E9E7F0] bg-white" : "border-gray-300 bg-[#FCFAFF]"
+              }`}
+            >
+              <button
+                onClick={() => toggle(msg.id, msg.is_read)}
+                className="w-full text-left px-5 py-4 flex items-center gap-3"
+              >
+                {!msg.is_read && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-sm ${msg.is_read ? "font-medium text-gray-700" : "font-bold text-gray-900"}`}>
+                      {msg.sender_name}
+                    </span>
+                    <span className="text-xs text-gray-400 shrink-0">{formatDate(msg.created_at)}</span>
+                  </div>
+                  <p className="text-xs text-gray-400 truncate mt-0.5">{msg.message}</p>
+                </div>
+                <svg
+                  className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${expanded === msg.id ? "rotate-180" : ""}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {expanded === msg.id && (
+                <div className="px-5 pb-5 space-y-3 border-t border-[#E9E7F0] pt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                    <div><span className="text-gray-400">E-mail: </span>
+                      <a href={`mailto:${msg.sender_email}`} className="text-gray-900 underline underline-offset-2">{msg.sender_email}</a>
+                    </div>
+                    {msg.sender_phone && (
+                      <div><span className="text-gray-400">Telefoon: </span>
+                        <a href={`tel:${msg.sender_phone}`} className="text-gray-900">{msg.sender_phone}</a>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                  <a
+                    href={`mailto:${msg.sender_email}?subject=Re: jouw bericht via LensLab`}
+                    className="inline-flex items-center gap-2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
+                  >
+                    Beantwoorden →
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

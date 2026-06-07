@@ -30,11 +30,17 @@ export default async function AdminPage() {
       (analyticsMap[event.photographer_id][event.event_type] || 0) + 1;
   }
 
+  const { data: messages } = await supabase
+    .from("contact_messages")
+    .select("*, photographers(business_name, slug)")
+    .order("created_at", { ascending: false });
+
   return (
     <AdminClient
       photographers={photographers || []}
       analyticsMap={analyticsMap}
       adminEmail={user.email!}
+      messages={messages || []}
     />
   );
 }
