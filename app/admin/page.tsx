@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import AdminClient from "./admin-client";
 
@@ -30,7 +30,8 @@ export default async function AdminPage() {
       (analyticsMap[event.photographer_id][event.event_type] || 0) + 1;
   }
 
-  const { data: messages } = await supabase
+  const serviceSupabase = await createServiceClient();
+  const { data: messages } = await serviceSupabase
     .from("contact_messages")
     .select("*, photographers(business_name, slug)")
     .order("created_at", { ascending: false });
