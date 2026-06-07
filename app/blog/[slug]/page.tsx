@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const service = await createServiceClient();
   const cleanSlug = slug.replace(/^\/+/, "");
-  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url, og_image_url").or(`slug.eq.${cleanSlug},slug.eq./${cleanSlug}`).eq("is_published", true).single();
+  const { data } = await service.from("blog_posts").select("title, meta_title, meta_description, meta_keywords, hero_image_url, og_image_url").or(`slug.eq.${cleanSlug},slug.eq./${cleanSlug}`).eq("is_published", true).or("platform.eq.lenslab.nl,platform.is.null").single();
   if (!data) return {};
   const ogImage = data.og_image_url || data.hero_image_url;
   return {
@@ -72,6 +72,7 @@ export default async function BlogDetailPage({ params }: Props) {
     .select("*")
     .or(`slug.eq.${cleanSlug},slug.eq./${cleanSlug}`)
     .eq("is_published", true)
+    .or("platform.eq.lenslab.nl,platform.is.null")
     .single();
 
   if (!post) notFound();

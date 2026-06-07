@@ -15,6 +15,7 @@ export default async function BlogPage() {
     .from("blog_posts")
     .select("id, title, slug, category, intro, hero_image_url, reading_time_minutes, published_at, author")
     .eq("is_published", true)
+    .or("platform.eq.lenslab.nl,platform.is.null")
     .order("published_at", { ascending: false });
 
   return (
