@@ -39,7 +39,7 @@ export default async function BlogPage({ searchParams }: Props) {
   const { data: posts } = await query;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#FCFAFF]">
       <SiteNav />
 
       {/* Hero header */}
