@@ -34,23 +34,22 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const subject = `Nieuw bericht via LensLab — ${photographer.business_name}`;
+    const firstName = photographer.contact_name?.split(" ")[0] || photographer.business_name;
+    const subject = `Een nieuwe aanvraag via LensLab voor ${photographer.business_name}`;
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #111;">Nieuw contactbericht via LensLab</h2>
-        <p>Je hebt een nieuw bericht ontvangen van <strong>${senderName}</strong> via je LensLab profiel.</p>
-        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr><td style="padding: 8px 0; color: #888; width: 120px;">Naam</td><td style="padding: 8px 0; font-weight: 600;">${senderName}</td></tr>
-          <tr><td style="padding: 8px 0; color: #888;">E-mail</td><td style="padding: 8px 0;"><a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a></td></tr>
-          ${senderPhone ? `<tr><td style="padding: 8px 0; color: #888;">Telefoon</td><td style="padding: 8px 0;">${senderPhone}</td></tr>` : ""}
-        </table>
-        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
-        <h3 style="color: #111; margin-bottom: 8px;">Bericht</h3>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+        <p>Hi ${firstName},</p>
+        <p>Je hebt een nieuwe aanvraag binnen gekregen van <strong>${senderName}</strong> via LensLab.</p>
+        <p>
+          <strong>Naam:</strong> ${senderName}<br/>
+          <strong>Email:</strong> <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a><br/>
+          ${senderPhone ? `<strong>Telefoon:</strong> ${senderPhone}<br/>` : ""}
+        </p>
+        <p><strong>Bericht</strong></p>
         <p style="color: #444; line-height: 1.6; white-space: pre-wrap;">${message}</p>
-        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
-        <p style="color: #888; font-size: 13px;">Beantwoord dit bericht door direct te mailen naar <a href="mailto:${senderEmail}">${senderEmail}</a></p>
-        <p style="color: #bbb; font-size: 12px;">Verstuurd via <a href="https://lenslab.nl" style="color: #bbb;">LensLab.nl</a></p>
+        <p>Je kunt dit bericht direct beantwoorden door te mailen naar <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a>. Al je aanvragen kun je ook gemakkelijk terugvinden in het Dashboard van je LensLab profiel, log eenvoudig in via <a href="https://www.lenslab.nl/login" style="color: #111;">deze link</a>.</p>
+        <p>Mocht je vragen hebben dan horen we het graag. Chat direct met ons via <a href="https://wa.me/31702042750" style="color: #111;">WhatsApp</a>.</p>
+        <p>Succes!<br/><br/>Team LensLab</p>
       </div>
     `;
 
@@ -68,7 +67,7 @@ export async function POST(request: Request) {
       from: "LensLab <noreply@lenslab.nl>",
       to: "hello@lenslab.nl",
       replyTo: senderEmail,
-      subject: `[KOPIE] ${subject}`,
+      subject: `[KOPIE] Een nieuwe aanvraag via LensLab voor ${photographer.business_name}`,
       html,
     });
 
