@@ -35,20 +35,25 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     const firstName = photographer.contact_name?.split(" ")[0] || photographer.business_name;
-    const subject = `Een nieuwe aanvraag via LensLab voor ${photographer.business_name}`;
+    const subject = `🎉 Nieuwe aanvraag via LensLab van ${senderName}`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
         <p>Hi ${firstName},</p>
-        <p>Je hebt een nieuwe aanvraag binnen gekregen van <strong>${senderName}</strong> via LensLab.</p>
-        <p>
-          <strong>Naam:</strong> ${senderName}<br/>
-          <strong>Email:</strong> <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a><br/>
-          ${senderPhone ? `<strong>Telefoon:</strong> ${senderPhone}<br/>` : ""}
+        <p>Goed nieuws! Je hebt een nieuwe aanvraag ontvangen via LensLab.</p>
+        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
+        <p><strong>Aanvrager</strong><br/>
+        Naam: ${senderName}<br/>
+        E-mail: <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a><br/>
+        ${senderPhone ? `Telefoon: ${senderPhone}<br/>` : ""}
         </p>
-        <p><strong>Bericht</strong></p>
-        <p style="color: #444; line-height: 1.6; white-space: pre-wrap;">${message}</p>
-        <p>Je kunt dit bericht direct beantwoorden door te mailen naar <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a>. Al je aanvragen kun je ook gemakkelijk terugvinden in het Dashboard van je LensLab profiel, log eenvoudig in via <a href="https://www.lenslab.nl/login" style="color: #111;">deze link</a>.</p>
-        <p>Mocht je vragen hebben dan horen we het graag. Chat direct met ons via <a href="https://wa.me/31702042750" style="color: #111;">WhatsApp</a>.</p>
+        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
+        <p><strong>Bericht</strong><br/>
+        <span style="color: #444; line-height: 1.6; white-space: pre-wrap;">${message}</span></p>
+        <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
+        <p>Je kunt direct reageren door een e-mail te sturen naar <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a>.</p>
+        <p>Alle aanvragen vind je ook terug in het dashboard van je LensLab-profiel. Log eenvoudig in via <a href="https://www.lenslab.nl/login" style="color: #111;">deze link</a>.</p>
+        <p>We hopen natuurlijk dat hier een mooie opdracht uit voortkomt.</p>
+        <p>Heb je vragen? Stuur ons gerust een <a href="https://wa.me/31702042750" style="color: #111;">WhatsApp-bericht</a>, we helpen je graag verder.</p>
         <p>Succes!<br/><br/>Team LensLab</p>
       </div>
     `;
