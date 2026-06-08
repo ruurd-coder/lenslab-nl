@@ -72,6 +72,25 @@ export async function POST(request: Request) {
       html,
     });
 
+    // Stuur bevestiging aan afzender
+    await resend.emails.send({
+      from: "LensLab <noreply@lenslab.nl>",
+      to: senderEmail,
+      subject: `Je bericht aan ${photographer.business_name} is verstuurd`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #111;">Je bericht is verstuurd ✓</h2>
+          <p>Hoi ${senderName},</p>
+          <p>Je bericht aan <strong>${photographer.business_name}</strong> is goed ontvangen. Zij nemen zo snel mogelijk contact met je op.</p>
+          <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
+          <h3 style="color: #111; margin-bottom: 8px;">Jouw bericht</h3>
+          <p style="color: #444; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+          <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
+          <p style="color: #bbb; font-size: 12px;">Verstuurd via <a href="https://lenslab.nl" style="color: #bbb;">LensLab.nl</a></p>
+        </div>
+      `,
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Contact API error:", error);
