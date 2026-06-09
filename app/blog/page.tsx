@@ -96,7 +96,7 @@ export default async function BlogPage({ searchParams }: Props) {
                         {post.category}
                       </p>
                     )}
-                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 leading-tight mb-3 line-clamp-3"
+                    <h2 className="text-base sm:text-lg font-black text-gray-900 leading-tight mb-3 line-clamp-3"
                       style={{ fontFamily: "var(--font-dm-sans)" }}>
                       {post.title}
                     </h2>
