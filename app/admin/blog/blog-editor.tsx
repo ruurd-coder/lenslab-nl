@@ -61,6 +61,73 @@ const BLOCK_TYPES: { value: ContentBlock["type"]; label: string }[] = [
   { value: "image", label: "Afbeelding" },
 ];
 
+// ── Rich textarea met opmaak toolbar ────────────────────────────────
+
+function RichTextarea({ value, onChange, placeholder, rows = 4 }: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  function wrap(open: string, close: string) {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const selected = value.slice(start, end);
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    if (before.endsWith(open) && after.startsWith(close)) {
+      const newVal = value.slice(0, start - open.length) + selected + value.slice(end + close.length);
+      onChange(newVal);
+      setTimeout(() => { el.focus(); el.setSelectionRange(start - open.length, end - open.length); }, 0);
+    } else {
+      const newVal = before + open + selected + close + after;
+      onChange(newVal);
+      setTimeout(() => { el.focus(); el.setSelectionRange(start + open.length, end + open.length); }, 0);
+    }
+  }
+
+  function insertLink() {
+    const el = ref.current;
+    if (!el) return;
+    const url = prompt("URL:");
+    if (!url) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const selected = value.slice(start, end) || "linktekst";
+    const newVal = value.slice(0, start) + `<a href="${url}" target="_blank">${selected}</a>` + value.slice(end);
+    onChange(newVal);
+  }
+
+  const btn = "px-2 py-1 text-xs border border-[#E9E7F0] rounded hover:bg-[#E9E7F0] transition-colors text-gray-600 font-medium";
+
+  return (
+    <div className="space-y-1">
+      <div className="flex gap-1 flex-wrap">
+        <button type="button" onClick={() => wrap("<strong>", "</strong>")} className={btn} title="Vet"><strong>B</strong></button>
+        <button type="button" onClick={() => wrap("<em>", "</em>")} className={btn} title="Cursief"><em>I</em></button>
+        <button type="button" onClick={() => wrap("<u>", "</u>")} className={btn} title="Onderstreept"><u>U</u></button>
+        <button type="button" onClick={() => wrap("<s>", "</s>")} className={btn} title="Doorgehaald"><s>S</s></button>
+        <div className="w-px bg-[#E9E7F0] mx-0.5" />
+        <button type="button" onClick={insertLink} className={btn} title="Link">🔗</button>
+        <div className="w-px bg-[#E9E7F0] mx-0.5" />
+        <span className="text-[10px] text-gray-400 flex items-center px-1">Selecteer tekst → klik opmaak</span>
+      </div>
+      <textarea
+        ref={ref}
+        value={value}
+        rows={rows}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-[#E9E7F0] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none font-mono"
+      />
+    </div>
+  );
+}
+
 // ── Image upload helper ──────────────────────────────────────────────
 
 async function uploadBlogImage(file: File): Promise<string> {
@@ -363,10 +430,11 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
 
                 {(block.type === "h2" || block.type === "h3" || block.type === "paragraph") && (
                   block.type === "paragraph" ? (
-                    <textarea value={block.content} rows={4}
-                      onChange={(e) => updateBlock(block.id, { content: e.target.value })}
+                    <RichTextarea
+                      value={block.content || ""}
+                      onChange={(v) => updateBlock(block.id, { content: v })}
                       placeholder="Schrijf je paragraaf hier..."
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none" />
+                    />
                   ) : (
                     <input value={block.content}
                       onChange={(e) => updateBlock(block.id, { content: e.target.value })}

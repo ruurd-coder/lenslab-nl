@@ -38,7 +38,7 @@ function renderBlock(block: ContentBlock, idx: number) {
     case "h3":
       return <h3 key={block.id} className="text-xl font-bold text-gray-900 mt-8 mb-3">{block.content}</h3>;
     case "paragraph":
-      return <p key={block.id} className="text-[16px] text-gray-700 leading-[1.75] mb-5">{block.content}</p>;
+      return <p key={block.id} className="text-[16px] text-gray-700 leading-[1.75] mb-5 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_s]:line-through [&_a]:text-gray-900 [&_a]:underline [&_a:hover]:opacity-70" dangerouslySetInnerHTML={{ __html: block.content || '' }} />;
     case "bulletList":
       return (
         <ul key={block.id} className="mb-5 space-y-2">
