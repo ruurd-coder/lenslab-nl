@@ -188,7 +188,7 @@ export default async function BlogDetailPage({ params }: Props) {
       {/* Gerelateerde artikelen */}
       {relatedPosts.length > 0 && (
         <section className="max-w-5xl mx-auto px-5 md:px-8 pb-20 border-t border-[#E9E7F0] pt-12">
-          <h2 className="text-xl font-black text-gray-900 mb-6">Gerelateerde artikelen</h2>
+          <h2 className="text-xl font-black text-gray-900 mb-6">Dit vind je misschien ook leuk</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
             {relatedPosts.map((p) => (
               <Link key={p.slug} href={`/blog/${p.slug}`}

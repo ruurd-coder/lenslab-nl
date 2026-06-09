@@ -535,12 +535,29 @@ export default function BlogEditor({ initial }: { initial: BlogPost }) {
               )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Gerelateerde artikelen (slugs, komma-gescheiden)</label>
-              <input
-                value={post.related_slugs.join(", ")}
-                onChange={(e) => set("related_slugs", e.target.value.split(",").map(s => s.trim()).filter(Boolean))}
-                placeholder="bruiloftsfotografie-tips, portretfoto-laten-maken"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]" />
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Gerelateerde artikelen (max 3)</label>
+              <p className="text-xs text-gray-400 mb-2">Plak de volledige URL of alleen de slug van het artikel</p>
+              <div className="space-y-2">
+                {[0, 1, 2].map((i) => {
+                  const slugFromUrl = (val: string) => val.replace(/.*\/blog\//, "").replace(/\/$/, "").trim();
+                  return (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400 w-4">{i + 1}.</span>
+                      <input
+                        value={post.related_slugs[i] || ""}
+                        onChange={(e) => {
+                          const slug = slugFromUrl(e.target.value);
+                          const updated = [...post.related_slugs];
+                          if (slug) { updated[i] = slug; } else { updated.splice(i, 1); }
+                          set("related_slugs", updated.filter(Boolean).slice(0, 3));
+                        }}
+                        placeholder="https://lenslab.nl/blog/... of alleen de slug"
+                        className="flex-1 border border-[#E9E7F0] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Google preview */}
