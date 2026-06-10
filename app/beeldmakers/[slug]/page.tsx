@@ -31,10 +31,12 @@ export async function generateMetadata({ params }: Props) {
   if (!data) return {};
 
   return {
-    title: data.meta_title || `${data.business_name} — Beeldmaker op LensLab`,
+    title: data.meta_title || `${data.business_name} | LensLab`,
     description: data.meta_description ||
-      `Bekijk het portfolio van ${data.business_name}${data.city ? ` in ${data.city}` : ""}. Gespecialiseerd in ${data.specialties?.slice(0, 3).join(", ")}.`,
+      `Bekijk het portfolio van ${data.business_name}${data.city ? ` in ${data.city}` : ""}. Gespecialiseerd in ${data.specialties?.slice(0, 2).join(", ")}.`,
     alternates: { canonical: `https://lenslab.nl/beeldmakers/${slug}` },
+    openGraph: { siteName: 'LensLab' },
+    twitter: { card: 'summary_large_image' },
   };
 }
 

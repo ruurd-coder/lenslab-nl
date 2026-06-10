@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
+export const runtime = 'nodejs'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const revalidate = 3600
@@ -11,29 +14,44 @@ interface Props {
 export default async function Image({ params }: Props) {
   const { slug } = await params
 
-  // Fetch photographer data via Supabase REST (Edge-compatible)
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/photographers?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=business_name,city,specialties,avatar_url,type`,
-    {
-      headers: {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-      },
-      next: { revalidate: 3600 },
+  // Read logo directly from filesystem — avoids circular network request
+  let logoSrc: string | null = null
+  try {
+    const logoBuffer = readFileSync(join(process.cwd(), 'public', 'logo.png'))
+    logoSrc = `data:image/png;base64,${logoBuffer.toString('base64')}`
+  } catch {
+    // Logo not found — skip it
+  }
+
+  // Fetch photographer data via Supabase REST
+  let name = 'Beeldmaker'
+  let city: string | null = null
+  let specialties: string[] = []
+  let avatarImage: string | null = null
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/photographers?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=business_name,city,specialties,avatar_url,type`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        },
+        next: { revalidate: 3600 },
+      }
+    )
+    const [p] = (await res.json()) ?? []
+    if (p) {
+      name        = p.business_name ?? 'Beeldmaker'
+      city        = p.city ?? null
+      specialties = (p.specialties ?? []).slice(0, 3)
+      avatarImage = p.avatar_url ?? null
     }
-  )
-
-  const [p] = (await res.json()) ?? []
-
-  const name        = p?.business_name ?? 'Beeldmaker'
-  const city        = p?.city ?? null
-  const specialties: string[] = (p?.specialties ?? []).slice(0, 3)
-  const avatarImage = p?.avatar_url ?? null
+  } catch {
+    // Fall back to defaults
+  }
 
   const subtitle = [city, ...specialties].filter(Boolean).join(' · ')
-
-  // Logo served from public folder — always available in production
-  const logoUrl = 'https://lenslab.nl/logo.png'
 
   return new ImageResponse(
     (
@@ -85,14 +103,20 @@ export default async function Image({ params }: Props) {
             flexDirection: 'column',
           }}
         >
-          {/* LensLab logo */}
+          {/* LensLab logo or text fallback */}
           <div style={{ display: 'flex', marginBottom: 20 }}>
-            <img
-              src={logoUrl}
-              width={130}
-              height={31}
-              style={{ objectFit: 'contain', objectPosition: 'left center' }}
-            />
+            {logoSrc ? (
+              <img
+                src={logoSrc}
+                width={130}
+                height={31}
+                style={{ objectFit: 'contain', objectPosition: 'left center' }}
+              />
+            ) : (
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 22, fontWeight: 600 }}>
+                LensLab
+              </span>
+            )}
           </div>
 
           {/* Name */}
