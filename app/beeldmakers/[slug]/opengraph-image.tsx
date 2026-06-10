@@ -11,9 +11,9 @@ interface Props {
 export default async function Image({ params }: Props) {
   const { slug } = await params
 
-  // Fetch via Supabase REST — compatible with Edge runtime
+  // Fetch photographer data via Supabase REST (Edge-compatible)
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/photographers?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=business_name,city,specialties,hero_image_url,type`,
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/photographers?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=business_name,city,specialties,avatar_url,type`,
     {
       headers: {
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,12 +25,15 @@ export default async function Image({ params }: Props) {
 
   const [p] = (await res.json()) ?? []
 
-  const name       = p?.business_name ?? 'Beeldmaker'
-  const city       = p?.city ?? null
+  const name        = p?.business_name ?? 'Beeldmaker'
+  const city        = p?.city ?? null
   const specialties: string[] = (p?.specialties ?? []).slice(0, 3)
-  const heroImage  = p?.hero_image_url ?? null
+  const avatarImage = p?.avatar_url ?? null
 
   const subtitle = [city, ...specialties].filter(Boolean).join(' · ')
+
+  // Logo served from public folder — always available in production
+  const logoUrl = 'https://lenslab.nl/logo.png'
 
   return new ImageResponse(
     (
@@ -43,10 +46,10 @@ export default async function Image({ params }: Props) {
           position: 'relative',
         }}
       >
-        {/* Hero image */}
-        {heroImage && (
+        {/* Avatar as background */}
+        {avatarImage && (
           <img
-            src={heroImage}
+            src={avatarImage}
             style={{
               position: 'absolute',
               inset: 0,
@@ -58,13 +61,13 @@ export default async function Image({ params }: Props) {
           />
         )}
 
-        {/* Gradient overlay — dark at bottom */}
+        {/* Gradient overlay — max 50% opacity */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: heroImage
-              ? 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.88) 100%)'
+            background: avatarImage
+              ? 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.50) 100%)'
               : 'linear-gradient(135deg, #2a0050 0%, #0d0010 100%)',
             display: 'flex',
           }}
@@ -82,33 +85,14 @@ export default async function Image({ params }: Props) {
             flexDirection: 'column',
           }}
         >
-          {/* LensLab brand */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 18,
-            }}
-          >
-            <div
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: '50%',
-                backgroundColor: '#9B59D6',
-              }}
+          {/* LensLab logo */}
+          <div style={{ display: 'flex', marginBottom: 20 }}>
+            <img
+              src={logoUrl}
+              width={130}
+              height={31}
+              style={{ objectFit: 'contain', objectPosition: 'left center' }}
             />
-            <span
-              style={{
-                color: 'rgba(255,255,255,0.75)',
-                fontSize: 22,
-                fontWeight: 600,
-                letterSpacing: '-0.01em',
-              }}
-            >
-              LensLab
-            </span>
           </div>
 
           {/* Name */}
@@ -129,7 +113,7 @@ export default async function Image({ params }: Props) {
           {subtitle && (
             <div
               style={{
-                color: 'rgba(255,255,255,0.60)',
+                color: 'rgba(255,255,255,0.70)',
                 fontSize: 24,
                 letterSpacing: '-0.01em',
               }}
