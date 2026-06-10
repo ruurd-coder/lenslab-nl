@@ -1,5 +1,7 @@
 import { ImageResponse } from 'next/og'
 
+// Node.js runtime is required to read the logo from the filesystem
+export const runtime = 'nodejs'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const revalidate = 3600
@@ -11,7 +13,20 @@ interface Props {
 export default async function Image({ params }: Props) {
   const { slug } = await params
 
-  let name = 'Beeldmaker'
+  // ── Logo — dynamic import inside the function so it runs AFTER
+  //    Node.js runtime is initialised (static top-level import fails)
+  let logoSrc: string | null = null
+  try {
+    const { readFileSync } = await import('fs')
+    const { join }         = await import('path')
+    const buf = readFileSync(join(process.cwd(), 'public', 'logo.png'))
+    logoSrc = `data:image/png;base64,${buf.toString('base64')}`
+  } catch {
+    // Logo unavailable — fall back to text
+  }
+
+  // ── Photographer data
+  let name        = 'Beeldmaker'
   let city: string | null = null
   let specialties: string[] = []
   let avatarImage: string | null = null
@@ -34,12 +49,12 @@ export default async function Image({ params }: Props) {
       avatarImage = p.avatar_url    ?? null
     }
   } catch {
-    // Fall back to defaults silently
+    // Fall back to defaults
   }
 
   const subtitle = [city, ...specialties].filter(Boolean).join(' · ')
 
-  // Wrap ImageResponse in try/catch — avatar fetch by Satori can also fail
+  // ── Render — wrapped in try/catch in case the avatar URL fails to load
   try {
     return new ImageResponse(
       (
@@ -67,7 +82,7 @@ export default async function Image({ params }: Props) {
             />
           )}
 
-          {/* Gradient overlay */}
+          {/* Gradient overlay — 50% max opacity */}
           <div
             style={{
               position: 'absolute',
@@ -91,15 +106,23 @@ export default async function Image({ params }: Props) {
               flexDirection: 'column',
             }}
           >
-            {/* LensLab wordmark — styled text, no external files */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#9B59D6' }} />
-              <span style={{ color: 'rgba(255,255,255,0.80)', fontSize: 24, fontWeight: 700, letterSpacing: '-0.01em' }}>
-                LensLab
-              </span>
+            {/* Logo or text fallback */}
+            <div style={{ display: 'flex', marginBottom: 20 }}>
+              {logoSrc ? (
+                <img
+                  src={logoSrc}
+                  width={130}
+                  height={31}
+                  style={{ objectFit: 'contain', objectPosition: 'left center' }}
+                />
+              ) : (
+                <span style={{ color: 'rgba(255,255,255,0.80)', fontSize: 24, fontWeight: 700, letterSpacing: '-0.01em' }}>
+                  LensLab
+                </span>
+              )}
             </div>
 
-            {/* Photographer name */}
+            {/* Name */}
             <div
               style={{
                 color: '#ffffff',
@@ -125,7 +148,7 @@ export default async function Image({ params }: Props) {
       { ...size }
     )
   } catch {
-    // Ultimate fallback — plain branded image, no external assets
+    // Ultimate fallback — no external assets at all
     return new ImageResponse(
       (
         <div
