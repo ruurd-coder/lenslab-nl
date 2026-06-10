@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props) {
 
   if (!data) return {};
 
-  const ogImage = data.avatar_url || data.hero_image_url || null;
+  const ogImage = data.hero_image_url || data.avatar_url || null;
 
   return {
     title: data.meta_title || `${data.business_name} | LensLab`,
