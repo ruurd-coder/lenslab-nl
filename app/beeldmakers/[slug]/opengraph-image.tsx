@@ -8,26 +8,9 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-/** Pre-fetch a remote image as a base64 data URL so Satori has nothing to fetch */
-async function toDataUrl(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return null
-    const buf   = await res.arrayBuffer()
-    const bytes = new Uint8Array(buf)
-    let binary  = ''
-    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
-    const ct = res.headers.get('content-type') || 'image/png'
-    return `data:${ct};base64,${btoa(binary)}`
-  } catch {
-    return null
-  }
-}
-
 export default async function Image({ params }: Props) {
   const { slug } = await params
 
-  // Photographer data
   let name        = 'Beeldmaker'
   let city: string | null = null
   let specialties: string[] = []
@@ -54,13 +37,9 @@ export default async function Image({ params }: Props) {
     // Use defaults
   }
 
-  // Pre-fetch both images as base64 — Satori never makes external requests
-  const [avatarSrc, logoSrc] = await Promise.all([
-    avatarUrl ? toDataUrl(avatarUrl) : Promise.resolve(null),
-    toDataUrl('https://www.lenslab.nl/logo.png'),
-  ])
-
-  const subtitle = [city, ...specialties].filter(Boolean).join(' · ')
+  const subtitle  = [city, ...specialties].filter(Boolean).join(' · ')
+  // Use www.lenslab.nl — no redirect, Satori can fetch directly
+  const logoUrl   = 'https://www.lenslab.nl/logo.png'
 
   return new ImageResponse(
     (
@@ -73,10 +52,10 @@ export default async function Image({ params }: Props) {
           position: 'relative',
         }}
       >
-        {/* Avatar background */}
-        {avatarSrc && (
+        {/* Avatar — Supabase public URL, no redirect */}
+        {avatarUrl && (
           <img
-            src={avatarSrc}
+            src={avatarUrl}
             style={{
               position: 'absolute',
               inset: 0,
@@ -93,7 +72,7 @@ export default async function Image({ params }: Props) {
           style={{
             position: 'absolute',
             inset: 0,
-            background: avatarSrc
+            background: avatarUrl
               ? 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.50) 100%)'
               : 'linear-gradient(135deg, #2a0050 0%, #0d0010 100%)',
             display: 'flex',
@@ -112,20 +91,14 @@ export default async function Image({ params }: Props) {
             flexDirection: 'column',
           }}
         >
-          {/* Logo or text fallback */}
+          {/* Logo — www.lenslab.nl, no redirect */}
           <div style={{ display: 'flex', marginBottom: 20 }}>
-            {logoSrc ? (
-              <img
-                src={logoSrc}
-                width={130}
-                height={31}
-                style={{ objectFit: 'contain', objectPosition: 'left center' }}
-              />
-            ) : (
-              <span style={{ color: 'rgba(255,255,255,0.80)', fontSize: 24, fontWeight: 700, letterSpacing: '-0.01em' }}>
-                LensLab
-              </span>
-            )}
+            <img
+              src={logoUrl}
+              width={130}
+              height={31}
+              style={{ objectFit: 'contain', objectPosition: 'left center' }}
+            />
           </div>
 
           {/* Name */}
