@@ -23,20 +23,28 @@ export async function generateMetadata({ params }: Props) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("photographers")
-    .select("business_name, meta_title, meta_description, city, specialties")
+    .select("business_name, meta_title, meta_description, city, specialties, avatar_url, hero_image_url")
     .eq("slug", slug)
     .eq("is_published", true)
     .single();
 
   if (!data) return {};
 
+  const ogImage = data.avatar_url || data.hero_image_url || null;
+
   return {
     title: data.meta_title || `${data.business_name} | LensLab`,
     description: data.meta_description ||
       `Bekijk het portfolio van ${data.business_name}${data.city ? ` in ${data.city}` : ""}. Gespecialiseerd in ${data.specialties?.slice(0, 2).join(", ")}.`,
-    alternates: { canonical: `https://lenslab.nl/beeldmakers/${slug}` },
-    openGraph: { siteName: 'LensLab' },
-    twitter: { card: 'summary_large_image' },
+    alternates: { canonical: `https://www.lenslab.nl/beeldmakers/${slug}` },
+    openGraph: {
+      siteName: 'LensLab',
+      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630 }] }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      ...(ogImage && { images: [ogImage] }),
+    },
   };
 }
 
