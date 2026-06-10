@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description:
     "Vind de beste fotografen en videografen in jouw regio. Bekijk portfolio's en neem direct contact op.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://lenslab.nl"
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.lenslab.nl"
   ),
   icons: {
     icon: [
