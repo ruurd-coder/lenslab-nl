@@ -2,12 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import TrustpilotBar from "@/components/trustpilot-bar";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
-export const metadata: Metadata = {
-  title: "LensLab | Vind de beste fotograaf of videograaf in Nederland",
-  description: "Ontdek honderden professionele fotografen en videografen in jouw regio. Bekijk portfolio's, filter op specialiteit en neem direct contact op via LensLab.",
-  alternates: { canonical: "https://lenslab.nl/" },
-};
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:homepage');
+  return {
+    title: ov?.meta_title || "LensLab | Vind de beste fotograaf of videograaf in Nederland",
+    description: ov?.meta_description || "Ontdek honderden professionele fotografen en videografen in jouw regio. Bekijk portfolio's, filter op specialiteit en neem direct contact op via LensLab.",
+    alternates: { canonical: "https://lenslab.nl/" },
+  };
+}
 
 const COLUMNS = [
   { items: [{ type: "image", src: "/showcase/grid-1-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-1-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-1-3.mp4" }], animation: "scroll-up 30s linear infinite", mobile: true },

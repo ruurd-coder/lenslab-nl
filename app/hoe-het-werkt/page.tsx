@@ -2,12 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
-export const metadata = {
-  title: "Zo werkt LensLab | Vind de perfecte fotograaf in 3 stappen",
-  description: "Ontdek hoe je via LensLab in een paar stappen de perfecte fotograaf of videograaf vindt. Zoek, vergelijk portfolio's en neem direct contact op — gratis.",
-  alternates: { canonical: "https://lenslab.nl/hoe-het-werkt" },
-};
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:hoe-het-werkt');
+  return {
+    title: ov?.meta_title || "Zo werkt LensLab | Vind de perfecte fotograaf in 3 stappen",
+    description: ov?.meta_description || "Ontdek hoe je via LensLab in een paar stappen de perfecte fotograaf of videograaf vindt. Zoek, vergelijk portfolio's en neem direct contact op — gratis.",
+    alternates: { canonical: "https://lenslab.nl/hoe-het-werkt" },
+  };
+}
 
 const STEPS = [
   {

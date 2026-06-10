@@ -3,12 +3,19 @@ import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
 import TestimonialCarousel from "@/components/testimonial-carousel";
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
-export const metadata = {
-  title: "Zo werkt LensLab voor beeldmakers | Meer aanvragen via LensLab",
-  description: "Maak een gratis profiel aan op LensLab en word gevonden door opdrachtgevers die bij jou passen. Ontvang directe aanvragen en vergroot je zichtbaarheid in heel Nederland.",
-  alternates: { canonical: "https://lenslab.nl/hoe-het-werkt-beeldmakers" },
-};
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:hoe-het-werkt-beeldmakers');
+  return {
+    title: ov?.meta_title || "Zo werkt LensLab voor beeldmakers | Meer aanvragen via LensLab",
+    description: ov?.meta_description || "Maak een gratis profiel aan op LensLab en word gevonden door opdrachtgevers die bij jou passen. Ontvang directe aanvragen en vergroot je zichtbaarheid in heel Nederland.",
+    alternates: { canonical: "https://lenslab.nl/hoe-het-werkt-beeldmakers" },
+  };
+}
 
 const STEPS = [
   {

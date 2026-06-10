@@ -19,11 +19,19 @@ const PROVINCES = [
   { name: "Zeeland",       slug: "zeeland",       image: `${BASE}/Zeeland%20provincie.webp` },
 ];
 
-export const metadata = {
-  title: "Fotografen per provincie in Nederland | LensLab",
-  description: "Vind een professionele fotograaf of videograaf in jouw provincie. Bekijk aanbod per regio in alle 12 provincies van Nederland en neem direct contact op.",
-  alternates: { canonical: "https://lenslab.nl/locaties" },
-};
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
+
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:locaties');
+  return {
+    title: ov?.meta_title || "Fotografen per provincie in Nederland | LensLab",
+    description: ov?.meta_description || "Vind een professionele fotograaf of videograaf in jouw provincie. Bekijk aanbod per regio in alle 12 provincies van Nederland en neem direct contact op.",
+    alternates: { canonical: "https://lenslab.nl/locaties" },
+  };
+}
 
 export default function LocatiesPage() {
   return (

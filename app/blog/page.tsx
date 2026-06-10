@@ -3,12 +3,17 @@ import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
-export const metadata = {
-  title: "Fotografie & Videografie Tips | LensLab Blog",
-  description: "Tips, inspiratie en nieuws over fotografie, videografie en het vinden van de juiste beeldmaker. Verse inzichten voor iedereen die gelooft in de kracht van sterke beelden.",
-  alternates: { canonical: "https://lenslab.nl/blog" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:blog');
+  return {
+    title: ov?.meta_title || "Fotografie & Videografie Tips | LensLab Blog",
+    description: ov?.meta_description || "Tips, inspiratie en nieuws over fotografie, videografie en het vinden van de juiste beeldmaker. Verse inzichten voor iedereen die gelooft in de kracht van sterke beelden.",
+    alternates: { canonical: "https://lenslab.nl/blog" },
+  };
+}
 
 const CATEGORY_FILTERS = [
   "Alle blogs",

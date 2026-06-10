@@ -2,14 +2,19 @@ import { createClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
 import BeeldmakersClient from "./beeldmakers-client";
 import type { Photographer } from "@/lib/types";
-
-export const metadata = {
-  title: "Vind een fotograaf of videograaf in Nederland | LensLab",
-  description: "Bekijk portfolio's van honderden fotografen en videografen door heel Nederland. Filter op regio, type en specialiteit en neem direct contact op.",
-  alternates: { canonical: "https://lenslab.nl/beeldmakers" },
-};
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
 export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:beeldmakers');
+  return {
+    title: ov?.meta_title || "Vind een fotograaf of videograaf in Nederland | LensLab",
+    description: ov?.meta_description || "Bekijk portfolio's van honderden fotografen en videografen door heel Nederland. Filter op regio, type en specialiteit en neem direct contact op.",
+    alternates: { canonical: "https://lenslab.nl/beeldmakers" },
+  };
+}
 
 const FEATURED_SLUGS = [
   "jill-van-den-hoven",

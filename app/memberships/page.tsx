@@ -1,12 +1,19 @@
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
+import type { Metadata } from "next";
+import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
-export const metadata = {
-  title: "Memberships voor beeldmakers | Meer zichtbaarheid via LensLab",
-  description: "Kies het membership dat bij jouw ambities past als fotograaf of videograaf. Vergroot je zichtbaarheid, verschijn op meer locaties en ontvang meer aanvragen via LensLab.",
-  alternates: { canonical: "https://lenslab.nl/memberships" },
-};
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ov = await getPageSeoOverrides('nl:memberships');
+  return {
+    title: ov?.meta_title || "Memberships voor beeldmakers | Meer zichtbaarheid via LensLab",
+    description: ov?.meta_description || "Kies het membership dat bij jouw ambities past als fotograaf of videograaf. Vergroot je zichtbaarheid, verschijn op meer locaties en ontvang meer aanvragen via LensLab.",
+    alternates: { canonical: "https://lenslab.nl/memberships" },
+  };
+}
 
 // prefix = vet vooraan, label = normaal, value = vet achteraan
 type Feature = { prefix?: string; label: string; value?: string; included: boolean };
