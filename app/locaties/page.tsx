@@ -13,7 +13,7 @@ const PROVINCES = [
   { name: "Overijssel",    slug: "overijssel",    image: `${BASE}/Overrijsel%20provincie.webp` },
   { name: "Groningen",     slug: "groningen",     image: `${BASE}/Groningen%20provincie.webp` },
   { name: "Friesland",     slug: "friesland",     image: `${BASE}/Friesland%20provincie.webp` },
-  { name: "Limburg",       slug: "limburg",       image: `${BASE}/Limburg%20provincie.webp` },
+  { name: "Limburg",       slug: "limburg",       image: `${BASE}/Limburg%20provincie%202.webp` },
   { name: "Drenthe",       slug: "drenthe",       image: `${BASE}/Drenthe%20provincie.webp` },
   { name: "Flevoland",     slug: "flevoland",     image: `${BASE}/Flevoland%20provincie.webp` },
   { name: "Zeeland",       slug: "zeeland",       image: `${BASE}/Zeeland%20provincie.webp` },
