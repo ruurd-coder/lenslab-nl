@@ -3,8 +3,9 @@ import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Memberships — LensLab",
-  description: "Kies het membership dat bij jou past als fotograaf of videograaf op LensLab.",
+  title: "Memberships voor beeldmakers | Meer zichtbaarheid via LensLab",
+  description: "Kies het membership dat bij jouw ambities past als fotograaf of videograaf. Vergroot je zichtbaarheid, verschijn op meer locaties en ontvang meer aanvragen via LensLab.",
+  alternates: { canonical: "https://lenslab.nl/memberships" },
 };
 
 // prefix = vet vooraan, label = normaal, value = vet achteraan

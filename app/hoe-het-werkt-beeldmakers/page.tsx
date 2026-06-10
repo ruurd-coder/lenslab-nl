@@ -5,8 +5,9 @@ import SiteFooter from "@/components/site-footer";
 import TestimonialCarousel from "@/components/testimonial-carousel";
 
 export const metadata = {
-  title: "Zo werkt LensLab voor beeldmakers — LensLab",
-  description: "Gevonden worden door de opdrachtgevers die bij jou passen. Maak een gratis profiel aan en ontvang directe aanvragen.",
+  title: "Zo werkt LensLab voor beeldmakers | Meer aanvragen via LensLab",
+  description: "Maak een gratis profiel aan op LensLab en word gevonden door opdrachtgevers die bij jou passen. Ontvang directe aanvragen en vergroot je zichtbaarheid in heel Nederland.",
+  alternates: { canonical: "https://lenslab.nl/hoe-het-werkt-beeldmakers" },
 };
 
 const STEPS = [

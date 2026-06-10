@@ -5,8 +5,9 @@ import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Blog — LensLab",
-  description: "Tips, inspiratie en nieuws over fotografie, videografie en het vinden van de juiste beeldmaker.",
+  title: "Fotografie & Videografie Tips | LensLab Blog",
+  description: "Tips, inspiratie en nieuws over fotografie, videografie en het vinden van de juiste beeldmaker. Verse inzichten voor iedereen die gelooft in de kracht van sterke beelden.",
+  alternates: { canonical: "https://lenslab.nl/blog" },
 };
 
 const CATEGORY_FILTERS = [

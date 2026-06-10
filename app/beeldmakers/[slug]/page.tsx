@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: Props) {
     title: data.meta_title || `${data.business_name} — Beeldmaker op LensLab`,
     description: data.meta_description ||
       `Bekijk het portfolio van ${data.business_name}${data.city ? ` in ${data.city}` : ""}. Gespecialiseerd in ${data.specialties?.slice(0, 3).join(", ")}.`,
+    alternates: { canonical: `https://lenslab.nl/beeldmakers/${slug}` },
   };
 }
 

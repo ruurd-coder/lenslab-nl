@@ -6,7 +6,8 @@ import type { Photographer } from "@/lib/types";
 
 export const metadata = {
   title: "Alle fotografen en videografen in Nederland | LensLab",
-  description: "Bekijk alle professionele fotografen en videografen in Nederland. Zoek op naam, stad, specialiteit of type.",
+  description: "Bekijk alle professionele fotografen en videografen in Nederland. Zoek op naam, stad, specialiteit of type en vind de beeldmaker die perfect bij jouw opdracht past.",
+  alternates: { canonical: "https://lenslab.nl/fotografen" },
 };
 
 export const revalidate = 3600;

@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: data.meta_title || `${data.title} | LensLab`,
     description: data.meta_description || undefined,
     keywords: data.meta_keywords || undefined,
+    alternates: { canonical: `https://lenslab.nl/blog/${cleanSlug}` },
     openGraph: {
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
     },

@@ -4,8 +4,9 @@ import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Zo werkt LensLab — LensLab",
-  description: "Ontdek honderden fotografen en videografen op één plek. Vind de perfecte beeldmaker voor jouw opdracht.",
+  title: "Zo werkt LensLab | Vind de perfecte fotograaf in 3 stappen",
+  description: "Ontdek hoe je via LensLab in een paar stappen de perfecte fotograaf of videograaf vindt. Zoek, vergelijk portfolio's en neem direct contact op — gratis.",
+  alternates: { canonical: "https://lenslab.nl/hoe-het-werkt" },
 };
 
 const STEPS = [

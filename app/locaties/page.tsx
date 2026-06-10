@@ -20,8 +20,9 @@ const PROVINCES = [
 ];
 
 export const metadata = {
-  title: "Fotografen per provincie in Nederland",
-  description: "Vind een fotograaf of videograaf in jouw provincie. Alle 12 provincies van Nederland.",
+  title: "Fotografen per provincie in Nederland | LensLab",
+  description: "Vind een professionele fotograaf of videograaf in jouw provincie. Bekijk aanbod per regio in alle 12 provincies van Nederland en neem direct contact op.",
+  alternates: { canonical: "https://lenslab.nl/locaties" },
 };
 
 export default function LocatiesPage() {

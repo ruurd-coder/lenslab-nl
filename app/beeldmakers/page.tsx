@@ -4,9 +4,9 @@ import BeeldmakersClient from "./beeldmakers-client";
 import type { Photographer } from "@/lib/types";
 
 export const metadata = {
-  title: "Vind een fotograaf of videograaf in Nederland",
-  description:
-    "Bekijk portfolio's van fotografen en videografen door heel Nederland. Filter op regio, type en specialiteit.",
+  title: "Vind een fotograaf of videograaf in Nederland | LensLab",
+  description: "Bekijk portfolio's van honderden fotografen en videografen door heel Nederland. Filter op regio, type en specialiteit en neem direct contact op.",
+  alternates: { canonical: "https://lenslab.nl/beeldmakers" },
 };
 
 export const revalidate = 3600;
