@@ -51,9 +51,20 @@ export async function generateMetadata({ params }: Props) {
   if (!region) return {};
 
   const name = region.city || region.name;
+  const photographers = await getPhotographers(region);
+
+  // Noindex pagina's zonder fotografen — thin content is slechter dan niet indexeren
+  if (photographers.length === 0) {
+    return {
+      title: `Fotografen in ${name} | LensLab`,
+      robots: { index: false, follow: true },
+    };
+  }
+
   return {
-    title: `Fotografen in ${name} — Vind de beste fotograaf | LensLab`,
-    description: `Zoek je een professionele fotograaf in ${name}? Bekijk portfolio's van fotografen en videografen in ${name}. Direct contact opnemen via LensLab.`,
+    title: `Fotografen in ${name} | Vind de beste fotograaf in ${name}`,
+    description: `Zoek je een professionele fotograaf in ${name}? Bekijk portfolio's van ${photographers.length} fotografen en videografen in ${name}. Direct contact opnemen via LensLab.`,
+    alternates: { canonical: `https://lenslab.nl/locatie/${slug}` },
   };
 }
 

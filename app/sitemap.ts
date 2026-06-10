@@ -45,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let photographerUrls: MetadataRoute.Sitemap = []
   let blogUrls: MetadataRoute.Sitemap = []
+  let locationUrls: MetadataRoute.Sitemap = []
 
   try {
     const service = await createServiceClient()
@@ -74,14 +75,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }))
+
+    // Alleen locaties met minstens 1 fotograaf in de sitemap — voorkomt thin content
+    // 2 queries: alle fotografen-regio's ophalen + alle regio-slugs matchen
+    const { data: photographerRows } = await service
+      .from('photographers')
+      .select('regions')
+      .eq('is_published', true)
+
+    const coveredProvinces = new Set(
+      (photographerRows || []).flatMap((p) => (p.regions as string[]) || [])
+    )
+
+    const { data: allRegions } = await service
+      .from('regions')
+      .select('slug, name, city, province')
+
+    locationUrls = (allRegions || [])
+      .filter((region) => {
+        const provinceName = region.city ? region.province : region.name
+        return provinceName && coveredProvinces.has(provinceName)
+      })
+      .map((region) => ({
+        url: `${BASE}/locatie/${region.slug}`,
+        changeFrequency: 'weekly' as const,
+        priority: region.city ? 0.6 : 0.7, // steden iets lager dan provincies
+      }))
   } catch {
-    // Supabase unavailable — return static pages only
+    // Supabase unavailable — fall back to static province slugs
+    locationUrls = provinceUrls
   }
 
   return [
     ...STATIC_PAGES,
     ...categoryUrls,
-    ...provinceUrls,
+    ...(locationUrls.length > 0 ? locationUrls : provinceUrls),
     ...photographerUrls,
     ...blogUrls,
   ]
