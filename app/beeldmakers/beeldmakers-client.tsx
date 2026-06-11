@@ -17,7 +17,7 @@ const PROVINCES = [
   { name: "Zuid-Holland",  slug: "zuid-holland",  image: `${BASE}/Zuid-Holland%20provincie.webp` },
   { name: "Utrecht",       slug: "utrecht-provincie", image: `${BASE}/Utrecht%20provincie.webp` },
   { name: "Noord-Brabant", slug: "noord-brabant", image: `${BASE}/Brabant%20provincie.webp` },
-  { name: "Limburg",       slug: "limburg",       image: `${BASE}/Limburg%20provincie.webp` },
+  { name: "Limburg",       slug: "limburg",       image: `${BASE}/Limburg%20provincie%202.webp` },
   { name: "Overijssel",    slug: "overijssel",    image: `${BASE}/Overrijsel%20provincie.webp` },
   { name: "Groningen",     slug: "groningen",     image: `${BASE}/Groningen%20provincie.webp` },
   { name: "Friesland",     slug: "friesland",     image: `${BASE}/Friesland%20provincie.webp` },
