@@ -1,11 +1,10 @@
 import type { Photographer } from "./types";
 
 export interface ScoreBreakdown {
-  portfolio: { score: number; max: number; filled: number; activeCategories: number };
-  reviews: { score: number; max: 30 };
-  links: { score: number; max: 20; hasWebsite: boolean; hasInstagram: boolean; hasLinkedin: boolean };
-  recency: { score: number; max: 15; portfolioRecent: boolean; reviewRecent: boolean };
-  totalMax: number;
+  portfolio: { pct: number; maxPct: 40; photoCount: number; maxPhotos: number; activeCategories: number };
+  reviews: { pct: number; maxPct: 25; count: number };
+  links: { pct: number; maxPct: 20; filled: number; hasWebsite: boolean; hasInstagram: boolean; hasLinkedin: boolean };
+  recency: { pct: number; maxPct: 15; monthsAgo: number };
   total: number;
 }
 
@@ -14,81 +13,83 @@ export interface ScoreTip {
   pts: number;
 }
 
+const DAY = 24 * 3600 * 1000;
+
 export function calcBreakdown(p: Photographer): ScoreBreakdown {
   const now = Date.now();
 
-  // Portfolio — max based on number of activated categories, capped at 5
+  // Portfolio (max 40%): total photos across all active categories / (activeCategories × 5)
   const byCategory = (p.portfolio_by_category as Record<string, string[]>) ?? {};
   const activeCategories = Object.keys(byCategory).length;
-  const filled = Object.values(byCategory).filter((imgs) => imgs.length >= 5).length;
-  const portfolioMax = Math.min(activeCategories, 5) * 7;
-  const portfolioScore = Math.min(filled, 5) * 7;
+  const photoCount = Object.values(byCategory).reduce((sum, imgs) => sum + imgs.length, 0);
+  const maxPhotos = activeCategories * 5;
+  const portfolioPct = activeCategories > 0
+    ? Math.min(photoCount / maxPhotos, 1) * 40
+    : 0;
 
-  // Reviews — 6pt per review, max 5 reviews = 30pt
-  const reviewsScore = Math.min(p.review_count ?? 0, 5) * 6;
+  // Reviews (max 25%): 5% per review, max 5 reviews
+  const reviewCount = p.review_count ?? 0;
+  const reviewsPct = Math.min(reviewCount, 5) * 5;
 
-  // Links
+  // Links (max 20%): 3 links, each ~6.67%
   const hasWebsite = !!(p.website_url?.trim());
   const hasInstagram = !!(p.instagram_url?.trim());
   const hasLinkedin = !!(p.linkedin_url?.trim());
-  const linksScore = (hasWebsite ? 8 : 0) + (hasInstagram ? 8 : 0) + (hasLinkedin ? 4 : 0);
+  const filledLinks = (hasWebsite ? 1 : 0) + (hasInstagram ? 1 : 0) + (hasLinkedin ? 1 : 0);
+  const linksPct = (filledLinks / 3) * 20;
 
-  // Recency
+  // Recency (max 15%): -5% per inactive month, min 0%
   const updatedMs = new Date(p.updated_at).getTime();
-  const portfolioRecent = now - updatedMs <= 30 * 24 * 3600 * 1000;
-  const portfolioSemiRecent = now - updatedMs <= 90 * 24 * 3600 * 1000;
-  const reviewRecent = !!p.last_review_at &&
-    now - new Date(p.last_review_at).getTime() <= 30 * 24 * 3600 * 1000;
+  const lastReviewMs = p.last_review_at ? new Date(p.last_review_at).getTime() : 0;
+  const lastActivity = Math.max(updatedMs, lastReviewMs);
+  const monthsAgo = (now - lastActivity) / (30 * DAY);
+  const recencyPct = monthsAgo <= 1 ? 15 : monthsAgo <= 2 ? 10 : monthsAgo <= 3 ? 5 : 0;
 
-  const recencyScore =
-    (portfolioRecent ? 8 : portfolioSemiRecent ? 4 : 0) +
-    (reviewRecent ? 7 : 0);
-
-  const total = portfolioScore + reviewsScore + linksScore + recencyScore;
-  const totalMax = portfolioMax + 30 + 20 + 15;
+  const total = Math.round(portfolioPct + reviewsPct + linksPct + recencyPct);
 
   return {
-    portfolio: { score: portfolioScore, max: portfolioMax, filled, activeCategories },
-    reviews: { score: reviewsScore, max: 30 },
-    links: { score: linksScore, max: 20, hasWebsite, hasInstagram, hasLinkedin },
-    recency: { score: recencyScore, max: 15, portfolioRecent, reviewRecent },
-    totalMax,
+    portfolio: { pct: Math.round(portfolioPct), maxPct: 40, photoCount, maxPhotos, activeCategories },
+    reviews: { pct: reviewsPct, maxPct: 25, count: reviewCount },
+    links: { pct: Math.round(linksPct), maxPct: 20, filled: filledLinks, hasWebsite, hasInstagram, hasLinkedin },
+    recency: { pct: recencyPct, maxPct: 15, monthsAgo },
     total,
   };
 }
 
-export function calcTips(bd: ScoreBreakdown, p?: Photographer): ScoreTip[] {
+export function calcTips(bd: ScoreBreakdown): ScoreTip[] {
   const tips: ScoreTip[] = [];
 
-  const missingFilled = Math.max(0, bd.portfolio.activeCategories - bd.portfolio.filled);
-  if (missingFilled > 0) {
-    tips.push({
-      text: `Voeg 5+ foto's toe aan ${missingFilled === 1 ? "nog 1 categorie" : `nog ${missingFilled} categorieën`}`,
-      pts: missingFilled * 7,
-    });
-  }
-
   if (bd.portfolio.activeCategories === 0) {
-    tips.push({ text: "Voeg je eerste fotocategorie toe aan je portfolio", pts: 7 });
+    tips.push({ text: "Voeg je eerste fotocategorie toe aan je portfolio", pts: 40 });
+  } else if (bd.portfolio.photoCount < bd.portfolio.maxPhotos) {
+    const missing = bd.portfolio.maxPhotos - bd.portfolio.photoCount;
+    const gain = Math.round((missing / bd.portfolio.maxPhotos) * 40);
+    tips.push({ text: `Voeg nog ${missing} foto${missing === 1 ? "" : "'s"} toe om je portfolio te completeren`, pts: gain });
   }
 
-  const missingReviews = Math.max(0, 5 - Math.floor(bd.reviews.score / 6));
+  const missingReviews = Math.max(0, 5 - bd.reviews.count);
   if (missingReviews > 0) {
-    tips.push({
-      text: `Verzamel nog ${missingReviews} ${missingReviews === 1 ? "review" : "reviews"} voor de maximale score`,
-      pts: missingReviews * 6,
-    });
+    tips.push({ text: `Verzamel nog ${missingReviews} ${missingReviews === 1 ? "review" : "reviews"}`, pts: missingReviews * 5 });
   }
 
-  if (!bd.links.hasWebsite) tips.push({ text: "Voeg je website toe aan je profiel", pts: 8 });
-  if (!bd.links.hasInstagram) tips.push({ text: "Voeg je Instagram toe aan je profiel", pts: 8 });
-  if (!bd.links.hasLinkedin) tips.push({ text: "Voeg je LinkedIn toe aan je profiel", pts: 4 });
+  if (!bd.links.hasWebsite) tips.push({ text: "Voeg je website toe aan je profiel", pts: 7 });
+  if (!bd.links.hasInstagram) tips.push({ text: "Voeg je Instagram toe aan je profiel", pts: 7 });
+  if (!bd.links.hasLinkedin) tips.push({ text: "Voeg je LinkedIn toe aan je profiel", pts: 7 });
 
-  if (!bd.recency.reviewRecent)
-    tips.push({ text: "Vraag een klant om een review (geldt 30 dagen)", pts: 7 });
-
-  if (!bd.recency.portfolioRecent)
-    tips.push({ text: "Werk je portfolio bij om je recency-bonus te behouden", pts: 8 });
+  if (bd.recency.pct < 15) {
+    const gain = 15 - bd.recency.pct;
+    tips.push({ text: "Voeg foto's toe of verzamel een review om je activiteitsscore te verhogen", pts: gain });
+  }
 
   return tips.filter((t) => t.pts > 0).sort((a, b) => b.pts - a.pts);
 }
+
+export const SCORE_EXPLANATION = `Je profielscore bepaalt hoe hoog je verschijnt in zoekresultaten.
+
+📁 Portfolio (40%) — Voeg minimaal 5 foto's toe per actieve categorie. Hoe meer categorieën volledig gevuld, hoe hoger de score.
+
+⭐ Reviews (25%) — Elke review telt voor 5%. Met 5 reviews bereik je de maximale score.
+
+🔗 Profiel links (20%) — Vul je website, Instagram en LinkedIn in.
+
+🔄 Recente activiteit (15%) — Voeg maandelijks foto's toe of ontvang een review. Doe je een maand niets, dan daalt deze score met 5%.`;

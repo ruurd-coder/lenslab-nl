@@ -101,7 +101,7 @@ export default function DashboardClient({ photographer: initial, user, messages:
     { id: "reviews", label: "Reviews" },
     { id: "statistieken", label: "Statistieken" },
     { id: "berichten", label: "Berichten", badge: unreadCount },
-    { id: "instellingen", label: "Instellingen" },
+    { id: "instellingen", label: "Membership" },
   ];
 
   return (
