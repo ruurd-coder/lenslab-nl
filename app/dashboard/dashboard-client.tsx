@@ -148,7 +148,7 @@ export default function DashboardClient({ photographer: initial, user, messages:
             <h1 className="text-xl font-black text-gray-900">{photographer.business_name}</h1>
             <p className="text-sm text-gray-400">{user.email}</p>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto flex flex-col items-end gap-1">
             <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
               photographer.membership_tier === "premium" ? "bg-yellow-100 text-yellow-700" :
               photographer.membership_tier === "plus" ? "bg-blue-100 text-blue-700" :
@@ -156,6 +156,11 @@ export default function DashboardClient({ photographer: initial, user, messages:
             }`}>
               {photographer.membership_tier?.toUpperCase() || "FREE"}
             </span>
+            {photographer.subscription_cancel_at && (
+              <span className="text-xs text-orange-500 font-medium">
+                Loopt af {new Date(photographer.subscription_cancel_at).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" })}
+              </span>
+            )}
           </div>
         </div>
 
@@ -372,6 +377,13 @@ export default function DashboardClient({ photographer: initial, user, messages:
         {/* Instellingen tab */}
         {activeTab === "instellingen" && (
           <div className="space-y-6">
+            {/* Opzegging melding */}
+            {photographer.subscription_cancel_at && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-sm text-orange-700">
+                Je membership loopt af op <strong>{new Date(photographer.subscription_cancel_at).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" })}</strong>. Tot die datum heb je nog volledige toegang. Je kunt je abonnement heractiveren via &ldquo;Beheer abonnement&rdquo;.
+              </div>
+            )}
+
             {/* Membership kaarten */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <MembershipCard

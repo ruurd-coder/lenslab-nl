@@ -52,10 +52,14 @@ export async function POST(request: Request) {
       if (photographerId) {
         const updates: any = { stripe_subscription_status: sub.status };
         if (tier) updates.membership_tier = tier;
-        if (sub.status === "active") {
-          // blijft actief
-        } else if (["canceled", "unpaid", "past_due"].includes(sub.status)) {
+        if (sub.cancel_at_period_end && sub.cancel_at) {
+          updates.subscription_cancel_at = new Date(sub.cancel_at * 1000).toISOString();
+        } else {
+          updates.subscription_cancel_at = null;
+        }
+        if (["canceled", "unpaid", "past_due"].includes(sub.status)) {
           updates.membership_tier = "free";
+          updates.subscription_cancel_at = null;
         }
         await supabase.from("photographers").update(updates).eq("id", photographerId);
       }
@@ -71,6 +75,7 @@ export async function POST(request: Request) {
           membership_tier: "free",
           stripe_subscription_id: null,
           stripe_subscription_status: "canceled",
+          subscription_cancel_at: null,
         }).eq("id", photographerId);
       }
       break;
