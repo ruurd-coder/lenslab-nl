@@ -73,7 +73,7 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
             </button>
 
             {open && (
-              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-30 w-72 bg-white border border-[#E9E7F0] rounded-2xl p-4">
+              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-30 w-72 bg-white border border-[#E9E7F0] rounded-2xl p-4">
                 <p className="text-sm font-semibold text-gray-900 mb-3">Verbeter je score</p>
                 {tips.length === 0 ? (
                   <p className="text-xs text-gray-400">Je profiel is volledig ingevuld!</p>
