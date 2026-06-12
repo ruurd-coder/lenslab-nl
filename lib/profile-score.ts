@@ -22,8 +22,8 @@ export function calcBreakdown(p: Photographer): ScoreBreakdown {
   const portfolioScore = Math.min(filled, 5) * 7;
 
   // Reviews
-  const ratingScore = Math.round((p.rating / 5) * 20);
-  const volumeScore = Math.min(p.review_count, 10);
+  const ratingScore = Math.round(((p.rating ?? 0) / 5) * 20);
+  const volumeScore = Math.min(p.review_count ?? 0, 10);
   const reviewsScore = ratingScore + volumeScore;
 
   // Links
