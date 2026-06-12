@@ -1079,7 +1079,7 @@ function OnboardingModal({ photographer, onComplete }: {
           </div>
           <h2 className="text-xl font-black text-gray-900 mt-3">Welkom bij LensLab! 👋</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Vul je basisprofiel in zodat merken jou kunnen vinden. Dit duurt minder dan 2 minuten.
+            Vul je basisgegevens in voor je profiel zodat opdrachtgevers jou kunnen vinden. Dit duurt minder dat 1 minuut.
           </p>
         </div>
 
