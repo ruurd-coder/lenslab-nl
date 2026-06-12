@@ -65,6 +65,9 @@ export async function POST(request: Request) {
         },
       },
       allow_promotion_codes: true,
+      billing_address_collection: "required",
+      tax_id_collection: { enabled: true },
+      automatic_tax: { enabled: true },
       locale: "nl",
     });
 
