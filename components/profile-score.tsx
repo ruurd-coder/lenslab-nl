@@ -9,15 +9,18 @@ const CIRCUMFERENCE = 2 * Math.PI * R;
 
 export default function ProfileScore({ photographer }: { photographer: Photographer }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   const bd = calcBreakdown(photographer);
   const tips = calcTips(bd);
-  const offset = CIRCUMFERENCE - (bd.total / 100) * CIRCUMFERENCE;
+  const pct = bd.totalMax > 0 ? bd.total / bd.totalMax : 0;
+  const offset = CIRCUMFERENCE - pct * CIRCUMFERENCE;
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -52,19 +55,25 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
               <span className="text-base font-bold text-gray-900">{bd.total}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1" ref={ref}>
+
+          {/* Label + info button */}
+          <div className="relative flex items-center gap-1" ref={tooltipRef}>
             <span className="text-xs text-gray-400">Profielscore</span>
             <button
+              type="button"
               onClick={() => setOpen((v) => !v)}
               className="text-green-500 hover:text-green-600 transition-colors leading-none"
               aria-label="Tips om je score te verbeteren"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
             </button>
+
             {open && (
-              <div className="absolute z-20 w-72 bg-white border border-[#E9E7F0] rounded-2xl p-4 mt-1" style={{ top: "calc(100% + 4px)", left: 0 }}>
+              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-30 w-72 bg-white border border-[#E9E7F0] rounded-2xl p-4">
                 <p className="text-sm font-semibold text-gray-900 mb-3">Verbeter je score</p>
                 {tips.length === 0 ? (
                   <p className="text-xs text-gray-400">Je profiel is volledig ingevuld!</p>
@@ -93,7 +102,10 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
               <div className="flex-1 h-1.5 rounded-full bg-[#E9E7F0]">
                 <div
                   className="h-1.5 rounded-full bg-[#7F77DD]"
-                  style={{ width: `${(row.score / row.max) * 100}%`, transition: "width 0.6s ease" }}
+                  style={{
+                    width: row.max > 0 ? `${(row.score / row.max) * 100}%` : "0%",
+                    transition: "width 0.6s ease",
+                  }}
                 />
               </div>
               <span className="text-xs font-medium text-gray-700 w-12 text-right">
