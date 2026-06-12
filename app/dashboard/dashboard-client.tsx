@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Photographer } from "@/lib/types";
 import { getMembership } from "@/lib/membership";
 import StatsDashboard from "@/components/stats-dashboard";
+import ProfileScore from "@/components/profile-score";
 import type { User } from "@supabase/supabase-js";
 import TrustpilotBar from "@/components/trustpilot-bar";
 
@@ -377,6 +378,9 @@ export default function DashboardClient({ photographer: initial, user, messages:
         {/* Instellingen tab */}
         {activeTab === "instellingen" && (
           <div className="space-y-6">
+            {/* Profielscore */}
+            <ProfileScore photographer={photographer} />
+
             {/* Opzegging melding */}
             {photographer.subscription_cancel_at && (
               <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-sm text-orange-700">

@@ -28,6 +28,8 @@ export interface Photographer {
   is_b2b: boolean;
   membership_tier: MembershipTier;
   subscription_cancel_at?: string | null;
+  profile_score: number;
+  last_review_at?: string | null;
   meta_title: string | null;
   meta_description: string | null;
   created_at: string;
