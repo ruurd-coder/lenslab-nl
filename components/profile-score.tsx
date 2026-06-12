@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import type { Photographer } from "@/lib/types";
 import { calcBreakdown, calcTips } from "@/lib/profile-score";
 
-const CIRCUMFERENCE = 2 * Math.PI * 48;
+const R = 32;
+const CIRCUMFERENCE = 2 * Math.PI * R;
 
 export default function ProfileScore({ photographer }: { photographer: Photographer }) {
   const [open, setOpen] = useState(false);
@@ -30,17 +31,17 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
   ];
 
   return (
-    <div className="bg-white rounded-3xl border border-[#E9E7F0] p-6">
-      <div className="flex items-start justify-between gap-4">
+    <div className="bg-white rounded-3xl border border-[#E9E7F0] p-5">
+      <div className="flex items-center gap-5">
 
-        {/* Donut */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="relative w-28 h-28">
-            <svg width="112" height="112" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)" }}>
-              <circle cx="60" cy="60" r="48" fill="none" stroke="#E9E7F0" strokeWidth="10" />
+        {/* Donut + label */}
+        <div className="flex flex-col items-center gap-1.5 shrink-0">
+          <div className="relative w-16 h-16">
+            <svg width="64" height="64" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)" }}>
+              <circle cx="40" cy="40" r={R} fill="none" stroke="#E9E7F0" strokeWidth="8" />
               <circle
-                cx="60" cy="60" r="48" fill="none"
-                stroke="#7F77DD" strokeWidth="10"
+                cx="40" cy="40" r={R} fill="none"
+                stroke="#7F77DD" strokeWidth="8"
                 strokeDasharray={CIRCUMFERENCE}
                 strokeDashoffset={offset}
                 strokeLinecap="round"
@@ -48,14 +49,44 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-gray-900">{bd.total}</span>
+              <span className="text-base font-bold text-gray-900">{bd.total}</span>
             </div>
           </div>
-          <span className="text-xs text-gray-400">Profielscore</span>
+          <div className="flex items-center gap-1" ref={ref}>
+            <span className="text-xs text-gray-400">Profielscore</span>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="text-green-500 hover:text-green-600 transition-colors leading-none"
+              aria-label="Tips om je score te verbeteren"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </button>
+            {open && (
+              <div className="absolute z-20 w-72 bg-white border border-[#E9E7F0] rounded-2xl p-4 mt-1" style={{ top: "calc(100% + 4px)", left: 0 }}>
+                <p className="text-sm font-semibold text-gray-900 mb-3">Verbeter je score</p>
+                {tips.length === 0 ? (
+                  <p className="text-xs text-gray-400">Je profiel is volledig ingevuld!</p>
+                ) : (
+                  <div className="space-y-2">
+                    {tips.map((tip, i) => (
+                      <div key={i} className="flex items-start justify-between gap-3">
+                        <span className="text-xs text-gray-600 leading-relaxed">{tip.text}</span>
+                        <span className="text-xs font-semibold text-[#7F77DD] bg-[#EEEDFE] px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                          +{tip.pts}pt
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Breakdown */}
-        <div className="flex-1 space-y-3 pt-1">
+        {/* Breakdown bars */}
+        <div className="flex-1 space-y-2">
           {rows.map((row) => (
             <div key={row.label} className="flex items-center gap-3">
               <span className="text-xs text-gray-500 w-32 shrink-0">{row.label}</span>
@@ -72,38 +103,6 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
           ))}
         </div>
 
-        {/* Info button */}
-        <div className="relative" ref={ref}>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="text-gray-400 hover:text-gray-600 transition-colors mt-1"
-            aria-label="Tips om je score te verbeteren"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </button>
-
-          {open && (
-            <div className="absolute right-0 top-7 z-20 w-72 bg-white border border-[#E9E7F0] rounded-2xl shadow-sm p-4">
-              <p className="text-sm font-semibold text-gray-900 mb-3">Verbeter je score</p>
-              {tips.length === 0 ? (
-                <p className="text-xs text-gray-400">Je profiel is volledig ingevuld!</p>
-              ) : (
-                <div className="space-y-2">
-                  {tips.map((tip, i) => (
-                    <div key={i} className="flex items-start justify-between gap-3">
-                      <span className="text-xs text-gray-600 leading-relaxed">{tip.text}</span>
-                      <span className="text-xs font-semibold text-[#7F77DD] bg-[#EEEDFE] px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
-                        +{tip.pts}pt
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

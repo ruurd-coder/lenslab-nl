@@ -189,6 +189,8 @@ export default function DashboardClient({ photographer: initial, user, messages:
 
         {/* Profiel tab */}
         {activeTab === "profiel" && (
+          <div className="space-y-4">
+          <ProfileScore photographer={photographer} />
           <div className="bg-white rounded-3xl border border-[#E9E7F0] p-8 space-y-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900 mb-5">Profielinformatie</h2>
@@ -340,28 +342,38 @@ export default function DashboardClient({ photographer: initial, user, messages:
               {saved && <span className="text-sm text-green-600 font-medium">✓ Opgeslagen</span>}
             </div>
           </div>
+          </div>
         )}
 
         {/* Portfolio tab */}
         {activeTab === "portfolio" && (
-          <PortfolioTab
-            photographer={photographer}
-            maxCategories={maxCategories}
-            activeCategories={activeCategories}
-            setActiveCategories={setActiveCategories}
-            setPhotographer={setPhotographer}
-            onUpgradeClick={() => setActiveTab("instellingen")}
-          />
+          <div className="space-y-4">
+            <ProfileScore photographer={photographer} />
+            <PortfolioTab
+              photographer={photographer}
+              maxCategories={maxCategories}
+              activeCategories={activeCategories}
+              setActiveCategories={setActiveCategories}
+              setPhotographer={setPhotographer}
+              onUpgradeClick={() => setActiveTab("instellingen")}
+            />
+          </div>
         )}
 
         {/* Statistieken tab */}
         {activeTab === "statistieken" && (
-          <StatsDashboard photographerId={photographer.id} membershipTier={photographer.membership_tier || "free"} />
+          <div className="space-y-4">
+            <ProfileScore photographer={photographer} />
+            <StatsDashboard photographerId={photographer.id} membershipTier={photographer.membership_tier || "free"} />
+          </div>
         )}
 
         {/* Reviews tab */}
         {activeTab === "reviews" && (
-          <ReviewInviteTab photographerId={photographer.id} photographerSlug={photographer.slug} />
+          <div className="space-y-4">
+            <ProfileScore photographer={photographer} />
+            <ReviewInviteTab photographerId={photographer.id} photographerSlug={photographer.slug} />
+          </div>
         )}
 
         {/* Berichten tab */}
