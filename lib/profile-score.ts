@@ -86,10 +86,10 @@ export function calcTips(bd: ScoreBreakdown): ScoreTip[] {
 
 export const SCORE_EXPLANATION = `Je profielscore bepaalt hoe hoog je verschijnt in zoekresultaten.
 
-📁 Portfolio (40%) — Voeg minimaal 5 foto's toe per actieve categorie. Hoe meer categorieën volledig gevuld, hoe hoger de score.
+📁 Portfolio (40%) Voeg minimaal 5 foto's toe per actieve categorie. Hoe meer categorieën volledig gevuld, hoe hoger de score.
 
-⭐ Reviews (25%) — Elke review telt voor 5%. Met 5 reviews bereik je de maximale score.
+⭐ Reviews (25%) Elke review telt voor 5%. Met 5 reviews bereik je de maximale score.
 
-🔗 Profiel links (20%) — Vul je website, Instagram en LinkedIn in.
+🔗 Profiel links (20%) Vul je website, Instagram en LinkedIn in.
 
-🔄 Recente activiteit (15%) — Voeg maandelijks foto's toe of ontvang een review. Doe je een maand niets, dan daalt deze score met 5%.`;
+🔄 Recente activiteit (15%) Voeg maandelijks foto's toe of ontvang een review. Doe je een maand niets, dan daalt deze score met 5%.`;
