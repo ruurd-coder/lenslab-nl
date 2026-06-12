@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       if (photographerId) {
         const updates: any = { stripe_subscription_status: sub.status };
         if (tier) updates.membership_tier = tier;
-        if (sub.cancel_at_period_end && sub.cancel_at) {
+        if (sub.cancel_at) {
           updates.subscription_cancel_at = new Date(sub.cancel_at * 1000).toISOString();
         } else {
           updates.subscription_cancel_at = null;
