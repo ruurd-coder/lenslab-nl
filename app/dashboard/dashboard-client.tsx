@@ -553,14 +553,14 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
           <span className="text-xs text-gray-400">{activeCategories.length}/{maxCategories} geselecteerd</span>
         </div>
         <p className="text-sm text-gray-500 mb-5">
-          Selecteer de categorieën waarvoor je geboekt wilt worden. Sleep om de volgorde aan te passen — de eerste staat bovenaan je profiel.
+          Selecteer de categorieën waarvoor je geboekt wilt worden. Sleep om de volgorde aan te passen, de eerste staat bovenaan je profiel.
           {maxCategories < 8 && <> Wil je meer? <button onClick={onUpgradeClick} className="underline">Upgrade je account</button>.</>}
         </p>
 
         {/* Geselecteerde categorieën — sleepbaar */}
         {activeCategories.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Geselecteerd — sleep om volgorde aan te passen</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Geselecteerd, sleep om volgorde aan te passen</p>
             <div className="flex flex-wrap gap-2">
               {activeCategories.map((cat, i) => (
                 <div
