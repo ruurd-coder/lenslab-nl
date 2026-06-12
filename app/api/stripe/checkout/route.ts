@@ -68,6 +68,7 @@ export async function POST(request: Request) {
       billing_address_collection: "required",
       tax_id_collection: { enabled: true },
       automatic_tax: { enabled: true },
+      customer_update: { address: "auto", name: "auto" },
       locale: "nl",
     });
 
