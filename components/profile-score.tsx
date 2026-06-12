@@ -109,7 +109,7 @@ export default function ProfileScore({ photographer }: { photographer: Photograp
                   }}
                 />
               </div>
-              <span className="text-xs font-medium text-gray-700 w-16 text-right">
+              <span className="text-[10px] text-gray-400 w-16 text-right">
                 {row.pct}% / {row.maxPct}%
               </span>
             </div>
