@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/admin";
+import { Resend } from "resend";
+import { welcomeEmailHtml } from "@/lib/emails";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -55,6 +57,16 @@ export async function GET(request: Request) {
                 type: "fotograaf",
                 is_published: false,
               });
+
+              // Welcome email — fire-and-forget, don't block auth
+              const resend = new Resend(process.env.RESEND_API_KEY);
+              const firstName = businessName.split(" ")[0];
+              resend.emails.send({
+                from: "LensLab <noreply@lenslab.nl>",
+                to: user.email,
+                subject: "Welkom bij LensLab!",
+                html: welcomeEmailHtml(firstName),
+              }).catch(() => {});
             }
           }
         }

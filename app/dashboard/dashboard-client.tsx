@@ -43,8 +43,8 @@ export default function DashboardClient({ photographer: initial, user, messages:
   const [activeTab, setActiveTab] = useState<Tab>("profiel");
   const [messages, setMessages] = useState<ContactMessage[]>(initialMessages);
   const [saving, setSaving] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(!initial.is_published);
-  const [showPortfolioPrompt, setShowPortfolioPrompt] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(!initial.is_published && !initial.contact_name);
+  const [showLiveNotification, setShowLiveNotification] = useState(false);
   const maxCategories = TIER_LIMITS[photographer.membership_tier] || 1;
   // Normaliseer naar canonieke casing uit ALL_CATEGORIES (case-insensitive match)
   const normalizeCategory = (cat: string) =>
@@ -84,6 +84,7 @@ export default function DashboardClient({ photographer: initial, user, messages:
       setPhotographer(data as Photographer);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+      await checkAndPublish(data as Photographer);
     }
     setSaving(false);
   };
@@ -91,6 +92,27 @@ export default function DashboardClient({ photographer: initial, user, messages:
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/";
+  };
+
+  const checkAndPublish = async (updated: Photographer) => {
+    if (updated.is_published) return;
+    const hasName = !!updated.business_name?.trim();
+    const hasCategory = (updated.specialties || []).length >= 1;
+    const hasRegion = (updated.regions || []).length >= 1;
+    const totalPhotos = Object.values(updated.portfolio_by_category || {})
+      .reduce((s, imgs) => s + (Array.isArray(imgs) ? imgs.length : 0), 0);
+    if (!hasName || !hasCategory || !hasRegion || totalPhotos < 1) return;
+    const { data } = await supabase
+      .from("photographers")
+      .update({ is_published: true })
+      .eq("id", updated.id)
+      .select()
+      .single();
+    if (data) {
+      setPhotographer(data as Photographer);
+      setShowLiveNotification(true);
+      setTimeout(() => setShowLiveNotification(false), 6000);
+    }
   };
 
   const unreadCount = messages.filter((m) => !m.is_read).length;
@@ -164,6 +186,56 @@ export default function DashboardClient({ photographer: initial, user, messages:
             )}
           </div>
         </div>
+
+        {/* Live progress banner — alleen zichtbaar als nog niet gepubliceerd */}
+        {!photographer.is_published && (
+          <div className="mb-6 bg-white rounded-2xl border border-[#E9E7F0] p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse inline-block"></span>
+              <p className="text-sm font-semibold text-gray-800">Je profiel is nog niet live — vul het volgende in:</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Bedrijfsnaam", done: !!photographer.business_name?.trim(), tab: "profiel" as const },
+                { label: "1 categorie", done: (photographer.specialties || []).length >= 1, tab: "portfolio" as const },
+                { label: "1 werkgebied", done: (photographer.regions || []).length >= 1, tab: "portfolio" as const },
+                {
+                  label: "1 foto",
+                  done: Object.values(photographer.portfolio_by_category || {}).reduce((s, imgs) => s + (Array.isArray(imgs) ? imgs.length : 0), 0) >= 1,
+                  tab: "portfolio" as const,
+                },
+              ].map(({ label, done, tab }) => (
+                <button
+                  key={label}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl border transition-colors text-left ${
+                    done
+                      ? "border-green-200 bg-green-50 text-green-700"
+                      : "border-[#E9E7F0] bg-[#FCFAFF] text-gray-500 hover:border-gray-300"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
+                    done ? "bg-green-500 text-white" : "bg-gray-200 text-gray-400"
+                  }`}>
+                    {done ? "✓" : ""}
+                  </span>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Live notificatie */}
+        {showLiveNotification && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-2xl p-5 flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="text-sm font-semibold text-green-800">Je profiel staat nu live!</p>
+              <p className="text-sm text-green-700">Opdrachtgevers kunnen je nu vinden op LensLab.</p>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-[#E9E7F0] rounded-full p-1 mb-8 overflow-x-auto max-w-full">
@@ -356,6 +428,7 @@ export default function DashboardClient({ photographer: initial, user, messages:
               setActiveCategories={setActiveCategories}
               setPhotographer={setPhotographer}
               onUpgradeClick={() => setActiveTab("instellingen")}
+              onCheckPublish={checkAndPublish}
             />
           </div>
         )}
@@ -475,18 +548,10 @@ export default function DashboardClient({ photographer: initial, user, messages:
               ...f,
               business_name: updated.business_name || "",
               contact_name: updated.contact_name || "",
-              bio: updated.bio || "",
             }));
             setShowOnboarding(false);
-            setShowPortfolioPrompt(true);
+            setActiveTab("portfolio");
           }}
-        />
-      )}
-
-      {showPortfolioPrompt && (
-        <PortfolioPromptModal
-          onClose={() => { setShowPortfolioPrompt(false); setActiveTab("portfolio"); }}
-          onDismiss={() => setShowPortfolioPrompt(false)}
         />
       )}
     </div>
@@ -501,13 +566,14 @@ const ALL_PROVINCES = [
   "Limburg", "Drenthe", "Flevoland", "Zeeland",
 ];
 
-function PortfolioTab({ photographer, maxCategories, activeCategories, setActiveCategories, setPhotographer, onUpgradeClick }: {
+function PortfolioTab({ photographer, maxCategories, activeCategories, setActiveCategories, setPhotographer, onUpgradeClick, onCheckPublish }: {
   photographer: Photographer;
   maxCategories: number;
   activeCategories: string[];
   setActiveCategories: React.Dispatch<React.SetStateAction<string[]>>;
   setPhotographer: React.Dispatch<React.SetStateAction<Photographer>>;
   onUpgradeClick: () => void;
+  onCheckPublish: (p: Photographer) => Promise<void>;
 }) {
   const supabase = createClient();
   const membership = getMembership(photographer.membership_tier as any);
@@ -538,10 +604,12 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
   const saveRegions = async () => {
     setSavingRegions(true);
     await supabase.from("photographers").update({ regions: activeRegions }).eq("id", photographer.id);
+    const updated = { ...photographer, regions: activeRegions };
     setPhotographer((prev) => ({ ...prev, regions: activeRegions }));
     setSavedRegions(true);
     setTimeout(() => setSavedRegions(false), 2000);
     setSavingRegions(false);
+    await onCheckPublish(updated);
   };
 
   return (
@@ -623,10 +691,12 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
             onClick={async () => {
               setSavingCats(true);
               await supabase.from("photographers").update({ specialties: activeCategories }).eq("id", photographer.id);
+              const updated = { ...photographer, specialties: activeCategories };
               setPhotographer((prev) => ({ ...prev, specialties: activeCategories }));
               setSavedCats(true);
               setTimeout(() => setSavedCats(false), 2000);
               setSavingCats(false);
+              await onCheckPublish(updated);
             }}
             disabled={savingCats}
             className="bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 font-medium"
@@ -707,6 +777,12 @@ function PortfolioTab({ photographer, maxCategories, activeCategories, setActive
                   await supabase.from("photographers").update({ hero_image_url: url }).eq("id", photographer.id);
                   setPhotographer((prev) => ({ ...prev, hero_image_url: url }));
                 }}
+                onAfterUpload={() => {
+                  setPhotographer((prev) => {
+                    onCheckPublish(prev);
+                    return prev;
+                  });
+                }}
               />
             ))}
           </div>
@@ -729,6 +805,7 @@ function SpecialtyUploader({
   heroImage,
   onUpdate,
   onSetHero,
+  onAfterUpload,
 }: {
   specialty: string;
   photographerId: string;
@@ -736,6 +813,7 @@ function SpecialtyUploader({
   heroImage: string | null;
   onUpdate: (images: string[]) => void;
   onSetHero: (url: string) => void;
+  onAfterUpload?: () => void;
 }) {
   const [images, setImages] = useState<string[]>(existingImages);
   const [uploading, setUploading] = useState(false);
@@ -785,8 +863,15 @@ function SpecialtyUploader({
     const updated = [...images, ...newUrls];
     setImages(updated);
     await saveImages(updated);
+
+    // Stel eerste foto automatisch in als hero als er nog geen hero is
+    if (!heroImage && images.length === 0 && newUrls.length > 0) {
+      onSetHero(newUrls[0]);
+    }
+
     setUploading(false);
     e.target.value = "";
+    onAfterUpload?.();
   };
 
   const handleDelete = async (url: string) => {
@@ -1026,29 +1111,10 @@ function OnboardingModal({ photographer, onComplete }: {
   const [form, setForm] = useState({
     business_name: photographer.business_name || "",
     contact_name: photographer.contact_name || "",
-    bio: photographer.bio || "",
   });
-  const [avatarUrl, setAvatarUrl] = useState(photographer.avatar_url || "");
   const [saving, setSaving] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const isComplete = form.business_name.trim() && form.contact_name.trim() && form.bio.trim() && avatarUrl;
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 1 * 1024 * 1024) { alert("Bestand is groter dan 1MB."); return; }
-    setUploadingAvatar(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${photographer.id}/avatar/avatar-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("photographer-assets").upload(path, file, { upsert: true });
-    if (!error) {
-      const { data } = supabase.storage.from("photographer-assets").getPublicUrl(path);
-      setAvatarUrl(data.publicUrl);
-    }
-    setUploadingAvatar(false);
-    e.target.value = "";
-  };
+  const isComplete = form.business_name.trim() && form.contact_name.trim();
 
   const handleSave = async () => {
     if (!isComplete) return;
@@ -1058,9 +1124,6 @@ function OnboardingModal({ photographer, onComplete }: {
       .update({
         business_name: form.business_name.trim(),
         contact_name: form.contact_name.trim(),
-        bio: form.bio.trim(),
-        avatar_url: avatarUrl,
-        is_published: true,
       })
       .eq("id", photographer.id)
       .select()
@@ -1069,45 +1132,42 @@ function OnboardingModal({ photographer, onComplete }: {
     if (data) onComplete(data as Photographer);
   };
 
+  const steps = [
+    { num: 1, label: "Bedrijfsnaam", sub: "hoe opdrachtgevers jou zien" },
+    { num: 2, label: "1 categorie", sub: "bijv. bruiloften, portret of zakelijk" },
+    { num: 3, label: "1 werkgebied", sub: "provincie of regio" },
+    { num: 4, label: "1 foto", sub: "wordt automatisch je Hero afbeelding" },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-[#E9E7F0]">
-          <div className="flex items-center gap-3 mb-2">
-            <Image src="/logo.png" alt="LensLab" width={90} height={24} className="h-6 w-auto" />
-          </div>
-          <h2 className="text-xl font-black text-gray-900 mt-3">Welkom bij LensLab! 👋</h2>
+          <Image src="/logo.png" alt="LensLab" width={90} height={24} className="h-6 w-auto mb-4" />
+          <h2 className="text-xl font-black text-gray-900">Welkom bij LensLab!</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Vul je basisgegevens in voor je profiel zodat opdrachtgevers jou kunnen vinden. Dit duurt minder dat 1 minuut.
+            Je profiel gaat automatisch live zodra je dit hebt ingevuld:
           </p>
         </div>
 
-        {/* Form */}
-        <div className="px-8 py-6 space-y-5">
-          {/* Profielfoto */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Profielfoto <span className="text-red-400">*</span>
-            </label>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-[#E9E7F0] shrink-0 flex items-center justify-center">
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Avatar" width={64} height={64} className="object-cover w-full h-full" />
-                ) : (
-                  <span className="text-2xl text-gray-400">📷</span>
-                )}
+        {/* Stappen */}
+        <div className="px-8 pt-5 pb-2">
+          <div className="grid grid-cols-2 gap-2 mb-5">
+            {steps.map(({ num, label, sub }) => (
+              <div key={num} className="flex items-start gap-2.5 bg-[#FCFAFF] rounded-xl p-3 border border-[#E9E7F0]">
+                <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold flex items-center justify-center shrink-0 mt-0.5">{num}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 leading-tight">{label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5 leading-tight">{sub}</p>
+                </div>
               </div>
-              <label className={`cursor-pointer inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full transition-colors font-medium ${
-                avatarUrl ? "bg-green-50 text-green-700 border border-green-200" : "bg-gray-900 text-white hover:bg-gray-700"
-              }`}>
-                {uploadingAvatar ? "Uploaden..." : avatarUrl ? "✓ Foto geüpload — wijzigen" : "Foto uploaden"}
-                <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
-              </label>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Bedrijfsnaam */}
+        {/* Form */}
+        <div className="px-8 pb-2 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               Bedrijfsnaam <span className="text-red-400">*</span>
@@ -1120,8 +1180,6 @@ function OnboardingModal({ photographer, onComplete }: {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
             />
           </div>
-
-          {/* Contactnaam */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               Jouw naam <span className="text-red-400">*</span>
@@ -1134,33 +1192,19 @@ function OnboardingModal({ photographer, onComplete }: {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF]"
             />
           </div>
-
-          {/* Bio */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Bio <span className="text-red-400">*</span>
-            </label>
-            <textarea
-              value={form.bio}
-              onChange={(e) => setForm({ ...form, bio: e.target.value })}
-              placeholder="Vertel iets over jezelf, je stijl en wat je het liefst fotografeert..."
-              rows={3}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-[#FCFAFF] resize-none"
-            />
-          </div>
         </div>
 
         {/* Footer */}
-        <div className="px-8 pb-8">
+        <div className="px-8 py-6">
           <button
             onClick={handleSave}
             disabled={!isComplete || saving}
             className="w-full bg-gray-900 text-white py-3.5 rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {saving ? "Profiel aanmaken..." : "Profiel aanmaken en publiceren →"}
+            {saving ? "Opslaan..." : "Begin met je profiel →"}
           </button>
           {!isComplete && (
-            <p className="text-xs text-gray-400 text-center mt-3">Vul alle velden in om door te gaan</p>
+            <p className="text-xs text-gray-400 text-center mt-3">Vul alle velden in om verder te gaan</p>
           )}
         </div>
       </div>
