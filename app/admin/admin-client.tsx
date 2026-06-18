@@ -220,7 +220,7 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
                       </td>
                       <td className="px-4 py-3 text-center font-mono text-gray-700">{a.impression || 0}</td>
                       <td className="px-4 py-3 text-center font-mono text-gray-700">{a.profile_click || 0}</td>
-                      <td className="px-4 py-3 text-center font-mono text-gray-700">{a.mail_click || 0}</td>
+                      <td className="px-4 py-3 text-center font-mono text-gray-700">{a.contact_request || 0}</td>
                       <td className="px-4 py-3 text-center font-mono text-gray-700">
                         {(a.instagram_click || 0) + (a.linkedin_click || 0) + (a.facebook_click || 0)}
                       </td>
