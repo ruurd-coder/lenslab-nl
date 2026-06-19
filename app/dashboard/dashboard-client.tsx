@@ -104,7 +104,7 @@ export default function DashboardClient({ photographer: initial, user, messages:
     if (!hasName || !hasCategory || !hasRegion || totalPhotos < 1) return;
     const { data } = await supabase
       .from("photographers")
-      .update({ is_published: true })
+      .update({ is_published: true, profile_status: "live" })
       .eq("id", updated.id)
       .select()
       .single();

@@ -25,6 +25,7 @@ export interface Photographer {
   review_count: number;
   is_verified: boolean;
   is_published: boolean;
+  profile_status: "concept" | "live" | "hidden";
   is_b2b: boolean;
   membership_tier: MembershipTier;
   subscription_cancel_at?: string | null;

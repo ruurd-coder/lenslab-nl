@@ -26,6 +26,7 @@ interface Photographer {
   city: string | null;
   membership_tier: string;
   is_published: boolean;
+  profile_status: "concept" | "live" | "hidden";
   rating: number;
   review_count: number;
   specialties: string[];
@@ -58,14 +59,19 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
         !p.email?.toLowerCase().includes(search.toLowerCase()) &&
         !p.city?.toLowerCase().includes(search.toLowerCase())) return false;
     if (tierFilter && p.membership_tier !== tierFilter) return false;
-    if (publishFilter === "published" && !p.is_published) return false;
-    if (publishFilter === "unpublished" && p.is_published) return false;
+    if (publishFilter === "live" && p.profile_status !== "live") return false;
+    if (publishFilter === "hidden" && p.profile_status !== "hidden") return false;
+    if (publishFilter === "concept" && p.profile_status !== "concept") return false;
     return true;
   });
 
-  const handleTogglePublish = async (id: string, current: boolean) => {
+  const handleTogglePublish = async (id: string, currentStatus: "concept" | "live" | "hidden") => {
     setUpdating(id);
-    await supabase.from("photographers").update({ is_published: !current }).eq("id", id);
+    const isLive = currentStatus === "live";
+    await supabase.from("photographers").update({
+      is_published: !isLive,
+      profile_status: isLive ? "hidden" : "live",
+    }).eq("id", id);
     setUpdating(null);
     window.location.reload();
   };
@@ -85,7 +91,8 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
   // Totale stats
   const totalImpressions = Object.values(analyticsMap).reduce((sum, a) => sum + (a.impression || 0), 0);
   const totalClicks = Object.values(analyticsMap).reduce((sum, a) => sum + (a.profile_click || 0), 0);
-  const published = photographers.filter((p) => p.is_published).length;
+  const published = photographers.filter((p) => p.profile_status === "live").length;
+  const concept = photographers.filter((p) => p.profile_status === "concept").length;
   const unreadMessages = messages.filter((m) => !m.is_read).length;
 
   return (
@@ -110,10 +117,11 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats overzicht */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {[
             { label: "Totaal beeldmakers", value: photographers.length },
-            { label: "Gepubliceerd", value: published },
+            { label: "Live", value: published },
+            { label: "Concept", value: concept },
             { label: "Totaal impressies", value: totalImpressions.toLocaleString() },
             { label: "Totaal profielclicks", value: totalClicks.toLocaleString() },
           ].map((s) => (
@@ -168,8 +176,9 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
           <select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}
             className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-[#FCFAFF] focus:outline-none cursor-pointer text-gray-700">
             <option value="">Alle statussen</option>
-            <option value="published">Gepubliceerd</option>
-            <option value="unpublished">Niet gepubliceerd</option>
+            <option value="live">Live</option>
+            <option value="hidden">Verborgen</option>
+            <option value="concept">Concept</option>
           </select>
           <span className="text-sm text-gray-400">{filtered.length} van {photographers.length}</span>
         </div>
@@ -226,19 +235,25 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
                       </td>
                       <td className="px-4 py-3 text-center font-mono text-gray-700">{a.website_click || 0}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${p.is_published ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-                          {p.is_published ? "Live" : "Verborgen"}
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                          p.profile_status === "live"    ? "bg-green-100 text-green-700" :
+                          p.profile_status === "concept" ? "bg-amber-100 text-amber-700" :
+                                                           "bg-red-100 text-red-600"
+                        }`}>
+                          {p.profile_status === "live" ? "Live" : p.profile_status === "concept" ? "Concept" : "Verborgen"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleTogglePublish(p.id, p.is_published)}
-                            disabled={updating === p.id}
-                            className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:border-gray-400 transition-colors disabled:opacity-50"
-                          >
-                            {p.is_published ? "Verbergen" : "Publiceren"}
-                          </button>
+                          {p.profile_status !== "concept" && (
+                            <button
+                              onClick={() => handleTogglePublish(p.id, p.profile_status)}
+                              disabled={updating === p.id}
+                              className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:border-gray-400 transition-colors disabled:opacity-50"
+                            >
+                              {p.profile_status === "live" ? "Verbergen" : "Publiceren"}
+                            </button>
+                          )}
                           <Link href={`/admin/photographer/${p.id}`}
                             className="text-xs border border-gray-900 bg-gray-900 text-white px-3 py-1.5 rounded-full hover:bg-gray-700 transition-colors">
                             Bewerk

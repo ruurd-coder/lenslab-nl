@@ -12,7 +12,7 @@ export default async function AdminPage() {
   // Haal alle fotografen op
   const { data: photographers } = await supabase
     .from("photographers")
-    .select("id, slug, business_name, contact_name, email, city, membership_tier, is_published, rating, review_count, specialties, created_at")
+    .select("id, slug, business_name, contact_name, email, city, membership_tier, is_published, profile_status, rating, review_count, specialties, created_at")
     .order("created_at", { ascending: false });
 
   // Analytics per fotograaf (gesommeerd)
