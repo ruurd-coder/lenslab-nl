@@ -38,12 +38,21 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
   }
 
-  // Delete the auth user if they have one
+  // Only delete the auth user if they have no lenslab.design (b2b) account.
+  // Both platforms share the same Supabase project, so the same auth.users table.
+  // Deleting an auth user who also has a `profiles` record would break their b2b access.
   if (photographer.user_id) {
-    const { error: authError } = await service.auth.admin.deleteUser(photographer.user_id);
-    if (authError) {
-      // Photographer record is already deleted; log but don't fail the request
-      console.error("Failed to delete auth user:", authError.message);
+    const { data: b2bProfile } = await service
+      .from("profiles")
+      .select("id")
+      .eq("id", photographer.user_id)
+      .maybeSingle();
+
+    if (!b2bProfile) {
+      const { error: authError } = await service.auth.admin.deleteUser(photographer.user_id);
+      if (authError) {
+        console.error("Failed to delete auth user:", authError.message);
+      }
     }
   }
 
