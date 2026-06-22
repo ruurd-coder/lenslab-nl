@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface ContactMessage {
@@ -278,9 +279,10 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
                           <button
                             onClick={() => handleDelete(p.id, p.business_name)}
                             disabled={updating === p.id}
-                            className="text-xs border border-red-200 text-red-500 px-3 py-1.5 rounded-full hover:bg-red-50 hover:border-red-400 transition-colors disabled:opacity-50"
+                            title="Verwijder account"
+                            className="border border-red-200 text-red-500 p-1.5 rounded-full hover:bg-red-50 hover:border-red-400 transition-colors disabled:opacity-50"
                           >
-                            Verwijder
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
