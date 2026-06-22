@@ -83,6 +83,19 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
     window.location.reload();
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Weet je zeker dat je "${name}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`)) return;
+    setUpdating(id);
+    const res = await fetch(`/api/admin/delete-photographer?id=${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const { error } = await res.json();
+      alert(`Verwijderen mislukt: ${error}`);
+      setUpdating(null);
+      return;
+    }
+    window.location.reload();
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/";
@@ -262,6 +275,13 @@ export default function AdminClient({ photographers, analyticsMap, adminEmail, m
                             className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:border-gray-400 transition-colors">
                             Bekijk →
                           </Link>
+                          <button
+                            onClick={() => handleDelete(p.id, p.business_name)}
+                            disabled={updating === p.id}
+                            className="text-xs border border-red-200 text-red-500 px-3 py-1.5 rounded-full hover:bg-red-50 hover:border-red-400 transition-colors disabled:opacity-50"
+                          >
+                            Verwijder
+                          </button>
                         </div>
                       </td>
                     </tr>
