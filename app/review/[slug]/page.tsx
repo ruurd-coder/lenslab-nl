@@ -16,7 +16,7 @@ export default async function ReviewPage({ params }: Props) {
     .from("photographers")
     .select("id, slug, business_name, contact_name, avatar_url, city")
     .eq("slug", slug)
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .single();
 
   if (!photographer) notFound();

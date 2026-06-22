@@ -47,7 +47,7 @@ export default async function CategoriePage({ params }: Props) {
   const { data } = await supabase
     .from("photographers")
     .select("*")
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .contains("specialties", [cat.name])
     .order("membership_tier", { ascending: false })
     .order("rating", { ascending: false });

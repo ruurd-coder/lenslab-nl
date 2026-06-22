@@ -50,7 +50,7 @@ async function getMonthlyAveragesForTier(
     .from("photographers")
     .select("id")
     .eq("membership_tier", tier)
-    .eq("is_published", true);
+    .eq("profile_status", "live");
 
   const ids = (photographers || []).map((p: { id: string }) => p.id);
   if (ids.length === 0) return empty;

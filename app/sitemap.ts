@@ -53,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data: photographers } = await service
       .from('photographers')
       .select('slug, updated_at')
-      .eq('is_published', true)
+      .eq('profile_status', 'live')
 
     photographerUrls = (photographers || []).map((p) => ({
       url: `${BASE}/beeldmakers/${p.slug}`,
@@ -81,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data: photographerRows } = await service
       .from('photographers')
       .select('regions')
-      .eq('is_published', true)
+      .eq('profile_status', 'live')
 
     const coveredProvinces = new Set(
       (photographerRows || []).flatMap((p) => (p.regions as string[]) || [])

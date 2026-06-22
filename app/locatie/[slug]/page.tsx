@@ -37,7 +37,7 @@ async function getPhotographers(region: { name: string; city: string | null; pro
   const { data } = await supabase
     .from("photographers")
     .select("*")
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .contains("regions", [provinceName])
     .order("membership_tier", { ascending: false })
     .order("rating", { ascending: false });

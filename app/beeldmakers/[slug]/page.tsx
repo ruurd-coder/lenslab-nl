@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props) {
     .from("photographers")
     .select("business_name, meta_title, meta_description, city, specialties, avatar_url, hero_image_url")
     .eq("slug", slug)
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .single();
 
   if (!data) return {};
@@ -56,7 +56,7 @@ export default async function PhotographerProfilePage({ params }: Props) {
     .from("photographers")
     .select("*")
     .eq("slug", slug)
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .single();
 
   if (!photographer) notFound();
@@ -74,7 +74,7 @@ export default async function PhotographerProfilePage({ params }: Props) {
   const { data: otherPhotographers } = await supabase
     .from("photographers")
     .select("id, slug, business_name, city, avatar_url")
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .neq("id", photographer.id)
     .order("rating", { ascending: false })
     .limit(8);

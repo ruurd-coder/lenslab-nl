@@ -30,7 +30,7 @@ export default async function BeeldmakersPage() {
   const { data } = await supabase
     .from("photographers")
     .select("*")
-    .eq("is_published", true)
+    .eq("profile_status", "live")
     .order("membership_tier", { ascending: false })
     .order("rating", { ascending: false });
 
