@@ -168,12 +168,12 @@ export default function SiteNav() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</Link>
-            <Link href="/aanmelden" className="text-sm bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Get Started</Link>
+            <Link href="/aanmelden" className="text-sm bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Start hier</Link>
           </div>
 
           {/* Mobile: CTA + hamburger */}
           <div className="flex md:hidden items-center gap-3">
-            <Link href="/aanmelden" className="text-xs bg-gray-900 text-white px-4 py-2 rounded-full font-medium">Get Started</Link>
+            <Link href="/aanmelden" className="text-xs bg-gray-900 text-white px-4 py-2 rounded-full font-medium">Start hier</Link>
             <button onClick={() => setMobileOpen(!mobileOpen)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Menu">
               {mobileOpen ? (
                 <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
