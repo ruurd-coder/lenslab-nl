@@ -16,12 +16,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const COLUMNS = [
-  { items: [{ type: "image", src: "/showcase/grid-1-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-1-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-1-3.mp4" }], animation: "scroll-up 30s linear infinite", mobile: true },
-  { items: [{ type: "image", src: "/showcase/grid-2-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-2-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-2-3.mp4" }], animation: "scroll-down 34s linear infinite", mobile: true },
-  { items: [{ type: "image", src: "/showcase/grid-3-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-3-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-3-3.mp4" }], animation: "scroll-up 38s linear infinite", mobile: true },
-  { items: [{ type: "image", src: "/showcase/grid-4-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-4-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-4-3.mp4" }], animation: "scroll-down 42s linear infinite", mobile: false },
-  { items: [{ type: "image", src: "/showcase/grid-5-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-5-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-5-3.mp4" }], animation: "scroll-up 46s linear infinite", mobile: false },
-  { items: [{ type: "image", src: "/showcase/grid-6-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-6-2.webp", ar: "2/3" }, { type: "video", src: "/showcase/grid-6-3.mp4" }], animation: "scroll-down 50s linear infinite", mobile: false },
+  { items: [{ type: "image", src: "/showcase/grid-1-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-1-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-1-3.webp", ar: "1/1" }], animation: "scroll-up 30s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-2-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-2-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-2-3.webp", ar: "1/1" }], animation: "scroll-down 34s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-3-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-3-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-3-3.webp", ar: "1/1" }], animation: "scroll-up 38s linear infinite", mobile: true },
+  { items: [{ type: "image", src: "/showcase/grid-4-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-4-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-4-3.webp", ar: "1/1" }], animation: "scroll-down 42s linear infinite", mobile: false },
+  { items: [{ type: "image", src: "/showcase/grid-5-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-5-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-5-3.webp", ar: "1/1" }], animation: "scroll-up 46s linear infinite", mobile: false },
+  { items: [{ type: "image", src: "/showcase/grid-6-1.webp", ar: "1/1" }, { type: "image", src: "/showcase/grid-6-2.webp", ar: "2/3" }, { type: "image", src: "/showcase/grid-6-3.webp", ar: "1/1" }], animation: "scroll-down 50s linear infinite", mobile: false },
 ];
 
 export default function ChoicePage() {
