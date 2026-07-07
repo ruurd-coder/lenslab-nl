@@ -73,8 +73,17 @@ function useDropdown() {
 export default function SiteNav() {
   const locaties = useDropdown();
   const gelegenheid = useDropdown();
+  const creators = useDropdown();
+  const companies = useDropdown();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<"locaties" | "gelegenheid" | null>(null);
+
+  const closeAllDropdowns = () => {
+    locaties.setOpen(false);
+    gelegenheid.setOpen(false);
+    creators.setOpen(false);
+    companies.setOpen(false);
+  };
 
   const closeMobile = () => { setMobileOpen(false); setMobileSection(null); };
 
@@ -98,7 +107,7 @@ export default function SiteNav() {
             {/* Locaties */}
             <div ref={locaties.ref} className="relative">
               <button
-                onClick={() => { locaties.setOpen(!locaties.open); gelegenheid.setOpen(false); }}
+                onClick={() => { const next = !locaties.open; closeAllDropdowns(); locaties.setOpen(next); }}
                 className={`flex items-center gap-1 text-sm transition-colors ${locaties.open ? "text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
               >
                 Locaties
@@ -134,7 +143,7 @@ export default function SiteNav() {
             {/* Gelegenheid */}
             <div ref={gelegenheid.ref} className="relative">
               <button
-                onClick={() => { gelegenheid.setOpen(!gelegenheid.open); locaties.setOpen(false); }}
+                onClick={() => { const next = !gelegenheid.open; closeAllDropdowns(); gelegenheid.setOpen(next); }}
                 className={`flex items-center gap-1 text-sm transition-colors ${gelegenheid.open ? "text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
               >
                 Gelegenheid
@@ -166,14 +175,50 @@ export default function SiteNav() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</Link>
-            <Link href="/aanmelden" className="text-sm bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Get Started</Link>
+          <div className="hidden md:flex items-center gap-2.5">
+            {/* Creators */}
+            <div ref={creators.ref} className="relative">
+              <button
+                onClick={() => { const next = !creators.open; closeAllDropdowns(); creators.setOpen(next); }}
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-full px-4 py-2 hover:border-gray-500 transition-colors"
+              >
+                Creators
+                <svg className={`w-3.5 h-3.5 transition-transform ${creators.open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {creators.open && (
+                <div className="absolute top-full right-0 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-4 w-[220px] z-50 flex flex-col gap-2.5">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">For photographers &amp; creators</p>
+                  <a href="https://www.lenslab.nl/login" onClick={() => creators.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</a>
+                  <a href="https://www.lenslab.nl/aanmelden" onClick={() => creators.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Create a profile</a>
+                </div>
+              )}
+            </div>
+
+            {/* Companies */}
+            <div ref={companies.ref} className="relative">
+              <button
+                onClick={() => { const next = !companies.open; closeAllDropdowns(); companies.setOpen(next); }}
+                className="flex items-center gap-1.5 text-sm font-medium text-white bg-gray-900 rounded-full px-4 py-2 hover:bg-gray-700 transition-colors"
+              >
+                Companies
+                <svg className={`w-3.5 h-3.5 transition-transform ${companies.open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {companies.open && (
+                <div className="absolute top-full right-0 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-4 w-[220px] z-50 flex flex-col gap-2.5">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">For brands &amp; teams</p>
+                  <a href="https://lenslab.tech/login" onClick={() => companies.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</a>
+                  <a href="https://lenslab.tech/signup" onClick={() => companies.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Get started</a>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Mobile: CTA + hamburger */}
+          {/* Mobile: hamburger */}
           <div className="flex md:hidden items-center gap-3">
-            <Link href="/aanmelden" className="text-xs bg-gray-900 text-white px-4 py-2 rounded-full font-medium">Get Started</Link>
             <button onClick={() => setMobileOpen(!mobileOpen)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Menu">
               {mobileOpen ? (
                 <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,12 +253,22 @@ export default function SiteNav() {
                   Alle fotografen
                 </Link>
                 <div className="border-t border-[#E9E7F0] my-3" />
-                <Link href="/login" onClick={closeMobile} className="flex items-center px-4 py-3.5 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
-                  Inloggen
-                </Link>
-                <Link href="/aanmelden" onClick={closeMobile} className="flex items-center justify-center px-4 py-3.5 rounded-xl bg-gray-900 text-white font-medium text-sm mt-2">
-                  Aanmelden als beeldmaker
-                </Link>
+
+                <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Creators</p>
+                <a href="https://www.lenslab.nl/login" onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
+                  Login
+                </a>
+                <a href="https://www.lenslab.nl/aanmelden" onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl border border-gray-300 text-gray-800 font-medium text-sm">
+                  Create a profile
+                </a>
+
+                <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5 mt-4">Companies</p>
+                <a href="https://lenslab.tech/login" onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
+                  Login
+                </a>
+                <a href="https://lenslab.tech/signup" onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-900 text-white font-medium text-sm">
+                  Get started
+                </a>
               </>
             ) : mobileSection === "locaties" ? (
               <>
