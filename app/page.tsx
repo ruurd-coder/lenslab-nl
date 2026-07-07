@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import TrustpilotBar from "@/components/trustpilot-bar";
+import AudienceCtas from "@/components/audience-ctas";
 import { getPageSeoOverrides } from "@/lib/seo-overrides";
 
 export const revalidate = 3600;
@@ -27,12 +28,13 @@ const COLUMNS = [
 export default function ChoicePage() {
   return (
     <div className="min-h-screen bg-[#FCFAFF] overflow-hidden">
-      {/* Alleen logo — geen navigatie */}
+      {/* Alleen logo + audience-knoppen — geen verdere navigatie */}
       <div className="bg-[#FCFAFF] border-b border-[#E9E7F0]">
-        <div className="px-6 py-3.5 flex items-center max-w-7xl mx-auto">
+        <div className="px-6 py-3.5 flex items-center justify-between max-w-7xl mx-auto">
           <Link href="/">
             <Image src="/logo.png" alt="LensLab" width={120} height={32} className="h-8 w-auto" priority />
           </Link>
+          <AudienceCtas />
         </div>
       </div>
       <TrustpilotBar />
