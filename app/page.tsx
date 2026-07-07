@@ -34,7 +34,7 @@ export default function ChoicePage() {
           <Link href="/" className="shrink-0">
             <Image src="/logo.png" alt="LensLab" width={120} height={32} className="h-6 md:h-8 w-auto" priority />
           </Link>
-          <AudienceCtas />
+          <AudienceCtas lang="en" />
         </div>
       </div>
       <TrustpilotBar />

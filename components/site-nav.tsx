@@ -173,7 +173,7 @@ export default function SiteNav() {
 
           {/* Desktop CTA */}
           <div className="hidden md:block">
-            <AudienceCtas />
+            <AudienceCtas lang="nl" />
           </div>
 
           {/* Mobile: hamburger */}
