@@ -215,18 +215,18 @@ export default function SiteNav() {
 
                 <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Creators</p>
                 <a href="https://www.lenslab.nl/login" onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
-                  Login
+                  Inloggen
                 </a>
                 <a href="https://www.lenslab.nl/aanmelden" onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl border border-gray-300 text-gray-800 font-medium text-sm">
-                  Create a profile
+                  Maak een profiel
                 </a>
 
                 <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5 mt-4">Companies</p>
                 <a href="https://lenslab.tech/login" onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
-                  Login
+                  Inloggen
                 </a>
                 <a href="https://lenslab.tech/signup" onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-900 text-white font-medium text-sm">
-                  Get started
+                  Start hier
                 </a>
               </>
             ) : mobileSection === "locaties" ? (

@@ -37,9 +37,9 @@ export default function AudienceCtas() {
         </button>
         {creators.open && (
           <div className="absolute top-full right-0 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-4 w-[220px] z-50 flex flex-col gap-2.5">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">For photographers &amp; creators</p>
-            <a href="https://www.lenslab.nl/login" onClick={() => creators.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</a>
-            <a href="https://www.lenslab.nl/aanmelden" onClick={() => creators.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Create a profile</a>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Voor fotografen &amp; creators</p>
+            <a href="https://www.lenslab.nl/login" onClick={() => creators.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Inloggen</a>
+            <a href="https://www.lenslab.nl/aanmelden" onClick={() => creators.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Maak een profiel</a>
           </div>
         )}
       </div>
@@ -57,9 +57,9 @@ export default function AudienceCtas() {
         </button>
         {companies.open && (
           <div className="absolute top-full right-0 mt-3 bg-white rounded-2xl shadow-xl border border-[#E9E7F0] p-4 w-[220px] z-50 flex flex-col gap-2.5">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">For brands &amp; teams</p>
-            <a href="https://lenslab.tech/login" onClick={() => companies.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Login</a>
-            <a href="https://lenslab.tech/signup" onClick={() => companies.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Get started</a>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Voor bedrijven en teams</p>
+            <a href="https://lenslab.tech/login" onClick={() => companies.setOpen(false)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Inloggen</a>
+            <a href="https://lenslab.tech/signup" onClick={() => companies.setOpen(false)} className="text-sm bg-gray-900 text-white text-center px-4 py-2 rounded-full hover:bg-gray-700 transition-colors font-medium">Start hier</a>
           </div>
         )}
       </div>
