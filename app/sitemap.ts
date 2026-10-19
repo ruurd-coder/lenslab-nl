@@ -22,6 +22,7 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: `${BASE}/beeldmakers`,               changeFrequency: 'daily',   priority: 0.9 },
   { url: `${BASE}/fotografen`,                changeFrequency: 'daily',   priority: 0.8 },
   { url: `${BASE}/blog`,                      changeFrequency: 'weekly',  priority: 0.8 },
+  { url: `${BASE}/jobs`,                      changeFrequency: 'weekly',  priority: 0.6 },
   { url: `${BASE}/locaties`,                  changeFrequency: 'monthly', priority: 0.7 },
   { url: `${BASE}/hoe-het-werkt`,             changeFrequency: 'monthly', priority: 0.7 },
   { url: `${BASE}/hoe-het-werkt-beeldmakers`, changeFrequency: 'monthly', priority: 0.7 },
