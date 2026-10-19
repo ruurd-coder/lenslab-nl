@@ -117,7 +117,7 @@ export default async function JobPage({ params }: Props) {
               <div className="space-y-5">
                 {job.description.split(/\n\s*\n/).map((para, i) => (
                   <p key={i}
-                    className="text-[16px] text-gray-700 leading-[1.75] whitespace-pre-line [&_strong]:font-bold [&_em]:italic [&_a]:text-[#530095] [&_a]:underline"
+                    className="text-[16px] text-gray-700 leading-[1.75] whitespace-pre-line [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_s]:line-through [&_a]:text-[#530095] [&_a]:underline [&_a:hover]:opacity-80"
                     dangerouslySetInnerHTML={{ __html: para }} />
                 ))}
               </div>
