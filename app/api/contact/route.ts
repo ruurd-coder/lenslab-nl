@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
         <span style="color: #444; line-height: 1.6; white-space: pre-wrap;">${message}</span></p>
         <hr style="border: 1px solid #E9E7F0; margin: 20px 0;" />
         <p>Je kunt direct reageren door een e-mail te sturen naar <a href="mailto:${senderEmail}" style="color: #111;">${senderEmail}</a>.</p>
-        <p>Alle aanvragen vind je ook terug in het dashboard van je LensLab-profiel. Log eenvoudig in via <a href="https://www.lenslab.nl/login" style="color: #111;">deze link</a>.</p>
+        <p>Alle aanvragen vind je ook terug in het dashboard van je LensLab-profiel. Log eenvoudig in via <a href="${SITE_URL}/login" style="color: #111;">deze link</a>.</p>
         <p>We hopen natuurlijk dat hier een mooie opdracht uit voortkomt.</p>
         <p>Heb je vragen? Stuur ons gerust een <a href="https://wa.me/31702042750" style="color: #111;">WhatsApp-bericht</a>, we helpen je graag verder.</p>
         <p>Succes!<br/><br/>Team LensLab</p>

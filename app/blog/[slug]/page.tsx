@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: data.meta_title || `${data.title} | LensLab`,
     description: data.meta_description || undefined,
     keywords: data.meta_keywords || undefined,
-    alternates: { canonical: `https://lenslab.nl/blog/${cleanSlug}` },
+    alternates: { canonical: `${SITE_URL}/blog/${cleanSlug}` },
     openGraph: {
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
     },

@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
 import BeeldmakersClient from "./beeldmakers-client";
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Vind een fotograaf of videograaf in Nederland | LensLab",
     description: ov?.meta_description || "Bekijk portfolio's van honderden fotografen en videografen door heel Nederland. Filter op regio, type en specialiteit en neem direct contact op.",
-    alternates: { canonical: "https://lenslab.nl/beeldmakers" },
+    alternates: { canonical: `${SITE_URL}/beeldmakers` },
   };
 }
 

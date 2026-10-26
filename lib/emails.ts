@@ -1,4 +1,5 @@
-const BASE_URL = "https://www.lenslab.nl";
+import { SITE_URL } from "@/lib/site-url";
+const BASE_URL = SITE_URL;
 
 const LOGO_SVG = `
   <table cellpadding="0" cellspacing="0" style="background:#0f0f0f;width:100%;border-radius:12px 12px 0 0;">

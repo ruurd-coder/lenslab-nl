@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Zo werkt LensLab voor beeldmakers | Meer aanvragen via LensLab",
     description: ov?.meta_description || "Maak een gratis profiel aan op LensLab en word gevonden door opdrachtgevers die bij jou passen. Ontvang directe aanvragen en vergroot je zichtbaarheid in heel Nederland.",
-    alternates: { canonical: "https://lenslab.nl/hoe-het-werkt-beeldmakers" },
+    alternates: { canonical: `${SITE_URL}/hoe-het-werkt-beeldmakers` },
   };
 }
 

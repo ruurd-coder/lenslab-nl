@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
           <h3>Bericht</h3>
           <p style="color:#444; line-height:1.6; white-space:pre-wrap;">${message}</p>
           <hr style="border:1px solid #E9E7F0; margin:16px 0;" />
-          <p style="color:#bbb; font-size:12px;">Verstuurd via <a href="https://lenslab.nl/help-support">LensLab Help & Support</a></p>
+          <p style="color:#bbb; font-size:12px;">Verstuurd via <a href="${SITE_URL}/help-support">LensLab Help & Support</a></p>
         </div>
       `,
     });

@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Alle fotografen en videografen in Nederland | LensLab",
     description: ov?.meta_description || "Bekijk alle professionele fotografen en videografen in Nederland. Zoek op naam, stad, specialiteit of type en vind de beeldmaker die perfect bij jouw opdracht past.",
-    alternates: { canonical: "https://lenslab.nl/fotografen" },
+    alternates: { canonical: `${SITE_URL}/fotografen` },
   };
 }
 

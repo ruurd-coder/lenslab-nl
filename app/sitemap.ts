@@ -1,9 +1,10 @@
+import { SITE_URL } from "@/lib/site-url";
 import type { MetadataRoute } from 'next'
 import { createServiceClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-const BASE = 'https://lenslab.nl'
+const BASE = SITE_URL
 
 const CATEGORY_SLUGS = [
   'drone-lucht', 'food-restaurant', 'afscheid', 'baby', 'evenementen',

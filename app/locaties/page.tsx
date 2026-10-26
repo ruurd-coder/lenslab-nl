@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
@@ -29,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Fotografen per provincie in Nederland | LensLab",
     description: ov?.meta_description || "Vind een professionele fotograaf of videograaf in jouw provincie. Bekijk aanbod per regio in alle 12 provincies van Nederland en neem direct contact op.",
-    alternates: { canonical: "https://lenslab.nl/locaties" },
+    alternates: { canonical: `${SITE_URL}/locaties` },
   };
 }
 

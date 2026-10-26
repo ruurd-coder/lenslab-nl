@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Memberships voor beeldmakers | Meer zichtbaarheid via LensLab",
     description: ov?.meta_description || "Kies het membership dat bij jouw ambities past als fotograaf of videograaf. Vergroot je zichtbaarheid, verschijn op meer locaties en ontvang meer aanvragen via LensLab.",
-    alternates: { canonical: "https://lenslab.nl/memberships" },
+    alternates: { canonical: `${SITE_URL}/memberships` },
   };
 }
 

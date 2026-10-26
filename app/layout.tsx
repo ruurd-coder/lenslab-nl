@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { Inter, DM_Sans } from "next/font/google";
 import "./globals.css";
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   },
   description:
     "Vind de beste fotografen en videografen in jouw regio. Bekijk portfolio's en neem direct contact op.",
-  metadataBase: new URL("https://www.lenslab.nl"),
+  metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png" },
