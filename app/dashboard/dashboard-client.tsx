@@ -1,4 +1,5 @@
 "use client";
+import { SITE_URL } from "@/lib/site-url";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -991,7 +992,7 @@ function ReviewInviteTab({ photographerId, photographerSlug }: { photographerId:
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const reviewUrl = `https://lenslab.nl/review/${photographerSlug}`;
+  const reviewUrl = `${SITE_URL}/review/${photographerSlug}`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(reviewUrl);

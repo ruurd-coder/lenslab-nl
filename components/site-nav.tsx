@@ -1,4 +1,5 @@
 "use client";
+import { SITE_URL } from "@/lib/site-url";
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -214,10 +215,10 @@ export default function SiteNav() {
                 <div className="border-t border-[#E9E7F0] my-3" />
 
                 <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Creators</p>
-                <a href="https://www.lenslab.nl/login" onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
+                <a href={`${SITE_URL}/login`} onClick={closeMobile} className="flex items-center px-4 py-3 rounded-xl hover:bg-[#E9E7F0] text-gray-600 text-sm transition-colors">
                   Inloggen
                 </a>
-                <a href="https://www.lenslab.nl/aanmelden" onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl border border-gray-300 text-gray-800 font-medium text-sm">
+                <a href={`${SITE_URL}/aanmelden`} onClick={closeMobile} className="flex items-center justify-center px-4 py-3 rounded-xl border border-gray-300 text-gray-800 font-medium text-sm">
                   Maak een profiel
                 </a>
 

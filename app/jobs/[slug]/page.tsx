@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${job.title} | Jobs bij LensLab`,
     description: job.intro || undefined,
-    alternates: { canonical: `https://lenslab.nl/jobs/${job.slug}` },
+    alternates: { canonical: `${SITE_URL}/jobs/${job.slug}` },
   }
 }
 
@@ -77,7 +78,7 @@ export default async function JobPage({ params }: Props) {
     description: [job.intro, job.description].filter(Boolean).join('\n\n') || job.title,
     datePosted: job.published_at ?? job.created_at,
     employmentType: job.employment_type ? EMPLOYMENT_SCHEMA[job.employment_type] : undefined,
-    hiringOrganization: { '@type': 'Organization', name: 'LensLab', sameAs: 'https://lenslab.nl' },
+    hiringOrganization: { '@type': 'Organization', name: 'LensLab', sameAs: SITE_URL },
     jobLocation: job.location
       ? { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: job.location, addressCountry: 'NL' } }
       : undefined,

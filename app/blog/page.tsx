@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Link from "next/link";
 import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Fotografie & Videografie Tips | LensLab Blog",
     description: ov?.meta_description || "Tips, inspiratie en nieuws over fotografie, videografie en het vinden van de juiste beeldmaker. Verse inzichten voor iedereen die gelooft in de kracht van sterke beelden.",
-    alternates: { canonical: "https://lenslab.nl/blog" },
+    alternates: { canonical: `${SITE_URL}/blog` },
   };
 }
 

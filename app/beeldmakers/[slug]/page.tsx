@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Photographer } from "@/lib/types";
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props) {
     title: data.meta_title || `${data.business_name} | LensLab`,
     description: data.meta_description ||
       `Bekijk het portfolio van ${data.business_name}${data.city ? ` in ${data.city}` : ""}. Gespecialiseerd in ${data.specialties?.slice(0, 2).join(", ")}.`,
-    alternates: { canonical: `https://www.lenslab.nl/beeldmakers/${slug}` },
+    alternates: { canonical: `${SITE_URL}/beeldmakers/${slug}` },
     openGraph: {
       siteName: 'LensLab',
       ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630 }] }),

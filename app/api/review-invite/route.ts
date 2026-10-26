@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -24,13 +25,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Fotograaf niet gevonden" }, { status: 404 });
     }
 
-    const reviewUrl = `https://lenslab.nl/review/${photographer.slug}`;
+    const reviewUrl = `${SITE_URL}/review/${photographer.slug}`;
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #FCFAFF; padding: 40px 32px; border-radius: 16px;">
-        <img src="https://lenslab.nl/logo.png" alt="LensLab" style="height: 32px; margin-bottom: 32px;" />
+        <img src="${SITE_URL}/logo.png" alt="LensLab" style="height: 32px; margin-bottom: 32px;" />
 
         <h2 style="color: #111; font-size: 22px; margin-bottom: 8px;">
           ${clientName ? `Hoi ${clientName},` : "Hoi,"}
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
 
         <hr style="border: 1px solid #E9E7F0; margin: 32px 0;" />
         <p style="color: #bbb; font-size: 12px;">
-          Deze uitnodiging is verstuurd via <a href="https://lenslab.nl" style="color: #bbb;">LensLab.nl</a>
+          Deze uitnodiging is verstuurd via <a href="${SITE_URL}" style="color: #bbb;">LensLab.nl</a>
         </p>
       </div>
     `;

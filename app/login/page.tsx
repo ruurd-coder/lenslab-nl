@@ -1,4 +1,5 @@
 "use client";
+import { SITE_URL } from "@/lib/site-url";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -21,7 +22,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `https://lenslab.nl/auth/callback`,
+        emailRedirectTo: `${SITE_URL}/auth/callback`,
       },
     });
 

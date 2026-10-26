@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import SiteNav from "@/components/site-nav";
@@ -64,7 +65,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: `Fotografen in ${name} | Vind de beste fotograaf in ${name}`,
     description: `Zoek je een professionele fotograaf in ${name}? Bekijk portfolio's van ${photographers.length} fotografen en videografen in ${name}. Direct contact opnemen via LensLab.`,
-    alternates: { canonical: `https://lenslab.nl/locatie/${slug}` },
+    alternates: { canonical: `${SITE_URL}/locatie/${slug}` },
   };
 }
 

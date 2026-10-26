@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import type { Metadata } from 'next'
 import { getPageSeoOverrides } from '@/lib/seo-overrides'
 
@@ -8,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || 'Over ons | LensLab',
     description: ov?.meta_description || 'Leer het team achter LensLab kennen. Wij verbinden opdrachtgevers met de beste fotografen en videografen in Nederland — geboren uit liefde voor sterk beeld.',
-    alternates: { canonical: 'https://lenslab.nl/over-ons' },
+    alternates: { canonical: `${SITE_URL}/over-ons` },
   }
 }
 

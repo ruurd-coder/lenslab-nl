@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createServiceClient } from '@/lib/supabase/server'
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Jobs bij LensLab | Werken bij LensLab',
   description: 'Openstaande vacatures bij LensLab. Bouw mee aan het platform waar opdrachtgevers en beeldmakers elkaar vinden.',
-  alternates: { canonical: 'https://lenslab.nl/jobs' },
+  alternates: { canonical: `${SITE_URL}/jobs` },
 }
 
 export default async function JobsPage() {

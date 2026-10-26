@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "LensLab | Vind de beste fotograaf of videograaf in Nederland",
     description: ov?.meta_description || "Ontdek honderden professionele fotografen en videografen in jouw regio. Bekijk portfolio's, filter op specialiteit en neem direct contact op via LensLab.",
-    alternates: { canonical: "https://lenslab.nl/" },
+    alternates: { canonical: `${SITE_URL}/` },
   };
 }
 

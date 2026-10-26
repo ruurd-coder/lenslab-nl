@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-url";
 import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: ov?.meta_title || "Zo werkt LensLab | Vind de perfecte fotograaf in 3 stappen",
     description: ov?.meta_description || "Ontdek hoe je via LensLab in een paar stappen de perfecte fotograaf of videograaf vindt. Zoek, vergelijk portfolio's en neem direct contact op — gratis.",
-    alternates: { canonical: "https://lenslab.nl/hoe-het-werkt" },
+    alternates: { canonical: `${SITE_URL}/hoe-het-werkt` },
   };
 }
 
